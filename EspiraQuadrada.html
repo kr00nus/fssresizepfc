@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Simulador FSS - Espira Quadrada (Fórmula TCC)</title>
+    <title>Simulador FSS - Espira Quadrada (Campos, 2008)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
       body {
@@ -120,15 +120,15 @@
         <div class="control-group">
           <div class="header-row">
             <label>Freq. Final (GHz)</label>
-            <input type="number" id="fEnd_num" value="5" step="0.5" />
+            <input type="number" id="fEnd_num" value="30" step="0.5" />
           </div>
           <input
             type="range"
             id="fEnd_slider"
-            min="3.5"
-            max="10"
+            min="5"
+            max="40"
             step="0.5"
-            value="5"
+            value="30"
           />
         </div>
 
@@ -138,15 +138,15 @@
         >
           <div class="header-row">
             <label>Período p (mm)</label>
-            <input type="number" id="p_num" value="1.20" step="0.01" />
+            <input type="number" id="p_num" value="5.00" step="0.01" />
           </div>
           <input
             type="range"
             id="p_slider"
-            min="0.5"
-            max="2.5"
+            min="1.0"
+            max="10.0"
             step="0.01"
-            value="1.20"
+            value="5.00"
           />
         </div>
 
@@ -156,30 +156,30 @@
         >
           <div class="header-row">
             <label>Tam. Espira d (mm)</label>
-            <input type="number" id="d_num" value="1.00" step="0.01" />
+            <input type="number" id="d_num" value="3.90" step="0.01" />
           </div>
           <input
             type="range"
             id="d_slider"
-            min="0.2"
-            max="2.4"
+            min="0.5"
+            max="9.9"
             step="0.01"
-            value="1.00"
+            value="3.90"
           />
         </div>
 
         <div class="control-group">
           <div class="header-row">
             <label>Largura Fita w (mm)</label>
-            <input type="number" id="w_num" value="0.10" step="0.01" />
+            <input type="number" id="w_num" value="0.20" step="0.01" />
           </div>
           <input
             type="range"
             id="w_slider"
             min="0.01"
-            max="0.5"
+            max="1.0"
             step="0.01"
-            value="0.10"
+            value="0.20"
           />
         </div>
 
@@ -192,7 +192,7 @@
             <input
               type="number"
               id="g_num"
-              value="0.20"
+              value="1.10"
               readonly
               style="background: #e9ecef; border: 1px solid #ced4da"
             />
@@ -201,8 +201,8 @@
 
         <div class="control-group">
           <div class="header-row">
-            <label>Dielétrico (er)</label>
-            <input type="number" id="er_num" value="3.0" step="0.01" />
+            <label>Dielétrico Efetivo (er)</label>
+            <input type="number" id="er_num" value="1.0" step="0.01" />
           </div>
           <input
             type="range"
@@ -210,14 +210,14 @@
             min="1.0"
             max="10.0"
             step="0.01"
-            value="3.0"
+            value="1.0"
           />
         </div>
       </div>
 
       <div class="visuals">
         <div class="panel">
-          <h2>Resposta de Transmissão (S21) - Modelo TCC</h2>
+          <h2>Resposta de Transmissão (S21) - Campos (2008)</h2>
           <div class="chart-container">
             <canvas id="fssChart"></canvas>
           </div>
@@ -229,7 +229,8 @@
             <canvas id="shapeCanvas" width="400" height="400"></canvas>
             <div class="geo-legend">
               <strong>Linha pontilhada:</strong> Limites do período (p x p)<br />
-              Formulação matemática espelhada nas Equações 18 e 19 do TCC.
+              Modelo equivalente rigoroso de Langley & Parker corrigido com
+              fator (d/p).
             </div>
           </div>
         </div>
@@ -443,6 +444,7 @@
         );
       }
 
+      // --- Formulação Rigorosa de Marcuvitz / Campos (2008) ---
       function calcTermF(period, width, lamb, ang) {
         const sinTerm = Math.sin((Math.PI * width) / (2 * period));
         if (sinTerm >= 1 || sinTerm <= 0) return 0;
@@ -482,8 +484,9 @@
 
         drawGeometry(p, d, w, g);
 
-        const df = 0.02;
+        const df = 0.05;
         const pCm = mmToCm(p);
+        const dCm = mmToCm(d);
         const wCm = mmToCm(w);
         const gCm = mmToCm(g);
 
@@ -492,14 +495,14 @@
 
         for (let freq = fStart; freq <= fEnd; freq += df) {
           const lamb = 30 / freq;
-          const ang = 0;
+          const ang = 0; // Incidência normal
 
           try {
-            // Equação 18 do TCC (Indutância baseada em w, sem o d/p)
-            const XL = calcTermF(pCm, wCm, lamb, ang) * Math.cos(ang);
-
-            // Equações 19 e 24 do TCC (Capacitância baseada em g, sem o d/p)
-            const BC = 4 * er * calcTermF(pCm, gCm, lamb, ang);
+            // CORREÇÃO 1: O livro usa o fator d/p multiplicando tudo.
+            // CORREÇÃO 2: A reatância indutiva depende do dobro da largura da fita (2w).
+            const XL =
+              (dCm / pCm) * calcTermF(pCm, 2 * wCm, lamb, ang) * Math.cos(ang);
+            const BC = 4 * er * (dCm / pCm) * calcTermF(pCm, gCm, lamb, ang);
 
             const ct = 1 / (XL - 1 / BC);
             const pt = 1 / (1 + 0.25 * Math.pow(ct, 2));
@@ -525,7 +528,7 @@
             labels: labels,
             datasets: [
               {
-                label: "Simulados (Espira Quadrada - TCC Eq 18 e 19)",
+                label: "Simulados (Livro Campos, 2008)",
                 data: data,
                 borderColor: "#000",
                 borderWidth: 2,
