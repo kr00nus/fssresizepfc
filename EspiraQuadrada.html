@@ -204,7 +204,7 @@
             <div class="geo-legend">
               <strong>Linha pontilhada:</strong> Limites do período (p x p)<br />
               <strong>Azul:</strong> Metalização (Fita)<br />
-              O desenho mantém a proporção real entre p, d e w.
+              As células ao redor mostram a periodicidade da espira.
             </div>
           </div>
         </div>
@@ -272,52 +272,72 @@
 
         ctx.clearRect(0, 0, size, size);
 
-        const scale = (size * 0.9) / p;
+        const viewSize = p * 2.2;
+        const scale = size / viewSize;
         const center = size / 2;
         const pPixel = p * scale;
         const dPixel = d * scale;
         const wPixel = w * scale;
         const innerPixel = Math.max(0, dPixel - 2 * wPixel);
 
+        const offsets = [-pPixel, 0, pPixel];
+
+        function drawSingleCell(offsetX, offsetY, fillColor) {
+          const cellLeft = center - pPixel / 2 + offsetX;
+          const cellTop = center - pPixel / 2 + offsetY;
+          const patchLeft = center - dPixel / 2 + offsetX;
+          const patchTop = center - dPixel / 2 + offsetY;
+
+          ctx.setLineDash([5, 5]);
+          ctx.strokeStyle = "rgba(153, 153, 153, 0.7)";
+          ctx.lineWidth = 1;
+          ctx.strokeRect(cellLeft, cellTop, pPixel, pPixel);
+          ctx.setLineDash([]);
+
+          ctx.fillStyle = fillColor;
+          ctx.fillRect(patchLeft, patchTop, dPixel, dPixel);
+          if (innerPixel > 0) {
+            ctx.clearRect(
+              patchLeft + (dPixel - innerPixel) / 2,
+              patchTop + (dPixel - innerPixel) / 2,
+              innerPixel,
+              innerPixel,
+            );
+          }
+        }
+
+        offsets.forEach((dx) =>
+          offsets.forEach((dy) =>
+            drawSingleCell(dx, dy, dx === 0 && dy === 0 ? "#003366" : "rgba(0, 51, 102, 0.16)"),
+          ),
+        );
+
         const cellLeft = center - pPixel / 2;
         const cellTop = center - pPixel / 2;
         const cellRight = center + pPixel / 2;
         const cellBottom = center + pPixel / 2;
-
         const patchLeft = center - dPixel / 2;
         const patchTop = center - dPixel / 2;
         const patchRight = center + dPixel / 2;
         const patchBottom = center + dPixel / 2;
 
-        // 1. Célula Unitária (Período)
-        ctx.setLineDash([5, 5]);
-        ctx.strokeStyle = "#999";
-        ctx.lineWidth = 1;
-        ctx.strokeRect(cellLeft, cellTop, pPixel, pPixel);
-        ctx.setLineDash([]);
-
-        // 2. Desenhar a Espira Quadrada
-        ctx.fillStyle = "#003366";
-        ctx.fillRect(patchLeft, patchTop, dPixel, dPixel);
-        if (innerPixel > 0) {
-          ctx.clearRect(
-            center - innerPixel / 2,
-            center - innerPixel / 2,
-            innerPixel,
-            innerPixel,
-          );
-        }
-
-        // 3. Adicionar cota e rótulos
         ctx.fillStyle = "#000";
         ctx.font = "bold 12px 'Times New Roman'";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-
         ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
         ctx.lineWidth = 1.2;
 
-        function drawCota(x1, y1, x2, y2, text, textOffsetX, textOffsetY, isVertical = false) {
+        function drawCota(
+          x1,
+          y1,
+          x2,
+          y2,
+          text,
+          textOffsetX,
+          textOffsetY,
+          isVertical = false,
+        ) {
           ctx.beginPath();
           ctx.moveTo(x1, y1);
           ctx.lineTo(x2, y2);
@@ -342,14 +362,44 @@
           const txtY = (y1 + y2) / 2 + textOffsetY;
           const metrics = ctx.measureText(text);
           ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-          ctx.fillRect(txtX - metrics.width / 2 - 4, txtY - 9, metrics.width + 8, 18);
+          ctx.fillRect(
+            txtX - metrics.width / 2 - 4,
+            txtY - 9,
+            metrics.width + 8,
+            18,
+          );
           ctx.fillStyle = "#cc0000";
           ctx.fillText(text, txtX, txtY);
         }
 
-        drawCota(cellLeft, cellTop - 20, cellRight, cellTop - 20, "p = " + p.toFixed(2) + " mm", 0, -2);
-        drawCota(patchLeft, patchBottom + 18, patchRight, patchBottom + 18, "d = " + d.toFixed(2) + " mm", 0, 2);
-        drawCota(patchLeft - 20, patchTop, patchLeft - 20, patchTop + wPixel, "w = " + w.toFixed(2) + " mm", -8, 0, true);
+        drawCota(
+          cellLeft,
+          cellTop - 20,
+          cellRight,
+          cellTop - 20,
+          "p = " + p.toFixed(2) + " mm",
+          0,
+          -2,
+        );
+        drawCota(
+          patchLeft,
+          patchBottom + 18,
+          patchRight,
+          patchBottom + 18,
+          "d = " + d.toFixed(2) + " mm",
+          0,
+          2,
+        );
+        drawCota(
+          patchLeft - 20,
+          patchTop,
+          patchLeft - 20,
+          patchTop + wPixel,
+          "w = " + w.toFixed(2) + " mm",
+          -8,
+          0,
+          true,
+        );
       }
 
       // --- Simulação Matemática ---

@@ -181,9 +181,8 @@
             <canvas id="shapeCanvas" width="300" height="300"></canvas>
             <div class="geo-legend">
               <strong>Linha pontilhada:</strong> Limites do período (a x a)<br />
-              <strong>Azul Sólido:</strong> Metalização (Patch de largura c x
-              c)<br />
-              O espaço em branco representa o gap capacitivo entre as células.
+              <strong>Azul Sólido:</strong> Metalização (Patch de largura c x c)<br />
+              As células adjacentes mostram a periodicidade do arranjo.
             </div>
           </div>
         </div>
@@ -220,34 +219,45 @@
 
         ctx.clearRect(0, 0, size, size);
 
-        const scale = (size * 0.9) / a;
+        const viewSize = a * 2.2;
+        const scale = size / viewSize;
         const center = size / 2;
-
         const aPixel = a * scale;
         const cPixel = c * scale;
+
+        const offsets = [-aPixel, 0, aPixel];
+
+        function drawSinglePatch(offsetX, offsetY, fillColor) {
+          const cellLeft = center - aPixel / 2 + offsetX;
+          const cellTop = center - aPixel / 2 + offsetY;
+          const patchLeft = center - cPixel / 2 + offsetX;
+          const patchTop = center - cPixel / 2 + offsetY;
+
+          ctx.setLineDash([5, 5]);
+          ctx.strokeStyle = "rgba(153, 153, 153, 0.7)";
+          ctx.lineWidth = 1;
+          ctx.strokeRect(cellLeft, cellTop, aPixel, aPixel);
+          ctx.setLineDash([]);
+
+          ctx.fillStyle = fillColor;
+          ctx.fillRect(patchLeft, patchTop, cPixel, cPixel);
+        }
+
+        offsets.forEach((dx) =>
+          offsets.forEach((dy) =>
+            drawSinglePatch(dx, dy, dx === 0 && dy === 0 ? "#003366" : "rgba(0, 51, 102, 0.16)"),
+          ),
+        );
 
         const cellLeft = center - aPixel / 2;
         const cellTop = center - aPixel / 2;
         const cellRight = center + aPixel / 2;
         const cellBottom = center + aPixel / 2;
-
         const patchLeft = center - cPixel / 2;
         const patchTop = center - cPixel / 2;
         const patchRight = center + cPixel / 2;
         const patchBottom = center + cPixel / 2;
 
-        // 1. Célula Unitária (Período 'a')
-        ctx.setLineDash([5, 5]);
-        ctx.strokeStyle = "#999";
-        ctx.lineWidth = 1;
-        ctx.strokeRect(cellLeft, cellTop, aPixel, aPixel);
-        ctx.setLineDash([]);
-
-        // 2. Desenhar o Patch (Sólido Metálico 'c')
-        ctx.fillStyle = "#003366";
-        ctx.fillRect(patchLeft, patchTop, cPixel, cPixel);
-
-        // 3. Adicionar cota e rótulos
         ctx.fillStyle = "#000";
         ctx.font = "bold 12px 'Times New Roman'";
         ctx.textAlign = "center";
@@ -255,7 +265,16 @@
         ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
         ctx.lineWidth = 1.2;
 
-        function drawCota(x1, y1, x2, y2, text, textOffsetX, textOffsetY, isVertical = false) {
+        function drawCota(
+          x1,
+          y1,
+          x2,
+          y2,
+          text,
+          textOffsetX,
+          textOffsetY,
+          isVertical = false,
+        ) {
           ctx.beginPath();
           ctx.moveTo(x1, y1);
           ctx.lineTo(x2, y2);
@@ -280,14 +299,44 @@
           const txtY = (y1 + y2) / 2 + textOffsetY;
           const metrics = ctx.measureText(text);
           ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-          ctx.fillRect(txtX - metrics.width / 2 - 4, txtY - 9, metrics.width + 8, 18);
+          ctx.fillRect(
+            txtX - metrics.width / 2 - 4,
+            txtY - 9,
+            metrics.width + 8,
+            18,
+          );
           ctx.fillStyle = "#cc0000";
           ctx.fillText(text, txtX, txtY);
         }
 
-        drawCota(cellLeft, cellTop - 20, cellRight, cellTop - 20, "a = " + a.toFixed(2) + " mm", 0, -2);
-        drawCota(patchLeft, patchBottom + 18, patchRight, patchBottom + 18, "c = " + c.toFixed(2) + " mm", 0, 2);
-        drawCota(patchLeft - 20, patchTop, patchLeft - 20, patchBottom, "c = " + c.toFixed(2) + " mm", -8, 0, true);
+        drawCota(
+          cellLeft,
+          cellTop - 20,
+          cellRight,
+          cellTop - 20,
+          "a = " + a.toFixed(2) + " mm",
+          0,
+          -2,
+        );
+        drawCota(
+          patchLeft,
+          patchBottom + 18,
+          patchRight,
+          patchBottom + 18,
+          "c = " + c.toFixed(2) + " mm",
+          0,
+          2,
+        );
+        drawCota(
+          patchLeft - 20,
+          patchTop,
+          patchLeft - 20,
+          patchBottom,
+          "c = " + c.toFixed(2) + " mm",
+          -8,
+          0,
+          true,
+        );
       }
 
       // --- Simulação Matemática (Fórmula de Ulrich) ---
