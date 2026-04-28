@@ -362,16 +362,28 @@
         const bottomRight = center + pPixel / 2;
 
         // Rótulo 'p' - período
-        ctx.fillText("p = " + p.toFixed(2) + " mm", bottomRight + 40, topLeft - 10);
-        
+        ctx.fillText(
+          "p = " + p.toFixed(2) + " mm",
+          bottomRight + 40,
+          topLeft - 10,
+        );
+
         // Rótulo 'd' - tamanho da cruz
         ctx.fillText("d = " + d.toFixed(2) + " mm", center, bottomRight + 25);
-        
+
         // Rótulo 'w' - largura da fita
-        ctx.fillText("w = " + w.toFixed(2) + " mm", center - pPixel / 2 - 40, topLeft + 10);
-        
+        ctx.fillText(
+          "w = " + w.toFixed(2) + " mm",
+          center - pPixel / 2 - 40,
+          topLeft + 10,
+        );
+
         // Rótulo 'g' - gap
-        ctx.fillText("g = " + g.toFixed(3) + " mm", center + 40, bottomRight - 10);
+        ctx.fillText(
+          "g = " + g.toFixed(3) + " mm",
+          center + 40,
+          bottomRight - 10,
+        );
       }
 
       // --- Simulação Matemática ---
@@ -389,7 +401,110 @@
         if (d >= p) d = p - 0.01;
 
         // 1. Atualizar o Desenho
-        drawGeometry(p, d, w, h);
+        function drawGeometry(p, d, w, h, g) {
+        const canvas = document.getElementById("shapeCanvas");
+        const ctx = canvas.getContext("2d");
+        const size = canvas.width;
+
+        ctx.clearRect(0, 0, size, size);
+
+        const margin = 45;
+        const maxDrawSize = size - 2 * margin;
+        const scale = maxDrawSize / p;
+        const center = size / 2;
+
+        const pPixel = p * scale;
+        const dPixel = d * scale;
+        const wPixel = w * scale;
+        const hPixel = h * scale;
+
+        ctx.setLineDash([5, 5]);
+        ctx.strokeStyle = "#999";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(center - pPixel / 2, center - pPixel / 2, pPixel, pPixel);
+
+        ctx.setLineDash([]);
+        ctx.fillStyle = "#003366"; 
+
+        function drawRect(cx, cy, width, height) {
+          ctx.fillRect(center + cx - width / 2, center + cy - height / 2, width, height);
+        }
+
+        drawRect(0, 0, dPixel, wPixel); 
+        drawRect(0, 0, wPixel, dPixel); 
+
+        const capLength = 2 * hPixel + wPixel;
+        const offset = dPixel / 2;
+
+        drawRect(-offset, 0, wPixel, capLength); 
+        drawRect(offset, 0, wPixel, capLength); 
+        drawRect(0, -offset, capLength, wPixel); 
+        drawRect(0, offset, capLength, wPixel); 
+
+        ctx.fillStyle = "#cc0000";
+        ctx.strokeStyle = "#cc0000";
+        ctx.lineWidth = 1.5;
+        ctx.font = "bold 12px 'Times New Roman'";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        function drawDimension(x1, y1, x2, y2, text, textOffset, vertical = false) {
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
+          
+          const tick = 4;
+          if (vertical) {
+            ctx.moveTo(x1 - tick, y1); ctx.lineTo(x1 + tick, y1);
+            ctx.moveTo(x2 - tick, y2); ctx.lineTo(x2 + tick, y2);
+          } else {
+            ctx.moveTo(x1, y1 - tick); ctx.lineTo(x1, y1 + tick);
+            ctx.moveTo(x2, y2 - tick); ctx.lineTo(x2, y2 + tick);
+          }
+          ctx.stroke();
+
+          const midX = (x1 + x2) / 2;
+          const midY = (y1 + y2) / 2;
+          
+          ctx.fillStyle = "#000";
+          if (vertical) {
+            ctx.fillText(text, midX + textOffset, midY);
+          } else {
+            ctx.fillText(text, midX, midY + textOffset);
+          }
+        }
+
+        const topY = center - pPixel / 2;
+        drawDimension(center - pPixel / 2, topY - 15, center + pPixel / 2, topY - 15, "p = " + p.toFixed(2), -10, false);
+
+        const bottomD = center + wPixel / 2 + 15;
+        drawDimension(center - dPixel / 2, bottomD, center + dPixel / 2, bottomD, "d = " + d.toFixed(3), 12, false);
+
+        drawDimension(center - pPixel / 2 - 25, center - wPixel / 2, center - pPixel / 2 - 25, center + wPixel / 2, "w = " + w.toFixed(2), 0, true);
+        
+        ctx.strokeStyle = "#999";
+        ctx.setLineDash([2, 2]);
+        ctx.beginPath();
+        ctx.moveTo(center - dPixel / 2, center - wPixel / 2); ctx.lineTo(center - pPixel / 2 - 30, center - wPixel / 2);
+        ctx.moveTo(center - dPixel / 2, center + wPixel / 2); ctx.lineTo(center - pPixel / 2 - 30, center + wPixel / 2);
+        ctx.stroke();
+
+        const topCapY1 = center - offset - wPixel / 2;
+        const topCapY2 = topCapY1 - hPixel;
+        
+        ctx.strokeStyle = "#cc0000";
+        ctx.setLineDash([]);
+        drawDimension(center + capLength / 2 + 20, topCapY2, center + capLength / 2 + 20, topCapY1, "h = " + h.toFixed(2), 25, true);
+        
+        ctx.strokeStyle = "#999";
+        ctx.setLineDash([2, 2]);
+        ctx.beginPath();
+        ctx.moveTo(center + wPixel / 2, topCapY1); ctx.lineTo(center + capLength / 2 + 25, topCapY1);
+        ctx.moveTo(center + wPixel / 2, topCapY2); ctx.lineTo(center + capLength / 2 + 25, topCapY2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
 
         // 2. Atualizar o Gráfico
         const df = 0.1; // Resolução

@@ -319,13 +319,21 @@
         const bottomRight = center + pPixel / 2;
 
         // Rótulo 'p' - período
-        ctx.fillText("p = " + p.toFixed(2) + " mm", bottomRight + 40, topLeft - 10);
-        
+        ctx.fillText(
+          "p = " + p.toFixed(2) + " mm",
+          bottomRight + 40,
+          topLeft - 10,
+        );
+
         // Rótulo 'd' - tamanho da espira
         ctx.fillText("d = " + d.toFixed(2) + " mm", center, bottomRight + 25);
-        
+
         // Rótulo 'w' - largura da fita
-        ctx.fillText("w = " + w.toFixed(2) + " mm", center - pPixel / 2 - 40, topLeft + 10);
+        ctx.fillText(
+          "w = " + w.toFixed(2) + " mm",
+          center - pPixel / 2 - 40,
+          topLeft + 10,
+        );
       }
 
       // --- Simulação Matemática ---

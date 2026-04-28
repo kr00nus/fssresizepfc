@@ -254,10 +254,18 @@
         const margin = 20;
 
         // Rótulo 'a' - lado direito
-        ctx.fillText("a = " + a.toFixed(2) + " mm", center + aPixel / 2 + margin + 30, topLeft - 15);
-        
+        ctx.fillText(
+          "a = " + a.toFixed(2) + " mm",
+          center + aPixel / 2 + margin + 30,
+          topLeft - 15,
+        );
+
         // Rótulo 'c' - lado esquerdo do quadrado
-        ctx.fillText("c = " + c.toFixed(2) + " mm", center - aPixel / 2 - margin - 40, topLeft - 15);
+        ctx.fillText(
+          "c = " + c.toFixed(2) + " mm",
+          center - aPixel / 2 - margin - 40,
+          topLeft - 15,
+        );
       }
 
       // --- Simulação Matemática (Fórmula de Ulrich) ---
