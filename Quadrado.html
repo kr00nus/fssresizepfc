@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Simulador FSS - Patch Quadrado (Ulrich)</title>
+    <title>Simulador FSS - Patch Quadrado (Chen)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
       body {
@@ -137,15 +137,15 @@
         >
           <div class="header-row">
             <label>Período p (mm)</label
-            ><input type="number" id="p_num" value="1.00" step="0.01" />
+            ><input type="number" id="p_num" value="10.0" step="0.1" />
           </div>
           <input
             type="range"
             id="p_slider"
-            min="0.3"
-            max="3.0"
-            step="0.01"
-            value="1.00"
+            min="3.0"
+            max="30.0"
+            step="0.1"
+            value="10.0"
           />
         </div>
         <div
@@ -154,22 +154,22 @@
         >
           <div class="header-row">
             <label>Largura c (mm)</label
-            ><input type="number" id="c_num" value="0.80" step="0.01" />
+            ><input type="number" id="c_num" value="8.0" step="0.1" />
           </div>
           <input
             type="range"
             id="c_slider"
-            min="0.1"
-            max="2.9"
-            step="0.01"
-            value="0.80"
+            min="1.0"
+            max="29.0"
+            step="0.1"
+            value="8.0"
           />
         </div>
       </div>
 
       <div class="visuals">
         <div class="panel">
-          <h2>Resposta de Transmissão (S21) - Passa-Baixa</h2>
+          <h2>Resposta de Transmissão (S21) - Passa-Baixa (Chen)</h2>
           <div class="chart-container">
             <canvas id="fssChart"></canvas>
           </div>
@@ -178,12 +178,12 @@
         <div class="panel">
           <h2>Célula Unitária - Patch Quadrado</h2>
           <div class="geometry-container">
-            <canvas id="shapeCanvas" width="300" height="300"></canvas>
+            <canvas id="shapeCanvas" width="400" height="400"></canvas>
             <div class="geo-legend">
               <strong>Linha pontilhada:</strong> Limites do período (p x p)<br />
               <strong>Azul Sólido:</strong> Metalização (Patch de largura c x
               c)<br />
-              As células ao redor mostram a periodicidade do arranjo.
+              As células ao redor ilustram a periodicidade do arranjo.
             </div>
           </div>
         </div>
@@ -212,7 +212,7 @@
 
       let chart;
 
-      // --- Desenho da Geometria (Patch Quadrado) ---
+      // --- Desenho da Geometria (Patch Quadrado CAD) ---
       function drawGeometry(p, c) {
         const canvas = document.getElementById("shapeCanvas");
         const ctx = canvas.getContext("2d");
@@ -235,7 +235,7 @@
           const patchTop = center - cPixel / 2 + offsetY;
 
           ctx.setLineDash([5, 5]);
-          ctx.strokeStyle = "rgba(153, 153, 153, 0.7)";
+          ctx.strokeStyle = "rgba(153, 153, 153, 0.4)";
           ctx.lineWidth = 1;
           ctx.strokeRect(cellLeft, cellTop, pPixel, pPixel);
           ctx.setLineDash([]);
@@ -244,12 +244,13 @@
           ctx.fillRect(patchLeft, patchTop, cPixel, cPixel);
         }
 
+        // Desenha a malha
         offsets.forEach((dx) =>
           offsets.forEach((dy) =>
             drawSinglePatch(
               dx,
               dy,
-              dx === 0 && dy === 0 ? "#003366" : "rgba(0, 51, 102, 0.16)",
+              dx === 0 && dy === 0 ? "#003366" : "rgba(0, 51, 102, 0.12)",
             ),
           ),
         );
@@ -257,17 +258,16 @@
         const cellLeft = center - pPixel / 2;
         const cellTop = center - pPixel / 2;
         const cellRight = center + pPixel / 2;
-        const cellBottom = center + pPixel / 2;
         const patchLeft = center - cPixel / 2;
         const patchTop = center - cPixel / 2;
         const patchRight = center + cPixel / 2;
         const patchBottom = center + cPixel / 2;
 
         ctx.fillStyle = "#000";
-        ctx.font = "bold 12px 'Times New Roman'";
+        ctx.font = "bold 13px 'Times New Roman'";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
+        ctx.strokeStyle = "#cc0000";
         ctx.lineWidth = 1.2;
 
         function drawCota(
@@ -314,44 +314,72 @@
           ctx.fillText(text, txtX, txtY);
         }
 
+        // Cota P
+        ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
+        ctx.beginPath();
+        ctx.moveTo(cellLeft, cellTop);
+        ctx.lineTo(cellLeft, cellTop - 25);
+        ctx.moveTo(cellRight, cellTop);
+        ctx.lineTo(cellRight, cellTop - 25);
+        ctx.stroke();
+        ctx.strokeStyle = "#cc0000";
         drawCota(
           cellLeft,
-          cellTop - 20,
+          cellTop - 18,
           cellRight,
-          cellTop - 20,
-          "p = " + p.toFixed(2) + " mm",
+          cellTop - 18,
+          "p = " + p.toFixed(2),
           0,
-          -2,
+          -10,
         );
+
+        // Cota C Horizontal
+        ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
+        ctx.beginPath();
+        ctx.moveTo(patchLeft, patchBottom);
+        ctx.lineTo(patchLeft, patchBottom + 25);
+        ctx.moveTo(patchRight, patchBottom);
+        ctx.lineTo(patchRight, patchBottom + 25);
+        ctx.stroke();
+        ctx.strokeStyle = "#cc0000";
         drawCota(
           patchLeft,
           patchBottom + 18,
           patchRight,
           patchBottom + 18,
-          "c = " + c.toFixed(2) + " mm",
+          "c = " + c.toFixed(2),
           0,
-          2,
+          10,
         );
+
+        // Cota C Vertical
+        ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
+        ctx.beginPath();
+        ctx.moveTo(patchLeft, patchTop);
+        ctx.lineTo(patchLeft - 25, patchTop);
+        ctx.moveTo(patchLeft, patchBottom);
+        ctx.lineTo(patchLeft - 25, patchBottom);
+        ctx.stroke();
+        ctx.strokeStyle = "#cc0000";
         drawCota(
-          patchLeft - 20,
+          patchLeft - 18,
           patchTop,
-          patchLeft - 20,
+          patchLeft - 18,
           patchBottom,
-          "c = " + c.toFixed(2) + " mm",
-          -8,
+          "c = " + c.toFixed(2),
+          -20,
           0,
           true,
         );
       }
 
-      // --- Simulação Matemática (Fórmula de Ulrich) ---
+      // --- Simulação Matemática (Fórmula de Chen - Eq. 11 a 16) ---
       function updateAll() {
         const fStart = parseFloat(document.getElementById("fStart_num").value);
         const fEnd = parseFloat(document.getElementById("fEnd_num").value);
-        let p = parseFloat(document.getElementById("p_num").value);
-        let c = parseFloat(document.getElementById("c_num").value);
+        let p = parseFloat(document.getElementById("p_num").value); // 'a' no documento
+        let c = parseFloat(document.getElementById("c_num").value); // 'c' no documento
 
-        // Proteções físicas (O patch não pode ser maior que o período)
         if (c >= p) {
           c = p - 0.01;
           document.getElementById("c_num").value = c.toFixed(2);
@@ -361,8 +389,11 @@
         drawGeometry(p, c);
 
         const df = 0.1;
-        const d = (p - c) / 2; // Metade do gap
-        const pCm = mmToCm(p);
+
+        // Conversão rigorosa de ambas as variáveis físicas para centímetros
+        const a_cm = mmToCm(p);
+        const c_cm = mmToCm(c);
+
         const data = [];
         const labels = [];
 
@@ -371,22 +402,50 @@
           let pt_dB = -60;
 
           try {
-            // Ulrich é válida apenas quando p < lambda (região sub-ressonante)
-            // Se p/lambda >= 1, a teoria prevê o surgimento de lóbulos de grade (difração)
-            if (pCm / lamb < 1) {
-              const beta = (1 - 0.27 * (d / p)) / (pCm / lamb);
-              const csc_val = 1 / Math.sin((Math.PI * d) / (2 * p));
-              const Yc = (beta * Math.log(csc_val)) / (Math.pow(beta, 2) - 1);
+            const lamb_a = lamb / a_cm;
+            const c_a = c_cm / a_cm;
 
-              const pt = 1 / (1 + Math.pow(Yc, 2));
+            if (lamb_a > 1) {
+              // Eq. 13
+              const F1_sq = Math.pow(lamb_a, 2) - 1;
+              const F1 = Math.sqrt(Math.abs(F1_sq));
+
+              // Eq. 14
+              const pi_c_a = Math.PI * c_a;
+              const denom_F2 = 1 - 2 * Math.pow(c_a, 2);
+              const F2 = Math.cos(pi_c_a) / denom_F2;
+
+              // Eq. 15
+              const F3 = pi_c_a !== 0 ? Math.sin(pi_c_a) / pi_c_a : 1;
+              const F3_sq = Math.pow(F3, 2);
+
+              // Eq. 16
+              const F4_sq = 2 * Math.pow(lamb_a, 2) - 1;
+
+              // Eq. 12: Cálculo da Susceptância Equivalente B (Y = jB)
+              const term_inv_F1_sq_minus_1 = 1 / Math.sqrt(Math.abs(F1_sq - 1));
+              const term_F1_sq_minus_F3_sq = Math.sqrt(Math.abs(F1_sq - F3_sq));
+              const term_inv_F4_sq_minus_1 = 1 / Math.sqrt(Math.abs(F4_sq - 1));
+
+              const B =
+                0.5 *
+                F1 *
+                F2 *
+                term_inv_F1_sq_minus_1 *
+                term_F1_sq_minus_F3_sq *
+                term_inv_F4_sq_minus_1;
+
+              // Eq. 11: Coeficiente de Transmissão T
+              const pt = 1 / (1 + Math.pow(B, 2));
               pt_dB = 10 * Math.log10(pt);
             } else {
-              // Força queda brusca fora da região de validade (comportamento típico de FSS densa)
+              // Comportamento fora da região de validade (Lóbulos de difração)
               pt_dB = -60;
             }
 
             labels.push(freq.toFixed(1));
-            data.push(Math.max(-60, pt_dB));
+            if (!isFinite(pt_dB) || pt_dB < -60) pt_dB = -60;
+            data.push(pt_dB);
           } catch (e) {
             data.push(-60);
           }
@@ -405,10 +464,10 @@
             labels: labels,
             datasets: [
               {
-                label: "Simulados (Patch Quadrado - Ulrich)",
+                label: "Simulados (Patch Quadrado - Chen)",
                 data: data,
                 borderColor: "#000",
-                borderWidth: 2,
+                borderWidth: 1.5,
                 pointRadius: 0,
                 fill: false,
                 tension: 0.1,
