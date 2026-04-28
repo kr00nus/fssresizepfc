@@ -371,6 +371,11 @@
 
         // 2. Atualizar o Gráfico
         const df = 0.1; // Resolução
+        const pCm = mmToCm(p);
+        const dCm = mmToCm(d);
+        const wCm = mmToCm(w);
+        const gCm = mmToCm(g);
+        const hCm = mmToCm(h);
         const data = [];
         const labels = [];
 
@@ -379,13 +384,14 @@
           const ang = 0;
 
           try {
-            const XL1 = FF(p, w, lamb, ang);
-            const Bg = ((4 * er * d) / p) * FF(p, g, lamb, ang);
-            const Bd = ((4 * er * (2 * h + g)) / p) * FF(p, p - d, lamb, ang);
+            const XL1 = FF(pCm, wCm, lamb, ang);
+            const Bg = ((4 * er * d) / p) * FF(pCm, gCm, lamb, ang);
+            const Bd =
+              ((4 * er * (2 * h + g)) / p) * FF(pCm, pCm - dCm, lamb, ang);
             const BC1 = Bg + Bd;
-            const XL2 = (d / p) * FF(p, 2 * w, lamb, ang);
+            const XL2 = (d / p) * FF(pCm, 2 * wCm, lamb, ang);
 
-            const lamb3 = d / 0.43;
+            const lamb3 = dCm / 0.43;
             const f3 = 30 / lamb3;
             const BC2 = (1 / XL2) * Math.pow(freq / f3, 2);
 
