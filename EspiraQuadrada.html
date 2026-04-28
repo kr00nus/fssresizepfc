@@ -308,7 +308,11 @@
 
         offsets.forEach((dx) =>
           offsets.forEach((dy) =>
-            drawSingleCell(dx, dy, dx === 0 && dy === 0 ? "#003366" : "rgba(0, 51, 102, 0.16)"),
+            drawSingleCell(
+              dx,
+              dy,
+              dx === 0 && dy === 0 ? "#003366" : "rgba(0, 51, 102, 0.16)",
+            ),
           ),
         );
 
