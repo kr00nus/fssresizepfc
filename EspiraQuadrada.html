@@ -307,6 +307,72 @@
             innerPixel,
           );
         }
+
+        // 3. Desenhar dimensões e rótulos
+        ctx.setLineDash([]);
+        ctx.lineWidth = 1.5;
+        ctx.font = "bold 12px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        const margin = 25;
+        const topLeft = center - pPixel / 2;
+        const topRight = center + pPixel / 2;
+
+        // Dimensão 'p' - Período (lado direito)
+        ctx.strokeStyle = "#FF0000";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(topRight + margin, topLeft);
+        ctx.lineTo(topRight + margin, topLeft + pPixel);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(topRight + margin - 5, topLeft);
+        ctx.lineTo(topRight + margin + 5, topLeft);
+        ctx.moveTo(topRight + margin - 5, topLeft + pPixel);
+        ctx.lineTo(topRight + margin + 5, topLeft + pPixel);
+        ctx.stroke();
+        ctx.fillStyle = "#FF0000";
+        ctx.font = "bold 13px Arial";
+        ctx.fillText("p (mm)", topRight + margin + 25, center);
+
+        // Dimensão 'd' - Tamanho da espira (lado esquerdo)
+        ctx.strokeStyle = "#00AA00";
+        ctx.lineWidth = 2;
+        const dStart = center - dPixel / 2;
+        ctx.beginPath();
+        ctx.moveTo(dStart - margin, topLeft);
+        ctx.lineTo(dStart - margin, topLeft + dPixel);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(dStart - margin - 5, topLeft);
+        ctx.lineTo(dStart - margin + 5, topLeft);
+        ctx.moveTo(dStart - margin - 5, topLeft + dPixel);
+        ctx.lineTo(dStart - margin + 5, topLeft + dPixel);
+        ctx.stroke();
+        ctx.fillStyle = "#00AA00";
+        ctx.font = "bold 13px Arial";
+        ctx.fillText("d (mm)", dStart - margin - 25, center);
+
+        // Dimensão 'w' - Largura da fita (topo)
+        const wPixel = w * scale;
+        ctx.strokeStyle = "#0066FF";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(dStart, topLeft - margin);
+        ctx.lineTo(dStart + wPixel, topLeft - margin);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(dStart, topLeft - margin - 5);
+        ctx.lineTo(dStart, topLeft - margin + 5);
+        ctx.moveTo(dStart + wPixel, topLeft - margin - 5);
+        ctx.lineTo(dStart + wPixel, topLeft - margin + 5);
+        ctx.stroke();
+        ctx.fillStyle = "#0066FF";
+        ctx.font = "bold 11px Arial";
+        ctx.fillText("w", dStart + wPixel / 2, topLeft - margin - 15);
+        ctx.font = "bold 10px Arial";
+        ctx.fillText("(mm)", dStart + wPixel / 2, topLeft - margin - 2);
       }
 
       // --- Simulação Matemática ---
