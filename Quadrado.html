@@ -243,59 +243,21 @@
         const cPixel = c * scale;
         ctx.fillRect(center - cPixel / 2, center - cPixel / 2, cPixel, cPixel);
 
-        // 3. Desenhar dimensões e rótulos
+        // 3. Adicionar rótulos de dimensão
         ctx.setLineDash([]);
-        ctx.strokeStyle = "#000";
-        ctx.lineWidth = 1;
         ctx.fillStyle = "#000";
         ctx.font = "bold 12px Arial";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
-        // Dimensão 'a' - Linha lateral com rótulo
-        const margin = 30;
-        ctx.strokeStyle = "#FF0000";
-        ctx.lineWidth = 2;
         const topLeft = center - aPixel / 2;
-        const topRight = center + aPixel / 2;
-        // Linha vermelha para mostrar 'a' (lado direito)
-        ctx.beginPath();
-        ctx.moveTo(topRight + margin, topLeft);
-        ctx.lineTo(topRight + margin, topLeft + aPixel);
-        ctx.stroke();
-        // Pequenos traços nas pontas
-        ctx.lineTo(topRight + margin - 5, topLeft + aPixel);
-        ctx.moveTo(topRight + margin + 5, topLeft + aPixel);
-        ctx.lineTo(topRight + margin, topLeft + aPixel);
-        ctx.moveTo(topRight + margin - 5, topLeft);
-        ctx.lineTo(topRight + margin, topLeft);
-        ctx.lineTo(topRight + margin + 5, topLeft);
-        ctx.stroke();
-        // Rótulo 'a'
-        ctx.fillStyle = "#FF0000";
-        ctx.font = "bold 14px Arial";
-        ctx.fillText("a (mm)", topRight + margin + 25, center);
+        const margin = 20;
 
-        // Dimensão 'c' - Linha superior com rótulo
-        ctx.strokeStyle = "#0066FF";
-        ctx.lineWidth = 2;
-        const cStart = center - cPixel / 2;
-        const cEnd = center + cPixel / 2;
-        ctx.beginPath();
-        ctx.moveTo(cStart, topLeft - margin);
-        ctx.lineTo(cEnd, topLeft - margin);
-        ctx.stroke();
-        // Pequenos traços nas pontas
-        ctx.beginPath();
-        ctx.moveTo(cStart, topLeft - margin - 5);
-        ctx.lineTo(cStart, topLeft - margin + 5);
-        ctx.moveTo(cEnd, topLeft - margin - 5);
-        ctx.lineTo(cEnd, topLeft - margin + 5);
-        ctx.stroke();
-        // Rótulo 'c'
-        ctx.fillStyle = "#0066FF";
-        ctx.font = "bold 14px Arial";
-        ctx.fillText("c (mm)", center, topLeft - margin - 15);
+        // Rótulo 'a' - lado direito
+        ctx.fillText("a = " + a.toFixed(2) + " mm", center + aPixel / 2 + margin + 30, topLeft - 15);
+        
+        // Rótulo 'c' - lado esquerdo do quadrado
+        ctx.fillText("c = " + c.toFixed(2) + " mm", center - aPixel / 2 - margin - 40, topLeft - 15);
       }
 
       // --- Simulação Matemática (Fórmula de Ulrich) ---
