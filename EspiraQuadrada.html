@@ -272,33 +272,33 @@
 
         ctx.clearRect(0, 0, size, size);
 
-        // Fator de escala base
         const scale = (size * 0.9) / p;
         const center = size / 2;
+        const pPixel = p * scale;
+        const dPixel = d * scale;
+        const wPixel = w * scale;
+        const innerPixel = Math.max(0, dPixel - 2 * wPixel);
+
+        const cellLeft = center - pPixel / 2;
+        const cellTop = center - pPixel / 2;
+        const cellRight = center + pPixel / 2;
+        const cellBottom = center + pPixel / 2;
+
+        const patchLeft = center - dPixel / 2;
+        const patchTop = center - dPixel / 2;
+        const patchRight = center + dPixel / 2;
+        const patchBottom = center + dPixel / 2;
 
         // 1. Célula Unitária (Período)
         ctx.setLineDash([5, 5]);
         ctx.strokeStyle = "#999";
         ctx.lineWidth = 1;
-        const pPixel = p * scale;
-        ctx.strokeRect(
-          center - pPixel / 2,
-          center - pPixel / 2,
-          pPixel,
-          pPixel,
-        );
+        ctx.strokeRect(cellLeft, cellTop, pPixel, pPixel);
+        ctx.setLineDash([]);
 
         // 2. Desenhar a Espira Quadrada
-        ctx.setLineDash([]);
-        ctx.fillStyle = "#003366"; // Cor do metal
-
-        const dPixel = d * scale;
-        const innerPixel = (d - 2 * w) * scale; // O vazio no meio da fita
-
-        // Preenche o quadrado exterior
-        ctx.fillRect(center - dPixel / 2, center - dPixel / 2, dPixel, dPixel);
-
-        // "Apaga" (limpa) o quadrado interior para formar a espira
+        ctx.fillStyle = "#003366";
+        ctx.fillRect(patchLeft, patchTop, dPixel, dPixel);
         if (innerPixel > 0) {
           ctx.clearRect(
             center - innerPixel / 2,
@@ -308,32 +308,48 @@
           );
         }
 
-        // 3. Adicionar rótulos de dimensão
-        ctx.setLineDash([]);
+        // 3. Adicionar cota e rótulos
         ctx.fillStyle = "#000";
-        ctx.font = "bold 11px Arial";
+        ctx.font = "bold 12px 'Times New Roman'";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
-        const topLeft = center - pPixel / 2;
-        const bottomRight = center + pPixel / 2;
+        ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
+        ctx.lineWidth = 1.2;
 
-        // Rótulo 'p' - período
-        ctx.fillText(
-          "p = " + p.toFixed(2) + " mm",
-          bottomRight + 40,
-          topLeft - 10,
-        );
+        function drawCota(x1, y1, x2, y2, text, textOffsetX, textOffsetY, isVertical = false) {
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
 
-        // Rótulo 'd' - tamanho da espira
-        ctx.fillText("d = " + d.toFixed(2) + " mm", center, bottomRight + 25);
+          const tick = 4;
+          ctx.beginPath();
+          if (isVertical) {
+            ctx.moveTo(x1 - tick, y1);
+            ctx.lineTo(x1 + tick, y1);
+            ctx.moveTo(x2 - tick, y2);
+            ctx.lineTo(x2 + tick, y2);
+          } else {
+            ctx.moveTo(x1, y1 - tick);
+            ctx.lineTo(x1, y1 + tick);
+            ctx.moveTo(x2, y2 - tick);
+            ctx.lineTo(x2, y2 + tick);
+          }
+          ctx.stroke();
 
-        // Rótulo 'w' - largura da fita
-        ctx.fillText(
-          "w = " + w.toFixed(2) + " mm",
-          center - pPixel / 2 - 40,
-          topLeft + 10,
-        );
+          const txtX = (x1 + x2) / 2 + textOffsetX;
+          const txtY = (y1 + y2) / 2 + textOffsetY;
+          const metrics = ctx.measureText(text);
+          ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+          ctx.fillRect(txtX - metrics.width / 2 - 4, txtY - 9, metrics.width + 8, 18);
+          ctx.fillStyle = "#cc0000";
+          ctx.fillText(text, txtX, txtY);
+        }
+
+        drawCota(cellLeft, cellTop - 20, cellRight, cellTop - 20, "p = " + p.toFixed(2) + " mm", 0, -2);
+        drawCota(patchLeft, patchBottom + 18, patchRight, patchBottom + 18, "d = " + d.toFixed(2) + " mm", 0, 2);
+        drawCota(patchLeft - 20, patchTop, patchLeft - 20, patchTop + wPixel, "w = " + w.toFixed(2) + " mm", -8, 0, true);
       }
 
       // --- Simulação Matemática ---

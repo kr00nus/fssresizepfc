@@ -220,52 +220,74 @@
 
         ctx.clearRect(0, 0, size, size);
 
-        // Fator de escala
         const scale = (size * 0.9) / a;
         const center = size / 2;
+
+        const aPixel = a * scale;
+        const cPixel = c * scale;
+
+        const cellLeft = center - aPixel / 2;
+        const cellTop = center - aPixel / 2;
+        const cellRight = center + aPixel / 2;
+        const cellBottom = center + aPixel / 2;
+
+        const patchLeft = center - cPixel / 2;
+        const patchTop = center - cPixel / 2;
+        const patchRight = center + cPixel / 2;
+        const patchBottom = center + cPixel / 2;
 
         // 1. Célula Unitária (Período 'a')
         ctx.setLineDash([5, 5]);
         ctx.strokeStyle = "#999";
         ctx.lineWidth = 1;
-        const aPixel = a * scale;
-        ctx.strokeRect(
-          center - aPixel / 2,
-          center - aPixel / 2,
-          aPixel,
-          aPixel,
-        );
+        ctx.strokeRect(cellLeft, cellTop, aPixel, aPixel);
+        ctx.setLineDash([]);
 
         // 2. Desenhar o Patch (Sólido Metálico 'c')
-        ctx.setLineDash([]);
-        ctx.fillStyle = "#003366"; // Cor do metal (azul escuro)
+        ctx.fillStyle = "#003366";
+        ctx.fillRect(patchLeft, patchTop, cPixel, cPixel);
 
-        const cPixel = c * scale;
-        ctx.fillRect(center - cPixel / 2, center - cPixel / 2, cPixel, cPixel);
-
-        // 3. Adicionar rótulos de dimensão
-        ctx.setLineDash([]);
+        // 3. Adicionar cota e rótulos
         ctx.fillStyle = "#000";
-        ctx.font = "bold 12px Arial";
+        ctx.font = "bold 12px 'Times New Roman'";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
+        ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
+        ctx.lineWidth = 1.2;
 
-        const topLeft = center - aPixel / 2;
-        const margin = 20;
+        function drawCota(x1, y1, x2, y2, text, textOffsetX, textOffsetY, isVertical = false) {
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
 
-        // Rótulo 'a' - lado direito
-        ctx.fillText(
-          "a = " + a.toFixed(2) + " mm",
-          center + aPixel / 2 + margin + 30,
-          topLeft - 15,
-        );
+          const tick = 4;
+          ctx.beginPath();
+          if (isVertical) {
+            ctx.moveTo(x1 - tick, y1);
+            ctx.lineTo(x1 + tick, y1);
+            ctx.moveTo(x2 - tick, y2);
+            ctx.lineTo(x2 + tick, y2);
+          } else {
+            ctx.moveTo(x1, y1 - tick);
+            ctx.lineTo(x1, y1 + tick);
+            ctx.moveTo(x2, y2 - tick);
+            ctx.lineTo(x2, y2 + tick);
+          }
+          ctx.stroke();
 
-        // Rótulo 'c' - lado esquerdo do quadrado
-        ctx.fillText(
-          "c = " + c.toFixed(2) + " mm",
-          center - aPixel / 2 - margin - 40,
-          topLeft - 15,
-        );
+          const txtX = (x1 + x2) / 2 + textOffsetX;
+          const txtY = (y1 + y2) / 2 + textOffsetY;
+          const metrics = ctx.measureText(text);
+          ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+          ctx.fillRect(txtX - metrics.width / 2 - 4, txtY - 9, metrics.width + 8, 18);
+          ctx.fillStyle = "#cc0000";
+          ctx.fillText(text, txtX, txtY);
+        }
+
+        drawCota(cellLeft, cellTop - 20, cellRight, cellTop - 20, "a = " + a.toFixed(2) + " mm", 0, -2);
+        drawCota(patchLeft, patchBottom + 18, patchRight, patchBottom + 18, "c = " + c.toFixed(2) + " mm", 0, 2);
+        drawCota(patchLeft - 20, patchTop, patchLeft - 20, patchBottom, "c = " + c.toFixed(2) + " mm", -8, 0, true);
       }
 
       // --- Simulação Matemática (Fórmula de Ulrich) ---
