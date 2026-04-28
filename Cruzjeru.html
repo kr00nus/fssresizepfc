@@ -230,9 +230,10 @@
           <div class="geometry-container">
             <canvas id="shapeCanvas" width="350" height="350"></canvas>
             <div class="geo-legend">
-              <strong>Linha pontilhada:</strong> Limites do período (p x p)<br />
-              A geometria e as cotas dimensionais acompanham os sliders em tempo
-              real.
+              <strong>Linha pontilhada:</strong> Limites da Célula Unitária (p x
+              p)<br />
+              As figuras translúcidas ilustram o acoplamento periódico das
+              células vizinhas.
             </div>
           </div>
         </div>
@@ -294,7 +295,7 @@
 
       let chart;
 
-      // --- Desenho da Geometria Dinâmica ---
+      // --- Desenho da Geometria Dinâmica (Malha Periódica) ---
       function drawGeometry(p, d, w, h, g) {
         const canvas = document.getElementById("shapeCanvas");
         const ctx = canvas.getContext("2d");
@@ -302,10 +303,9 @@
 
         ctx.clearRect(0, 0, size, size);
 
-        // Aumentei a margem para caber as cotas tranquilamente
-        const margin = 55;
-        const maxDrawSize = size - 2 * margin;
-        const scale = maxDrawSize / p;
+        // "Zoom out" para mostrar 2.5 períodos na tela (para caber a malha 3x3 e sobrar margem)
+        const viewSize = p * 2.5;
+        const scale = size / viewSize;
         const center = size / 2;
 
         const pPixel = p * scale;
@@ -313,9 +313,59 @@
         const wPixel = w * scale;
         const hPixel = h * scale;
 
-        // 1. Desenhar a borda da Célula Unitária (Período 'p')
+        // Função auxiliar para desenhar uma única Cruz de Jerusalém
+        function drawJerusalemCross(cx, cy, isCenter) {
+          // Se for a central, cor sólida. Se for vizinha, translúcida.
+          ctx.fillStyle = isCenter ? "#003366" : "rgba(0, 51, 102, 0.15)";
+
+          // Braços centrais
+          ctx.fillRect(cx - dPixel / 2, cy - wPixel / 2, dPixel, wPixel);
+          ctx.fillRect(cx - wPixel / 2, cy - dPixel / 2, wPixel, dPixel);
+
+          // Chapéus (End Caps)
+          const capLength = 2 * hPixel + wPixel;
+          const offset = dPixel / 2;
+
+          ctx.fillRect(
+            cx - offset - wPixel / 2,
+            cy - capLength / 2,
+            wPixel,
+            capLength,
+          ); // Esquerda
+          ctx.fillRect(
+            cx + offset - wPixel / 2,
+            cy - capLength / 2,
+            wPixel,
+            capLength,
+          ); // Direita
+          ctx.fillRect(
+            cx - capLength / 2,
+            cy - offset - wPixel / 2,
+            capLength,
+            wPixel,
+          ); // Topo
+          ctx.fillRect(
+            cx - capLength / 2,
+            cy + offset - wPixel / 2,
+            capLength,
+            wPixel,
+          ); // Base
+        }
+
+        // 1. Desenhar a malha 3x3 de elementos
+        for (let i = -1; i <= 1; i++) {
+          for (let j = -1; j <= 1; j++) {
+            drawJerusalemCross(
+              center + i * pPixel,
+              center + j * pPixel,
+              i === 0 && j === 0,
+            );
+          }
+        }
+
+        // 2. Desenhar a borda da Célula Unitária Central
         ctx.setLineDash([5, 5]);
-        ctx.strokeStyle = "#999";
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.3)";
         ctx.lineWidth = 1;
         ctx.strokeRect(
           center - pPixel / 2,
@@ -323,32 +373,9 @@
           pPixel,
           pPixel,
         );
-
-        // 2. Desenhar a Cruz Central
         ctx.setLineDash([]);
-        ctx.fillStyle = "#003366"; // Cor do metal
 
-        function drawRect(cx, cy, width, height) {
-          ctx.fillRect(
-            center + cx - width / 2,
-            center + cy - height / 2,
-            width,
-            height,
-          );
-        }
-
-        drawRect(0, 0, dPixel, wPixel);
-        drawRect(0, 0, wPixel, dPixel);
-
-        const capLength = 2 * hPixel + wPixel;
-        const offset = dPixel / 2;
-
-        drawRect(-offset, 0, wPixel, capLength);
-        drawRect(offset, 0, wPixel, capLength);
-        drawRect(0, -offset, capLength, wPixel);
-        drawRect(0, offset, capLength, wPixel);
-
-        // 3. Sistema de Cotas (Linhas e Textos)
+        // 3. Sistema de Cotas Otimizado
         ctx.fillStyle = "#cc0000";
         ctx.strokeStyle = "#cc0000";
         ctx.lineWidth = 1.2;
@@ -356,123 +383,105 @@
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
-        function drawDimension(
-          x1,
-          y1,
-          x2,
-          y2,
-          text,
-          textOffsetX,
-          textOffsetY,
-          isVertical = false,
-        ) {
+        // Função robusta para desenhar cotas com fundo branco no texto para não embolar
+        function drawCota(x1, y1, x2, y2, text, textOffsetX, textOffsetY) {
           ctx.beginPath();
           ctx.moveTo(x1, y1);
           ctx.lineTo(x2, y2);
           ctx.stroke();
 
+          // Tracinhos nas pontas
           const tick = 4;
-          if (isVertical) {
-            ctx.moveTo(x1 - tick, y1);
-            ctx.lineTo(x1 + tick, y1);
-            ctx.moveTo(x2 - tick, y2);
-            ctx.lineTo(x2 + tick, y2);
-          } else {
-            ctx.moveTo(x1, y1 - tick);
-            ctx.lineTo(x1, y1 + tick);
-            ctx.moveTo(x2, y2 - tick);
-            ctx.lineTo(x2, y2 + tick);
-          }
+          const dx = x2 - x1,
+            dy = y2 - y1;
+          const len = Math.hypot(dx, dy);
+          const nx = (-dy / len) * tick,
+            ny = (dx / len) * tick;
+
+          ctx.beginPath();
+          ctx.moveTo(x1 + nx, y1 + ny);
+          ctx.lineTo(x1 - nx, y1 - ny);
+          ctx.moveTo(x2 + nx, y2 + ny);
+          ctx.lineTo(x2 - nx, y2 - ny);
           ctx.stroke();
 
-          ctx.fillStyle = "#000";
-          ctx.fillText(
-            text,
-            (x1 + x2) / 2 + textOffsetX,
-            (y1 + y2) / 2 + textOffsetY,
-          );
+          const txtX = (x1 + x2) / 2 + textOffsetX;
+          const txtY = (y1 + y2) / 2 + textOffsetY;
+
+          // Fundo branco para leitura fácil
+          const m = ctx.measureText(text);
+          ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+          ctx.fillRect(txtX - m.width / 2 - 2, txtY - 8, m.width + 4, 16);
+
+          ctx.fillStyle = "#cc0000";
+          ctx.fillText(text, txtX, txtY);
         }
 
-        // Cota 'p' (Topo)
+        // Cota P (Período no topo da célula)
         const topY = center - pPixel / 2;
-        drawDimension(
+        drawCota(
           center - pPixel / 2,
-          topY - 15,
+          topY - 12,
           center + pPixel / 2,
-          topY - 15,
+          topY - 12,
           "p = " + p.toFixed(2),
           0,
-          -12,
+          -8,
         );
 
-        // Cota 'd' (Base)
-        const bottomD = center + wPixel / 2 + 15;
-        drawDimension(
+        // Cota D (Comprimento do braço horizontal)
+        drawCota(
           center - dPixel / 2,
-          bottomD,
+          center + wPixel / 2 + 15,
           center + dPixel / 2,
-          bottomD,
+          center + wPixel / 2 + 15,
           "d = " + d.toFixed(3),
           0,
-          12,
+          8,
         );
 
-        // Cota 'w' (Esquerda do braço vertical)
-        const leftW = center - pPixel / 2 - 25;
-        drawDimension(
-          leftW,
+        // Cota W (Largura da fita, mostrado no braço vertical inferior)
+        drawCota(
           center - wPixel / 2,
-          leftW,
+          center + dPixel / 2 + 18,
           center + wPixel / 2,
+          center + dPixel / 2 + 18,
           "w = " + w.toFixed(2),
-          -22,
           0,
-          true,
+          10,
         );
 
-        // Linhas guias para o 'w'
-        ctx.strokeStyle = "#999";
+        // Cota H (Saliência do chapéu superior)
+        const capLength = 2 * hPixel + wPixel;
+        const hStartX = center + wPixel / 2;
+        const hEndX = center + capLength / 2;
+        const hY = center - dPixel / 2 - wPixel / 2 - 8;
+        drawCota(hStartX, hY, hEndX, hY, "h = " + h.toFixed(2), 0, -8);
+
+        // Linhas de guia para o H
+        ctx.strokeStyle = "rgba(204, 0, 0, 0.3)";
         ctx.setLineDash([2, 2]);
         ctx.beginPath();
-        ctx.moveTo(center - dPixel / 2, center - wPixel / 2);
-        ctx.lineTo(leftW - 5, center - wPixel / 2);
-        ctx.moveTo(center - dPixel / 2, center + wPixel / 2);
-        ctx.lineTo(leftW - 5, center + wPixel / 2);
+        ctx.moveTo(hStartX, center - dPixel / 2);
+        ctx.lineTo(hStartX, hY);
+        ctx.moveTo(hEndX, center - dPixel / 2);
+        ctx.lineTo(hEndX, hY);
         ctx.stroke();
-
-        // Cota 'h' (Topo direito do chapéu)
-        const topCapY1 = center - offset - wPixel / 2;
-        const topCapY2 = topCapY1 - hPixel;
-        const rightH = center + capLength / 2 + 25;
-
-        ctx.strokeStyle = "#cc0000";
         ctx.setLineDash([]);
-        drawDimension(
-          rightH,
-          topCapY2,
-          rightH,
-          topCapY1,
-          "h = " + h.toFixed(2),
-          25,
+
+        // Cota G (Gap visual entre a célula central e a vizinha da direita)
+        const centralRightEdge = center + dPixel / 2 + wPixel / 2;
+        const neighborLeftEdge = center + pPixel - dPixel / 2 - wPixel / 2;
+        // Desenha o gap exatamente no meio dos dois chapéus
+        drawCota(
+          centralRightEdge,
+          center,
+          neighborLeftEdge,
+          center,
+          "g = " + g.toFixed(3),
           0,
-          true,
+          -10,
         );
-
-        // Linhas guias para o 'h'
-        ctx.strokeStyle = "#999";
-        ctx.setLineDash([2, 2]);
-        ctx.beginPath();
-        ctx.moveTo(center + wPixel / 2, topCapY1);
-        ctx.lineTo(rightH + 5, topCapY1);
-        ctx.moveTo(center + wPixel / 2, topCapY2);
-        ctx.lineTo(rightH + 5, topCapY2);
-        ctx.stroke();
-
-        // Legenda extra para o 'g' no canto
-        ctx.setLineDash([]);
-        ctx.fillStyle = "#555";
-        ctx.textAlign = "right";
-        ctx.fillText("Gap (g) = " + g.toFixed(3), size - 15, size - 15);
       }
 
       // --- Simulação Matemática ---
