@@ -1,11 +1,82 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Dashboard FSS</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            background-color: #eef2f5;
+            color: #333;
+            margin: 0;
+            padding: 50px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #000;
+            border-bottom: 2px solid #000;
+            padding-bottom: 15px;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 1100px;
+        }
+        .card {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid #ddd;
+            text-align: center;
+            text-decoration: none;
+            color: #333;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.4em;
+            color: #003366;
+            margin-bottom: 15px;
+        }
+        .card p {
+            font-size: 1em;
+            color: #555;
+            line-height: 1.4;
+        }
+    </style>
 </head>
 <body>
-    
+
+    <h1>Simuladores de Superfícies Seletivas em Frequência (FSS)</h1>
+
+    <div class="grid-container">
+        <a href="Cruzjeru.html" class="card">
+            <h2>Cruz de Jerusalém</h2>
+            <p>Análise da resposta de transmissão utilizando o modelo de circuito equivalente formulado por Langley e Munk.</p>
+        </a>
+
+        <a href="Quadrado.html" class="card">
+            <h2>Patch Quadrado</h2>
+            <p>Simulação de filtro passa-baixa baseado em elemento sólido com cálculo pela teoria sub-ressonante de Ulrich.</p>
+        </a>
+
+        <a href="EspiraQuadrada.html" class="card">
+            <h2>Espira Quadrada</h2>
+            <p>Cálculo da resposta em frequência para a geometria Square Loop aplicada a projetos na faixa n78.</p>
+        </a>
+    </div>
+
 </body>
 </html>

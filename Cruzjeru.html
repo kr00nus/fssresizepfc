@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador FSS - Cruz de Jerusalém</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            background-color: #eef2f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+            max-width: 1300px;
+            margin: auto;
+        }
+        .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid #ddd;
+        }
+        h2 { text-align: center; color: #000; border-bottom: 2px solid #000; padding-bottom: 10px; margin-top: 0; font-size: 1.4em;}
+        
+        /* Controles */
+        .control-group {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #eee;
+        }
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        label { font-weight: bold; font-size: 0.9em; }
+        input[type="number"] { width: 70px; padding: 4px; border: 1px solid #ccc; border-radius: 3px; font-family: 'Times New Roman'; }
+        input[type="range"] { width: 100%; cursor: pointer; }
+
+        /* Visualizadores */
+        .visuals {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .chart-container { position: relative; height: 400px; width: 100%; border: 1px solid #000; padding: 10px; box-sizing: border-box;}
+        
+        .geometry-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            border: 1px solid #000;
+            padding: 15px;
+            background: #fff;
+        }
+        canvas#shapeCanvas {
+            background-color: #fafafa;
+            border: 1px dashed #999;
+        }
+        .geo-legend { font-size: 0.85em; color: #555; margin-top: 10px; text-align: center;}
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <div class="panel">
+        <h2>Parâmetros Físicos</h2>
+        
+        <div class="control-group">
+            <div class="header-row"><label>Freq. Inicial (GHz)</label><input type="number" id="fStart_num" value="5" step="1"></div>
+            <input type="range" id="fStart_slider" min="1" max="10" step="1" value="5">
+        </div>
+        <div class="control-group">
+            <div class="header-row"><label>Freq. Final (GHz)</label><input type="number" id="fEnd_num" value="41" step="1"></div>
+            <input type="range" id="fEnd_slider" min="20" max="60" step="1" value="41">
+        </div>
+        <div class="control-group">
+            <div class="header-row"><label>Período p (cm)</label><input type="number" id="p_num" value="0.65" step="0.01"></div>
+            <input type="range" id="p_slider" min="0.3" max="2.0" step="0.01" value="0.65">
+        </div>
+        <div class="control-group">
+            <div class="header-row"><label>Tamanho Cruz d (cm)</label><input type="number" id="d_num" value="0.495" step="0.005"></div>
+            <input type="range" id="d_slider" min="0.2" max="1.9" step="0.005" value="0.495">
+        </div>
+        <div class="control-group">
+            <div class="header-row"><label>Largura Fita w (cm)</label><input type="number" id="w_num" value="0.09" step="0.01"></div>
+            <input type="range" id="w_slider" min="0.01" max="0.2" step="0.01" value="0.09">
+        </div>
+        <div class="control-group">
+            <div class="header-row"><label>Braço Principal h (cm)</label><input type="number" id="h_num" value="0.03" step="0.01"></div>
+            <input type="range" id="h_slider" min="0.01" max="0.4" step="0.01" value="0.03">
+        </div>
+        <div class="control-group">
+            <div class="header-row"><label>Gap g (cm)</label><input type="number" id="g_num" value="0.021" step="0.001"></div>
+            <input type="range" id="g_slider" min="0.005" max="0.1" step="0.001" value="0.021">
+        </div>
+        <div class="control-group">
+            <div class="header-row"><label>Dielétrico (er)</label><input type="number" id="er_num" value="1.12" step="0.01"></div>
+            <input type="range" id="er_slider" min="1.0" max="10.0" step="0.01" value="1.12">
+        </div>
+    </div>
+
+    <div class="visuals">
+        <div class="panel">
+            <h2>Resposta de Transmissão (S21)</h2>
+            <div class="chart-container">
+                <canvas id="fssChart"></canvas>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Célula Unitária - Cruz de Jerusalém</h2>
+            <div class="geometry-container">
+                <canvas id="shapeCanvas" width="300" height="300"></canvas>
+                <div class="geo-legend">
+                    <strong>Linha pontilhada:</strong> Limites do período (p x p)<br>
+                    O desenho é escalonado automaticamente e atualizado em tempo real.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Funções Matemáticas de Langley/Munk ---
+    function csc(x) { return 1 / Math.sin(x); }
+
+    function GG(p, w, lamb, ang) {
+        const b = Math.sin((Math.PI * w) / (2 * p));
+        const term1 = 2 * p * Math.sin(ang) / lamb;
+        const term2 = Math.pow(p * Math.cos(ang) / lamb, 2);
+        const Cp = (1 / Math.sqrt(1 + term1 - term2)) - 1;
+        const Cn = (1 / Math.sqrt(1 - term1 - term2)) - 1;
+        const b2 = b * b; const b4 = b2 * b2; const b6 = b2 * b4;
+        const num = 0.5 * Math.pow(1 - b2, 2) * ((1 - b2/4) * (Cp + Cn) + 4 * b2 * Cp * Cn);
+        const den = (1 - b2/4) + b2 * (1 + b2/2 - b4/8) * (Cp + Cn) + 2 * b6 * Cp * Cn;
+        return num / den;
+    }
+
+    function FF(p, w, lamb, ang) {
+        const logTerm = Math.log(csc((Math.PI * w) / (2 * p)));
+        return ((p * Math.cos(ang)) / lamb) * (logTerm + GG(p, w, lamb, ang));
+    }
+
+    // --- Sincronização de Inputs UI ---
+    function bindInputs(idPrefix) {
+        const slider = document.getElementById(idPrefix + '_slider');
+        const num = document.getElementById(idPrefix + '_num');
+        slider.addEventListener('input', (e) => {
+            num.value = parseFloat(e.target.value).toFixed(idPrefix === 'g' || idPrefix === 'd' ? 3 : 2);
+            updateAll();
+        });
+        num.addEventListener('input', (e) => {
+            slider.value = e.target.value;
+            updateAll();
+        });
+    }
+    ['fStart', 'fEnd', 'p', 'd', 'w', 'h', 'g', 'er'].forEach(bindInputs);
+
+    let chart;
+
+    // --- Desenho da Geometria (Canvas) ---
+    function drawGeometry(p, d, w, h) {
+        const canvas = document.getElementById('shapeCanvas');
+        const ctx = canvas.getContext('2d');
+        const size = canvas.width;
+        
+        ctx.clearRect(0, 0, size, size);
+
+        // Fator de escala: O período 'p' ocupa 90% do canvas para ter margem
+        const scale = (size * 0.9) / p; 
+        const center = size / 2;
+
+        // 1. Desenhar a borda da Célula Unitária (Período 'p')
+        ctx.setLineDash([5, 5]);
+        ctx.strokeStyle = '#999';
+        ctx.lineWidth = 1;
+        const pPixel = p * scale;
+        ctx.strokeRect(center - pPixel/2, center - pPixel/2, pPixel, pPixel);
+
+        // Resetar estilo para desenhar a Cruz
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#003366'; // Cor do metal
+        
+        const dPixel = d * scale;
+        const wPixel = w * scale;
+        const hPixel = h * scale; // h é metade do comprimento do "chapéu"
+
+        // Função auxiliar para desenhar retângulos a partir do centro
+        function drawRect(cx, cy, width, height) {
+            ctx.fillRect(center + cx - width/2, center + cy - height/2, width, height);
+        }
+
+        // 2. Desenhar a Cruz Central
+        drawRect(0, 0, dPixel, wPixel); // Braço horizontal
+        drawRect(0, 0, wPixel, dPixel); // Braço vertical
+
+        // 3. Desenhar os 4 "Chapéus" (End Caps)
+        // Comprimento total do chapéu = 2*h + w (conforme circuito Langley)
+        const capLength = (2 * h) * scale + wPixel; 
+        const offset = dPixel / 2;
+
+        drawRect(-offset, 0, wPixel, capLength); // Esquerda
+        drawRect(offset, 0, wPixel, capLength);  // Direita
+        drawRect(0, -offset, capLength, wPixel); // Topo
+        drawRect(0, offset, capLength, wPixel);  // Base
+    }
+
+    // --- Simulação Matemática ---
+    function updateAll() {
+        const fStart = parseFloat(document.getElementById('fStart_num').value);
+        const fEnd = parseFloat(document.getElementById('fEnd_num').value);
+        let p = parseFloat(document.getElementById('p_num').value);
+        let d = parseFloat(document.getElementById('d_num').value);
+        const w = parseFloat(document.getElementById('w_num').value);
+        const h = parseFloat(document.getElementById('h_num').value);
+        const g = parseFloat(document.getElementById('g_num').value);
+        const er = parseFloat(document.getElementById('er_num').value);
+
+        // Prevenção de erros físicos (d não pode ser maior que p)
+        if (d >= p) d = p - 0.01;
+
+        // 1. Atualizar o Desenho
+        drawGeometry(p, d, w, h);
+
+        // 2. Atualizar o Gráfico
+        const df = 0.1; // Resolução
+        const data = [];
+        const labels = [];
+        
+        for (let freq = fStart; freq <= fEnd; freq += df) {
+            const lamb = 30 / freq;
+            const ang = 0;
+            
+            try {
+                const XL1 = FF(p, w, lamb, ang);
+                const Bg = ((4 * er * d) / p) * FF(p, g, lamb, ang);
+                const Bd = ((4 * er * (2 * h + g)) / p) * FF(p, p - d, lamb, ang);
+                const BC1 = Bg + Bd;
+                const XL2 = (d / p) * FF(p, 2 * w, lamb, ang);
+                
+                const lamb3 = d / 0.43;
+                const f3 = 30 / lamb3;
+                const BC2 = (1 / XL2) * Math.pow(freq / f3, 2);
+                
+                const Y1 = 1 / (XL1 - (1 / BC1));
+                const Y2 = 1 / (XL2 - (1 / BC2));
+                const Yt = Y1 + Y2;
+                
+                const ct = 1 / Math.sqrt(1 + 0.25 * Math.pow(Yt, 2));
+                const pt = Math.pow(ct, 2);
+                const pt_dB = 10 * Math.log10(pt);
+                
+                labels.push(freq.toFixed(1));
+                // Proteção contra infinito negativo
+                data.push(Math.max(-60, pt_dB));
+            } catch (e) {
+                // Se der erro matemático (ex: divisão por zero), preenche com 0
+                data.push(0);
+            }
+        }
+
+        updateChart(labels, data);
+    }
+
+    function updateChart(labels, data) {
+        const ctx = document.getElementById('fssChart').getContext('2d');
+        if (chart) chart.destroy();
+        
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Simulados (Cruz de Jerusalém)',
+                    data: data,
+                    borderColor: '#000',
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    fill: false,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                scales: {
+                    x: { title: { display: true, text: 'Freqüência (GHz)', font: { family: 'Times New Roman', size: 14 } }, grid: { color: '#eee' } },
+                    y: { min: -60, max: 0, title: { display: true, text: 'Potência Transmitida (dB)', font: { family: 'Times New Roman', size: 14 } }, grid: { color: '#eee' } }
+                },
+                plugins: { legend: { labels: { font: { family: 'Times New Roman' } } } }
+            }
+        });
+    }
+
+    // Início
+    updateAll();
+</script>
+
+</body>
+</html>
