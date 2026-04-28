@@ -1,82 +1,177 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard FSS</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FSS Explorer - Laboratório de Simulação</title>
     <style>
-        body {
-            font-family: 'Times New Roman', serif;
-            background-color: #eef2f5;
-            color: #333;
-            margin: 0;
-            padding: 50px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        h1 {
-            color: #000;
-            border-bottom: 2px solid #000;
-            padding-bottom: 15px;
-            margin-bottom: 50px;
-            text-align: center;
-        }
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 25px;
-            width: 100%;
-            max-width: 1100px;
-        }
-        .card {
-            background: white;
-            padding: 30px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            border: 1px solid #ddd;
-            text-align: center;
-            text-decoration: none;
-            color: #333;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-        .card h2 {
-            margin-top: 0;
-            font-size: 1.4em;
-            color: #003366;
-            margin-bottom: 15px;
-        }
-        .card p {
-            font-size: 1em;
-            color: #555;
-            line-height: 1.4;
-        }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f7f9;
+        color: #2c3e50;
+        margin: 0;
+        padding: 40px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .header {
+        text-align: center;
+        max-width: 800px;
+        margin-bottom: 50px;
+      }
+
+      h1 {
+        font-size: 2.2em;
+        color: #1a2a3a;
+        margin-bottom: 10px;
+        font-weight: 300;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+
+      p.subtitle {
+        font-size: 1.1em;
+        color: #666;
+        margin-top: 0;
+      }
+
+      .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        width: 100%;
+        max-width: 1100px;
+      }
+
+      .card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 40px 25px;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        border: 1px solid #e0e6ed;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      }
+
+      .card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        border-color: #3498db;
+      }
+
+      /* Ícones Geométricos em CSS */
+      .icon {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+
+      /* Cruz de Jerusalém CSS */
+      .icon-cruz {
+        background: #3498db;
+        width: 40px;
+        height: 12px;
+      }
+      .icon-cruz::before {
+        content: "";
+        position: absolute;
+        background: #3498db;
+        width: 12px;
+        height: 40px;
+      }
+
+      /* Patch Quadrado CSS */
+      .icon-quadrado {
+        background: #2c3e50;
+        width: 45px;
+        height: 45px;
+      }
+
+      /* Espira Quadrada CSS */
+      .icon-espira {
+        border: 8px solid #e67e22;
+        width: 40px;
+        height: 40px;
+      }
+
+      .card h2 {
+        font-size: 1.5em;
+        margin: 10px 0;
+        color: #1a2a3a;
+      }
+
+      .card p {
+        text-align: center;
+        font-size: 0.95em;
+        color: #7f8c8d;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .btn-simular {
+        padding: 10px 25px;
+        background: #3498db;
+        color: white;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+
+      .card:hover .btn-simular {
+        background: #2980b9;
+      }
     </style>
-</head>
-<body>
-
-    <h1>Simuladores de Superfícies Seletivas em Frequência (FSS)</h1>
-
-    <div class="grid-container">
-        <a href="Cruzjeru.html" class="card">
-            <h2>Cruz de Jerusalém</h2>
-            <p>Análise da resposta de transmissão utilizando o modelo de circuito equivalente formulado por Langley e Munk.</p>
-        </a>
-
-        <a href="Quadrado.html" class="card">
-            <h2>Patch Quadrado</h2>
-            <p>Simulação de filtro passa-baixa baseado em elemento sólido com cálculo pela teoria sub-ressonante de Ulrich.</p>
-        </a>
-
-        <a href="EspiraQuadrada.html" class="card">
-            <h2>Espira Quadrada</h2>
-            <p>Cálculo da resposta em frequência para a geometria Square Loop aplicada a projetos na faixa n78.</p>
-        </a>
+  </head>
+  <body>
+    <div class="header">
+      <h1>FSS Design Lab</h1>
+      <p class="subtitle">
+        Exploração Interativa de Superfícies Seletivas em Frequência através de
+        Modelos de Circuitos Equivalentes (ECM)
+      </p>
     </div>
 
-</body>
+    <div class="grid-container">
+      <a href="Cruzjeru.html" class="card">
+        <div class="icon"><div class="icon-cruz"></div></div>
+        <h2>Cruz de Jerusalém</h2>
+        <p>
+          Simulação multirressonante baseada na formulação de Langley e Munk
+          para elementos de N-polos conectados.
+        </p>
+        <div class="btn-simular">Iniciar Simulação</div>
+      </a>
+
+      <a href="Quadrado.html" class="card">
+        <div class="icon"><div class="icon-quadrado"></div></div>
+        <h2>Patch Quadrado</h2>
+        <p>
+          Análise de filtros passa-baixa utilizando a teoria sub-ressonante de
+          Ulrich para elementos sólidos.
+        </p>
+        <div class="btn-simular">Iniciar Simulação</div>
+      </a>
+
+      <a href="EspiraQuadrada.html" class="card">
+        <div class="icon"><div class="icon-espira"></div></div>
+        <h2>Espira Quadrada</h2>
+        <p>
+          Estudo de resposta de banda larga para geometrias do tipo Square Loop
+          e análise de acoplamento capacitivo.
+        </p>
+        <div class="btn-simular">Iniciar Simulação</div>
+      </a>
+    </div>
+  </body>
 </html>

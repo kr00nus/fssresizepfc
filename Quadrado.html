@@ -1,223 +1,352 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simulador FSS - Patch Quadrado (Ulrich)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {
-            font-family: 'Times New Roman', serif;
-            background-color: #eef2f5;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-        }
-        .dashboard {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 20px;
-            max-width: 1300px;
-            margin: auto;
-        }
-        .panel {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            border: 1px solid #ddd;
-        }
-        h2 { text-align: center; color: #000; border-bottom: 2px solid #000; padding-bottom: 10px; margin-top: 0; font-size: 1.4em;}
-        
-        .control-group { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #eee; }
-        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-        label { font-weight: bold; font-size: 0.9em; }
-        input[type="number"] { width: 70px; padding: 4px; border: 1px solid #ccc; border-radius: 3px; font-family: 'Times New Roman'; }
-        input[type="range"] { width: 100%; cursor: pointer; }
+      body {
+        font-family: "Times New Roman", serif;
+        background-color: #eef2f5;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+      }
+      .dashboard {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 20px;
+        max-width: 1300px;
+        margin: auto;
+      }
+      .panel {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        border: 1px solid #ddd;
+      }
+      h2 {
+        text-align: center;
+        color: #000;
+        border-bottom: 2px solid #000;
+        padding-bottom: 10px;
+        margin-top: 0;
+        font-size: 1.4em;
+      }
 
-        .visuals { display: flex; flex-direction: column; gap: 20px; }
-        .chart-container { position: relative; height: 400px; width: 100%; border: 1px solid #000; padding: 10px; box-sizing: border-box;}
-        
-        .geometry-container {
-            display: flex; justify-content: center; align-items: center; flex-direction: column;
-            border: 1px solid #000; padding: 15px; background: #fff;
-        }
-        canvas#shapeCanvas { background-color: #fafafa; border: 1px dashed #999; }
-        .geo-legend { font-size: 0.85em; color: #555; margin-top: 10px; text-align: center;}
+      .control-group {
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px dashed #eee;
+      }
+      .header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5px;
+      }
+      label {
+        font-weight: bold;
+        font-size: 0.9em;
+      }
+      input[type="number"] {
+        width: 70px;
+        padding: 4px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        font-family: "Times New Roman";
+      }
+      input[type="range"] {
+        width: 100%;
+        cursor: pointer;
+      }
+
+      .visuals {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .chart-container {
+        position: relative;
+        height: 400px;
+        width: 100%;
+        border: 1px solid #000;
+        padding: 10px;
+        box-sizing: border-box;
+      }
+
+      .geometry-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        border: 1px solid #000;
+        padding: 15px;
+        background: #fff;
+      }
+      canvas#shapeCanvas {
+        background-color: #fafafa;
+        border: 1px dashed #999;
+      }
+      .geo-legend {
+        font-size: 0.85em;
+        color: #555;
+        margin-top: 10px;
+        text-align: center;
+      }
     </style>
-</head>
-<body>
-
-<div class="dashboard">
-    <div class="panel">
+  </head>
+  <body>
+    <div class="dashboard">
+      <div class="panel">
         <h2>Parâmetros Físicos</h2>
-        
+
         <div class="control-group">
-            <div class="header-row"><label>Freq. Inicial (GHz)</label><input type="number" id="fStart_num" value="1" step="1"></div>
-            <input type="range" id="fStart_slider" min="1" max="10" step="1" value="1">
+          <div class="header-row">
+            <label>Freq. Inicial (GHz)</label
+            ><input type="number" id="fStart_num" value="1" step="1" />
+          </div>
+          <input
+            type="range"
+            id="fStart_slider"
+            min="1"
+            max="10"
+            step="1"
+            value="1"
+          />
         </div>
         <div class="control-group">
-            <div class="header-row"><label>Freq. Final (GHz)</label><input type="number" id="fEnd_num" value="40" step="1"></div>
-            <input type="range" id="fEnd_slider" min="10" max="60" step="1" value="40">
+          <div class="header-row">
+            <label>Freq. Final (GHz)</label
+            ><input type="number" id="fEnd_num" value="40" step="1" />
+          </div>
+          <input
+            type="range"
+            id="fEnd_slider"
+            min="10"
+            max="60"
+            step="1"
+            value="40"
+          />
         </div>
-        <div class="control-group" style="border-left: 4px solid #007bff; padding-left: 5px;">
-            <div class="header-row"><label>Periodicidade a (cm)</label><input type="number" id="a_num" value="1.00" step="0.01"></div>
-            <input type="range" id="a_slider" min="0.3" max="3.0" step="0.01" value="1.00">
+        <div
+          class="control-group"
+          style="border-left: 4px solid #007bff; padding-left: 5px"
+        >
+          <div class="header-row">
+            <label>Periodicidade a (mm)</label
+            ><input type="number" id="a_num" value="1.00" step="0.01" />
+          </div>
+          <input
+            type="range"
+            id="a_slider"
+            min="0.3"
+            max="3.0"
+            step="0.01"
+            value="1.00"
+          />
         </div>
-        <div class="control-group" style="border-left: 4px solid #28a745; padding-left: 5px;">
-            <div class="header-row"><label>Largura Patch c (cm)</label><input type="number" id="c_num" value="0.80" step="0.01"></div>
-            <input type="range" id="c_slider" min="0.1" max="2.9" step="0.01" value="0.80">
+        <div
+          class="control-group"
+          style="border-left: 4px solid #28a745; padding-left: 5px"
+        >
+          <div class="header-row">
+            <label>Largura Patch c (mm)</label
+            ><input type="number" id="c_num" value="0.80" step="0.01" />
+          </div>
+          <input
+            type="range"
+            id="c_slider"
+            min="0.1"
+            max="2.9"
+            step="0.01"
+            value="0.80"
+          />
         </div>
+      </div>
+
+      <div class="visuals">
+        <div class="panel">
+          <h2>Resposta de Transmissão (S21) - Passa-Baixa</h2>
+          <div class="chart-container">
+            <canvas id="fssChart"></canvas>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Célula Unitária - Patch Quadrado</h2>
+          <div class="geometry-container">
+            <canvas id="shapeCanvas" width="300" height="300"></canvas>
+            <div class="geo-legend">
+              <strong>Linha pontilhada:</strong> Limites do período (a x a)<br />
+              <strong>Azul Sólido:</strong> Metalização (Patch de largura c x
+              c)<br />
+              O espaço em branco representa o gap capacitivo entre as células.
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="visuals">
-        <div class="panel">
-            <h2>Resposta de Transmissão (S21) - Passa-Baixa</h2>
-            <div class="chart-container">
-                <canvas id="fssChart"></canvas>
-            </div>
-        </div>
-
-        <div class="panel">
-            <h2>Célula Unitária - Patch Quadrado</h2>
-            <div class="geometry-container">
-                <canvas id="shapeCanvas" width="300" height="300"></canvas>
-                <div class="geo-legend">
-                    <strong>Linha pontilhada:</strong> Limites do período (a x a)<br>
-                    <strong>Azul Sólido:</strong> Metalização (Patch de largura c x c)<br>
-                    O espaço em branco representa o gap capacitivo entre as células.
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    // --- Sincronização UI ---
-    function bindInputs(idPrefix) {
-        const slider = document.getElementById(idPrefix + '_slider');
-        const num = document.getElementById(idPrefix + '_num');
-        slider.addEventListener('input', (e) => {
-            num.value = parseFloat(e.target.value).toFixed(2);
-            updateAll();
+    <script>
+      // --- Sincronização UI ---
+      function bindInputs(idPrefix) {
+        const slider = document.getElementById(idPrefix + "_slider");
+        const num = document.getElementById(idPrefix + "_num");
+        slider.addEventListener("input", (e) => {
+          num.value = parseFloat(e.target.value).toFixed(2);
+          updateAll();
         });
-        num.addEventListener('input', (e) => {
-            slider.value = e.target.value;
-            updateAll();
+        num.addEventListener("input", (e) => {
+          slider.value = e.target.value;
+          updateAll();
         });
-    }
-    ['fStart', 'fEnd', 'a', 'c'].forEach(bindInputs);
+      }
+      ["fStart", "fEnd", "a", "c"].forEach(bindInputs);
 
-    let chart;
+      function mmToCm(value) {
+        return value / 10;
+      }
 
-    // --- Desenho da Geometria (Patch Quadrado) ---
-    function drawGeometry(a, c) {
-        const canvas = document.getElementById('shapeCanvas');
-        const ctx = canvas.getContext('2d');
+      let chart;
+
+      // --- Desenho da Geometria (Patch Quadrado) ---
+      function drawGeometry(a, c) {
+        const canvas = document.getElementById("shapeCanvas");
+        const ctx = canvas.getContext("2d");
         const size = canvas.width;
-        
+
         ctx.clearRect(0, 0, size, size);
 
         // Fator de escala
-        const scale = (size * 0.9) / a; 
+        const scale = (size * 0.9) / a;
         const center = size / 2;
 
         // 1. Célula Unitária (Período 'a')
         ctx.setLineDash([5, 5]);
-        ctx.strokeStyle = '#999';
+        ctx.strokeStyle = "#999";
         ctx.lineWidth = 1;
         const aPixel = a * scale;
-        ctx.strokeRect(center - aPixel/2, center - aPixel/2, aPixel, aPixel);
+        ctx.strokeRect(
+          center - aPixel / 2,
+          center - aPixel / 2,
+          aPixel,
+          aPixel,
+        );
 
         // 2. Desenhar o Patch (Sólido Metálico 'c')
         ctx.setLineDash([]);
-        ctx.fillStyle = '#003366'; // Cor do metal (azul escuro)
-        
-        const cPixel = c * scale;
-        ctx.fillRect(center - cPixel/2, center - cPixel/2, cPixel, cPixel);
-    }
+        ctx.fillStyle = "#003366"; // Cor do metal (azul escuro)
 
-    // --- Simulação Matemática (Fórmula de Ulrich) ---
-    function updateAll() {
-        const fStart = parseFloat(document.getElementById('fStart_num').value);
-        const fEnd = parseFloat(document.getElementById('fEnd_num').value);
-        let a = parseFloat(document.getElementById('a_num').value);
-        let c = parseFloat(document.getElementById('c_num').value);
+        const cPixel = c * scale;
+        ctx.fillRect(center - cPixel / 2, center - cPixel / 2, cPixel, cPixel);
+      }
+
+      // --- Simulação Matemática (Fórmula de Ulrich) ---
+      function updateAll() {
+        const fStart = parseFloat(document.getElementById("fStart_num").value);
+        const fEnd = parseFloat(document.getElementById("fEnd_num").value);
+        let a = parseFloat(document.getElementById("a_num").value);
+        let c = parseFloat(document.getElementById("c_num").value);
 
         // Proteções físicas (O patch não pode ser maior que o período)
-        if (c >= a) { 
-            c = a - 0.01; 
-            document.getElementById('c_num').value = c.toFixed(2); 
-            document.getElementById('c_slider').value = c;
+        if (c >= a) {
+          c = a - 0.01;
+          document.getElementById("c_num").value = c.toFixed(2);
+          document.getElementById("c_slider").value = c;
         }
 
         drawGeometry(a, c);
 
         const df = 0.1;
         const d = (a - c) / 2; // Metade do gap
+        const aCm = mmToCm(a);
         const data = [];
         const labels = [];
-        
+
         for (let freq = fStart; freq <= fEnd; freq += df) {
-            const lamb = 30 / freq;
-            let pt_dB = -60;
-            
-            try {
-                // Ulrich é válida apenas quando a < lambda (região sub-ressonante)
-                // Se a/lambda >= 1, a teoria prevê o surgimento de lóbulos de grade (difração)
-                if ((a / lamb) < 1) {
-                    const beta = (1 - 0.27 * (d / a)) / (a / lamb);
-                    const csc_val = 1 / Math.sin(Math.PI * d / (2 * a));
-                    const Yc = beta * Math.log(csc_val) / (Math.pow(beta, 2) - 1);
-                    
-                    const pt = 1 / (1 + Math.pow(Yc, 2));
-                    pt_dB = 10 * Math.log10(pt);
-                } else {
-                    // Força queda brusca fora da região de validade (comportamento típico de FSS densa)
-                    pt_dB = -60; 
-                }
-                
-                labels.push(freq.toFixed(1));
-                data.push(Math.max(-60, pt_dB));
-            } catch (e) {
-                data.push(-60);
+          const lamb = 30 / freq;
+          let pt_dB = -60;
+
+          try {
+            // Ulrich é válida apenas quando a < lambda (região sub-ressonante)
+            // Se a/lambda >= 1, a teoria prevê o surgimento de lóbulos de grade (difração)
+            if (aCm / lamb < 1) {
+              const beta = (1 - 0.27 * (d / a)) / (aCm / lamb);
+              const csc_val = 1 / Math.sin((Math.PI * d) / (2 * a));
+              const Yc = (beta * Math.log(csc_val)) / (Math.pow(beta, 2) - 1);
+
+              const pt = 1 / (1 + Math.pow(Yc, 2));
+              pt_dB = 10 * Math.log10(pt);
+            } else {
+              // Força queda brusca fora da região de validade (comportamento típico de FSS densa)
+              pt_dB = -60;
             }
+
+            labels.push(freq.toFixed(1));
+            data.push(Math.max(-60, pt_dB));
+          } catch (e) {
+            data.push(-60);
+          }
         }
 
         updateChart(labels, data);
-    }
+      }
 
-    function updateChart(labels, data) {
-        const ctx = document.getElementById('fssChart').getContext('2d');
+      function updateChart(labels, data) {
+        const ctx = document.getElementById("fssChart").getContext("2d");
         if (chart) chart.destroy();
-        
+
         chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Simulados (Patch Quadrado - Ulrich)',
-                    data: data,
-                    borderColor: '#000',
-                    borderWidth: 2,
-                    pointRadius: 0,
-                    fill: false,
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false, animation: false,
-                scales: {
-                    x: { title: { display: true, text: 'Freqüência (GHz)', font: { family: 'Times New Roman', size: 14 } }, grid: { color: '#eee' } },
-                    y: { min: -60, max: 0, title: { display: true, text: 'Potência Transmitida (dB)', font: { family: 'Times New Roman', size: 14 } }, grid: { color: '#eee' } }
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Simulados (Patch Quadrado - Ulrich)",
+                data: data,
+                borderColor: "#000",
+                borderWidth: 2,
+                pointRadius: 0,
+                fill: false,
+                tension: 0.1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: "Freqüência (GHz)",
+                  font: { family: "Times New Roman", size: 14 },
                 },
-                plugins: { legend: { labels: { font: { family: 'Times New Roman' } } } }
-            }
+                grid: { color: "#eee" },
+              },
+              y: {
+                min: -60,
+                max: 0,
+                title: {
+                  display: true,
+                  text: "Potência Transmitida (dB)",
+                  font: { family: "Times New Roman", size: 14 },
+                },
+                grid: { color: "#eee" },
+              },
+            },
+            plugins: {
+              legend: { labels: { font: { family: "Times New Roman" } } },
+            },
+          },
         });
-    }
+      }
 
-    updateAll();
-</script>
-
-</body>
+      updateAll();
+    </script>
+  </body>
 </html>
