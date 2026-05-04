@@ -173,6 +173,7 @@
           <div class="chart-container">
             <canvas id="fssChart"></canvas>
           </div>
+          <button id="exportBtn" onclick="exportToCSV()" style="margin-top: 10px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Exportar CSV</button>
         </div>
 
         <div class="panel">
@@ -508,6 +509,29 @@
             },
           },
         });
+      }
+
+      function exportToCSV() {
+        if (!chart || !chart.data.labels.length) {
+          alert("Nenhum dado disponível para exportar. Ajuste os parâmetros e gere o gráfico primeiro.");
+          return;
+        }
+        let csv = "Frequência (GHz),S21 (dB)\n";
+        chart.data.labels.forEach((freq, index) => {
+          const s21 = chart.data.datasets[0].data[index];
+          csv += `${freq},${s21}\n`;
+        });
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        if (link.download !== undefined) {
+          const url = URL.createObjectURL(blob);
+          link.setAttribute("href", url);
+          link.setAttribute("download", "dados_s21_patch_quadrado.csv");
+          link.style.visibility = "hidden";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
       }
 
       // Nenhuma simulação inicial: aguarda o ajuste do usuário.
