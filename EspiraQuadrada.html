@@ -600,20 +600,29 @@
         window.lastFr = frFreq;
         window.lastBw = bw;
 
-        // Criar datasets apenas para os 3 pontos de marcação
-        const frPointData = labels.map((label, idx) =>
-          Math.abs(parseFloat(label) - frFreq) < 0.1 ? data[idx] : null,
-        );
-        const bwPointsData = labels.map((label, idx) => {
-          const freq = parseFloat(label);
-          if (
-            Math.abs(freq - fLower) < 0.1 ||
-            Math.abs(freq - fUpper) < 0.1
-          ) {
-            return data[idx];
+        // Criar datasets apenas para os 3 pontos de marcação (exatamente 1 para Fr e 1 para cada extremidade BW)
+        // Encontrar índices dos pontos MAIS PRÓXIMOS (não intervalo)
+        let frIndex = minIndex; // Fr é no mínimo
+        
+        let lowerIndex = minIndex;
+        for (let i = minIndex; i >= 0; i--) {
+          if (Math.abs(parseFloat(labels[i]) - fLower) < Math.abs(parseFloat(labels[lowerIndex]) - fLower)) {
+            lowerIndex = i;
           }
-          return null;
-        });
+        }
+        
+        let upperIndex = minIndex;
+        for (let i = minIndex; i < data.length; i++) {
+          if (Math.abs(parseFloat(labels[i]) - fUpper) < Math.abs(parseFloat(labels[upperIndex]) - fUpper)) {
+            upperIndex = i;
+          }
+        }
+        
+        // Mapear dados apenas nos índices exatos
+        const frPointData = labels.map((_, idx) => idx === frIndex ? data[idx] : null);
+        const bwPointsData = labels.map((_, idx) => 
+          (idx === lowerIndex || idx === upperIndex) ? data[idx] : null
+        );
 
         chart = new Chart(ctx, {
           type: "line",
