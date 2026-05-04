@@ -516,10 +516,10 @@
           alert("Nenhum dado disponível para exportar. Ajuste os parâmetros e gere o gráfico primeiro.");
           return;
         }
-        let csv = "Frequência (GHz),S21 (dB)\n";
+        let csv = "Frequência (GHz);S21 (dB)\n";
         chart.data.labels.forEach((freq, index) => {
           const s21 = chart.data.datasets[0].data[index];
-          csv += `${freq},${s21}\n`;
+          csv += `${freq};${s21}\n`;
         });
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
         const link = document.createElement("a");
