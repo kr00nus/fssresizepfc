@@ -106,29 +106,29 @@
         <div class="control-group">
           <div class="header-row">
             <label>Freq. Inicial (GHz)</label
-            ><input type="number" id="fStart_num" value="1" step="1" />
+            ><input type="number" id="fStart_num" value="0" step="1" />
           </div>
           <input
             type="range"
             id="fStart_slider"
-            min="1"
+            min="0"
             max="10"
             step="1"
-            value="1"
+            value="0"
           />
         </div>
         <div class="control-group">
           <div class="header-row">
             <label>Freq. Final (GHz)</label
-            ><input type="number" id="fEnd_num" value="40" step="1" />
+            ><input type="number" id="fEnd_num" value="0" step="1" />
           </div>
           <input
             type="range"
             id="fEnd_slider"
-            min="10"
+            min="0"
             max="60"
             step="1"
-            value="40"
+            value="0"
           />
         </div>
         <div
@@ -137,15 +137,15 @@
         >
           <div class="header-row">
             <label>Período p (mm)</label
-            ><input type="number" id="p_num" value="10.0" step="0.1" />
+            ><input type="number" id="p_num" value="0" step="0.1" />
           </div>
           <input
             type="range"
             id="p_slider"
-            min="3.0"
+            min="0"
             max="30.0"
             step="0.1"
-            value="10.0"
+            value="0"
           />
         </div>
         <div
@@ -154,15 +154,15 @@
         >
           <div class="header-row">
             <label>Largura c (mm)</label
-            ><input type="number" id="c_num" value="8.0" step="0.1" />
+            ><input type="number" id="c_num" value="0" step="0.1" />
           </div>
           <input
             type="range"
             id="c_slider"
-            min="1.0"
+            min="0"
             max="29.0"
             step="0.1"
-            value="8.0"
+            value="0"
           />
         </div>
       </div>
@@ -380,6 +380,17 @@
         let p = parseFloat(document.getElementById("p_num").value); // 'a' no documento
         let c = parseFloat(document.getElementById("c_num").value); // 'c' no documento
 
+        if (
+          fStart <= 0 ||
+          fEnd <= 0 ||
+          p <= 0 ||
+          c <= 0 ||
+          fStart >= fEnd
+        ) {
+          if (chart) chart.destroy();
+          return;
+        }
+
         if (c >= p) {
           c = p - 0.01;
           document.getElementById("c_num").value = c.toFixed(2);
@@ -505,7 +516,7 @@
         });
       }
 
-      updateAll();
+      // Nenhuma simulação inicial: aguarda o ajuste do usuário.
     </script>
   </body>
 </html>

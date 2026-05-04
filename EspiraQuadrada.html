@@ -106,29 +106,29 @@
         <div class="control-group">
           <div class="header-row">
             <label>Freq. Inicial (GHz)</label>
-            <input type="number" id="fStart_num" value="10" step="1" />
+            <input type="number" id="fStart_num" value="0" step="1" />
           </div>
           <input
             type="range"
             id="fStart_slider"
-            min="1"
+            min="0"
             max="20"
             step="1"
-            value="10"
+            value="0"
           />
         </div>
         <div class="control-group">
           <div class="header-row">
             <label>Freq. Final (GHz)</label>
-            <input type="number" id="fEnd_num" value="22" step="1" />
+            <input type="number" id="fEnd_num" value="0" step="1" />
           </div>
           <input
             type="range"
             id="fEnd_slider"
-            min="15"
+            min="0"
             max="40"
             step="1"
-            value="22"
+            value="0"
           />
         </div>
 
@@ -138,15 +138,15 @@
         >
           <div class="header-row">
             <label>Período p (mm)</label>
-            <input type="number" id="p_num" value="5.25" step="0.01" />
+            <input type="number" id="p_num" value="0" step="0.01" />
           </div>
           <input
             type="range"
             id="p_slider"
-            min="1.0"
+            min="0"
             max="10.0"
             step="0.01"
-            value="5.25"
+            value="0"
           />
         </div>
 
@@ -156,30 +156,30 @@
         >
           <div class="header-row">
             <label>Tam. Espira d (mm)</label>
-            <input type="number" id="d_num" value="5.00" step="0.01" />
+            <input type="number" id="d_num" value="0" step="0.01" />
           </div>
           <input
             type="range"
             id="d_slider"
-            min="0.5"
+            min="0"
             max="9.9"
             step="0.01"
-            value="5.00"
+            value="0"
           />
         </div>
 
         <div class="control-group">
           <div class="header-row">
             <label>Largura Fita w (mm)</label>
-            <input type="number" id="w_num" value="0.47" step="0.01" />
+            <input type="number" id="w_num" value="0" step="0.01" />
           </div>
           <input
             type="range"
             id="w_slider"
-            min="0.01"
+            min="0"
             max="2.0"
             step="0.01"
-            value="0.47"
+            value="0"
           />
         </div>
 
@@ -192,7 +192,7 @@
             <input
               type="number"
               id="g_num"
-              value="0.25"
+              value="0"
               readonly
               style="background: #e9ecef; border: 1px solid #ced4da"
             />
@@ -202,15 +202,15 @@
         <div class="control-group">
           <div class="header-row">
             <label>Dielétrico (er)</label>
-            <input type="number" id="er_num" value="1.12" step="0.01" />
+            <input type="number" id="er_num" value="0" step="0.01" />
           </div>
           <input
             type="range"
             id="er_slider"
-            min="1.0"
+            min="0"
             max="10.0"
             step="0.01"
-            value="1.12"
+            value="0"
           />
         </div>
       </div>
@@ -445,6 +445,7 @@
         return 1 / Math.sin(x);
       }
 
+      // Formulação RIGOROSA extraída da rotina Matlab do livro
       function GG(p, w, lamb, ang) {
         const b = Math.sin((Math.PI * w) / (2 * p));
         const term1 = (2 * p * Math.sin(ang)) / lamb;
@@ -486,6 +487,19 @@
         let w = parseFloat(document.getElementById("w_num").value);
         const er = parseFloat(document.getElementById("er_num").value);
 
+        if (
+          fStart <= 0 ||
+          fEnd <= 0 ||
+          p <= 0 ||
+          d <= 0 ||
+          w <= 0 ||
+          er <= 0 ||
+          fStart >= fEnd
+        ) {
+          if (chart) chart.destroy();
+          return;
+        }
+
         if (d >= p) {
           d = p - 0.01;
           document.getElementById("d_num").value = d.toFixed(2);
@@ -513,9 +527,10 @@
 
         for (let freq = fStart; freq <= fEnd; freq += df) {
           const lamb = 30 / freq;
-          const ang = 0;
+          const ang = 0; // Teta e Fi em radianos (zero para incidência normal)
 
           try {
+            // Equações idênticas ao código Matlab do eBook
             const XL = (dCm / pCm) * FF(pCm, 2 * wCm, lamb, ang);
             const BC = 4 * er * (dCm / pCm) * FF(pCm, gCm, lamb, ang);
 
@@ -584,7 +599,7 @@
         });
       }
 
-      updateAll();
+      // Nenhuma simulação inicial: aguarda o ajuste do usuário.
     </script>
   </body>
 </html>
