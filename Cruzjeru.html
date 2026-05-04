@@ -638,7 +638,9 @@
         for (let i = minIndex; i < data.length; i++) {
           if (data[i] >= threshold) {
             fUpper =
-              i < data.length - 1 ? parseFloat(labels[i]) : parseFloat(labels[data.length - 1]);
+              i < data.length - 1
+                ? parseFloat(labels[i])
+                : parseFloat(labels[data.length - 1]);
             break;
           }
         }
@@ -650,17 +652,19 @@
         window.lastFr = frFreq;
         window.lastBw = bw;
 
-        // Criar dados para linhas de marcação
-        const lineData = [];
-        labels.forEach((label, idx) => {
+        // Criar datasets apenas para os 3 pontos de marcação
+        const frPointData = labels.map((label, idx) =>
+          Math.abs(parseFloat(label) - frFreq) < 0.1 ? data[idx] : null,
+        );
+        const bwPointsData = labels.map((label, idx) => {
           const freq = parseFloat(label);
-          if (Math.abs(freq - frFreq) < 0.15) {
-            lineData.push(data[idx]);
-          } else if (Math.abs(freq - fLower) < 0.15 || Math.abs(freq - fUpper) < 0.15) {
-            lineData.push(data[idx]);
-          } else {
-            lineData.push(null);
+          if (
+            Math.abs(freq - fLower) < 0.1 ||
+            Math.abs(freq - fUpper) < 0.1
+          ) {
+            return data[idx];
           }
+          return null;
         });
 
         chart = new Chart(ctx, {
@@ -679,30 +683,29 @@
               },
               {
                 label: `fr = ${frFreq.toFixed(2)} GHz`,
-                data: lineData.map((v, i) => (Math.abs(parseFloat(labels[i]) - frFreq) < 0.15 ? data[i] : null)),
+                data: frPointData,
                 borderColor: "#ff0000",
-                borderWidth: 2,
+                borderWidth: 3,
                 borderDash: [5, 5],
-                pointRadius: 0,
+                pointRadius: 6,
+                pointBackgroundColor: "#ff0000",
+                pointBorderColor: "#ff0000",
                 fill: false,
-                tension: 0.1,
+                tension: 0,
+                showLine: false,
               },
               {
                 label: `BW = ${bw.toFixed(2)} GHz (-3dB)`,
-                data: lineData.map((v, i) => {
-                  const freq = parseFloat(labels[i]);
-                  if (Math.abs(freq - fLower) < 0.15 || Math.abs(freq - fUpper) < 0.15) {
-                    return data[i];
-                  }
-                  return null;
-                }),
+                data: bwPointsData,
                 borderColor: "#0066cc",
-                borderWidth: 2,
+                borderWidth: 3,
                 borderDash: [3, 3],
-                pointRadius: 5,
+                pointRadius: 6,
                 pointBackgroundColor: "#0066cc",
+                pointBorderColor: "#0066cc",
                 fill: false,
-                tension: 0.1,
+                tension: 0,
+                showLine: false,
               },
             ],
           },
@@ -743,7 +746,12 @@
           infoBox.id = "resonanceInfo";
           infoBox.style.cssText =
             "margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 4px; font-family: 'Times New Roman'; font-size: 14px;";
-          document.querySelector(".chart-container").parentNode.insertBefore(infoBox, document.querySelector(".chart-container").nextSibling);
+          document
+            .querySelector(".chart-container")
+            .parentNode.insertBefore(
+              infoBox,
+              document.querySelector(".chart-container").nextSibling,
+            );
         }
         infoBox.innerHTML = `<strong>Frequência de Ressonância (fr):</strong> ${frFreq.toFixed(2)} GHz | <strong>Banda Passante (BW):</strong> ${bw.toFixed(2)} GHz (${fLower.toFixed(2)} - ${fUpper.toFixed(2)} GHz)`;
       }
