@@ -98,7 +98,7 @@
   <body>
     <div class="dashboard">
       <div class="panel">
-        <h2>Parâmetros Físicos (Fig. 4.4)</h2>
+        <h2>Parâmetros Físicos (Fig. 4.5)</h2>
 
         <div class="control-group">
           <div class="header-row">
@@ -278,8 +278,7 @@
             <canvas id="shapeCanvas" width="400" height="400"></canvas>
             <div class="geo-legend">
               <strong>Linha pontilhada:</strong> Limites do período (p x p)<br />
-              Cálculo reajustado para física pura sem limite de amortecimento
-              virtual.
+              Cálculo reajustado para física pura de ECM de Matlab.
             </div>
           </div>
         </div>
@@ -577,14 +576,12 @@
             const XL = (dCm / pCm) * FF(pCm, 2 * wCm, lamb, ang);
             const BC = 4 * er_eff * (dCm / pCm) * FF(pCm, gCm, lamb, ang);
 
-            // Removido o fator de perda artificial para bater perfeitamente com a teoria pura de Matlab
             const ct = 1 / (XL - 1 / BC);
             const pt = 1 / (1 + 0.25 * Math.pow(ct, 2));
             let pt_dB = 10 * Math.log10(pt);
 
             labels.push(freq.toFixed(2));
 
-            // O gráfico vai naturalmente limitar e exibir as quedas drásticas da física pura
             data.push(Math.max(-60, pt_dB));
           } catch (e) {
             data.push(0);
@@ -598,54 +595,47 @@
         const ctx = document.getElementById("fssChart").getContext("2d");
         if (chart) chart.destroy();
 
+        // Calcular fr no vale
         const minIndex = data.indexOf(Math.min(...data));
         const frFreq = parseFloat(labels[minIndex]);
-        const minValue = data[minIndex];
-        const threshold = minValue + 3;
+
+        // Padrão FSS Banda de Rejeição: Medida a -10 dB absoluto
+        const threshold = -10.0;
 
         let fLower = null,
           fUpper = null;
+        let lowerIndex = null,
+          upperIndex = null;
+
+        // Buscar -10dB descendo (à esquerda do vale)
         for (let i = minIndex; i >= 0; i--) {
           if (data[i] >= threshold) {
-            fLower = i > 0 ? parseFloat(labels[i]) : parseFloat(labels[0]);
+            fLower = parseFloat(labels[i]);
+            lowerIndex = i;
             break;
           }
         }
+        // Buscar -10dB subindo (à direita do vale)
         for (let i = minIndex; i < data.length; i++) {
           if (data[i] >= threshold) {
-            fUpper =
-              i < data.length - 1
-                ? parseFloat(labels[i])
-                : parseFloat(labels[data.length - 1]);
+            fUpper = parseFloat(labels[i]);
+            upperIndex = i;
             break;
           }
         }
-        if (fLower === null) fLower = parseFloat(labels[0]);
-        if (fUpper === null) fUpper = parseFloat(labels[data.length - 1]);
+
+        if (fLower === null) {
+          fLower = parseFloat(labels[0]);
+          lowerIndex = 0;
+        }
+        if (fUpper === null) {
+          fUpper = parseFloat(labels[data.length - 1]);
+          upperIndex = data.length - 1;
+        }
         const bw = fUpper - fLower;
 
-        let frIndex = minIndex;
-        let lowerIndex = minIndex;
-        for (let i = minIndex; i >= 0; i--) {
-          if (
-            Math.abs(parseFloat(labels[i]) - fLower) <
-            Math.abs(parseFloat(labels[lowerIndex]) - fLower)
-          ) {
-            lowerIndex = i;
-          }
-        }
-        let upperIndex = minIndex;
-        for (let i = minIndex; i < data.length; i++) {
-          if (
-            Math.abs(parseFloat(labels[i]) - fUpper) <
-            Math.abs(parseFloat(labels[upperIndex]) - fUpper)
-          ) {
-            upperIndex = i;
-          }
-        }
-
         const frPointData = labels.map((_, idx) =>
-          idx === frIndex ? data[idx] : null,
+          idx === minIndex ? data[idx] : null,
         );
         const bwPointsData = labels.map((_, idx) =>
           idx === lowerIndex || idx === upperIndex ? data[idx] : null,
@@ -678,7 +668,7 @@
                 showLine: false,
               },
               {
-                label: `BW = ${bw.toFixed(2)} GHz (-3dB)`,
+                label: `BW = ${bw.toFixed(2)} GHz (-10dB)`,
                 data: bwPointsData,
                 borderColor: "#0066cc",
                 borderWidth: 3,
@@ -706,7 +696,7 @@
                 ticks: { maxTicksLimit: 20 },
               },
               y: {
-                min: -50,
+                min: -60,
                 max: 0,
                 title: {
                   display: true,
@@ -735,7 +725,7 @@
               document.querySelector(".chart-container").nextSibling,
             );
         }
-        infoBox.innerHTML = `<strong>Frequência de Ressonância (fr):</strong> ${frFreq.toFixed(2)} GHz | <strong>Banda Passante (BW):</strong> ${bw.toFixed(2)} GHz (${fLower.toFixed(2)} - ${fUpper.toFixed(2)} GHz)`;
+        infoBox.innerHTML = `<strong>Frequência de Ressonância (fr):</strong> ${frFreq.toFixed(2)} GHz | <strong>Banda de Rejeição (BW):</strong> ${bw.toFixed(2)} GHz (${fLower.toFixed(2)} - ${fUpper.toFixed(2)} GHz)`;
       }
 
       function exportToCSV() {
