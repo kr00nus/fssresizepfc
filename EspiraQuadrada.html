@@ -568,22 +568,23 @@
         if (chart) chart.destroy();
 
         // Calcular frequência de ressonância (fr) e banda passante (BW)
-        const maxIndex = data.indexOf(Math.max(...data));
-        const frFreq = parseFloat(labels[maxIndex]);
-        const maxValue = data[maxIndex];
-        const threshold = maxValue - 3; // -3dB
+        // Para FSS de rejeição, fr é o MÍNIMO (vale) de S21
+        const minIndex = data.indexOf(Math.min(...data));
+        const frFreq = parseFloat(labels[minIndex]);
+        const minValue = data[minIndex];
+        const threshold = minValue + 3; // -3dB (acima do mínimo)
 
-        // Encontrar limites de banda (-3dB)
+        // Encontrar limites de banda (-3dB acima do mínimo)
         let fLower = null,
           fUpper = null;
-        for (let i = maxIndex; i >= 0; i--) {
-          if (data[i] <= threshold) {
+        for (let i = minIndex; i >= 0; i--) {
+          if (data[i] >= threshold) {
             fLower = i > 0 ? parseFloat(labels[i]) : parseFloat(labels[0]);
             break;
           }
         }
-        for (let i = maxIndex; i < data.length; i++) {
-          if (data[i] <= threshold) {
+        for (let i = minIndex; i < data.length; i++) {
+          if (data[i] >= threshold) {
             fUpper =
               i < data.length - 1 ? parseFloat(labels[i]) : parseFloat(labels[data.length - 1]);
             break;
