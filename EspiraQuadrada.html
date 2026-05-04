@@ -52,7 +52,7 @@
         font-size: 0.9em;
       }
       input[type="number"] {
-        width: 75px;
+        width: 70px;
         padding: 4px;
         border: 1px solid #ccc;
         border-radius: 3px;
@@ -101,51 +101,101 @@
   <body>
     <div class="dashboard">
       <div class="panel">
-        <h2>Parâmetros Físicos (Fig. 4.5)</h2>
+        <h2>Parâmetros Físicos (Fig. 4.4)</h2>
 
         <div class="control-group">
           <div class="header-row">
             <label>Freq. Inicial (GHz)</label>
-            <input type="number" id="fStart_num" value="5" step="1" />
+            <input type="number" id="fStart_num" value="10" step="1" />
           </div>
-          <input type="range" id="fStart_slider" min="1" max="15" step="1" value="5" />
+          <input
+            type="range"
+            id="fStart_slider"
+            min="1"
+            max="20"
+            step="1"
+            value="10"
+          />
         </div>
         <div class="control-group">
           <div class="header-row">
             <label>Freq. Final (GHz)</label>
-            <input type="number" id="fEnd_num" value="25" step="1" />
+            <input type="number" id="fEnd_num" value="22" step="1" />
           </div>
-          <input type="range" id="fEnd_slider" min="16" max="40" step="1" value="25" />
+          <input
+            type="range"
+            id="fEnd_slider"
+            min="15"
+            max="40"
+            step="1"
+            value="22"
+          />
         </div>
 
-        <div class="control-group" style="border-left: 4px solid #007bff; padding-left: 5px">
+        <div
+          class="control-group"
+          style="border-left: 4px solid #007bff; padding-left: 5px"
+        >
           <div class="header-row">
             <label>Período p (mm)</label>
-            <input type="number" id="p_num" value="8.966" step="0.001" />
+            <input type="number" id="p_num" value="5.25" step="0.01" />
           </div>
-          <input type="range" id="p_slider" min="1.0" max="15.0" step="0.001" value="8.966" />
+          <input
+            type="range"
+            id="p_slider"
+            min="1.0"
+            max="10.0"
+            step="0.01"
+            value="5.25"
+          />
         </div>
 
-        <div class="control-group" style="border-left: 4px solid #28a745; padding-left: 5px">
+        <div
+          class="control-group"
+          style="border-left: 4px solid #28a745; padding-left: 5px"
+        >
           <div class="header-row">
             <label>Tam. Espira d (mm)</label>
-            <input type="number" id="d_num" value="6.045" step="0.001" />
+            <input type="number" id="d_num" value="5.00" step="0.01" />
           </div>
-          <input type="range" id="d_slider" min="0.5" max="14.9" step="0.001" value="6.045" />
+          <input
+            type="range"
+            id="d_slider"
+            min="0.5"
+            max="9.9"
+            step="0.01"
+            value="5.00"
+          />
         </div>
 
         <div class="control-group">
           <div class="header-row">
             <label>Largura Fita w (mm)</label>
-            <input type="number" id="w_num" value="0.305" step="0.001" />
+            <input type="number" id="w_num" value="0.47" step="0.01" />
           </div>
-          <input type="range" id="w_slider" min="0.01" max="2.0" step="0.001" value="0.305" />
+          <input
+            type="range"
+            id="w_slider"
+            min="0.01"
+            max="2.0"
+            step="0.01"
+            value="0.47"
+          />
         </div>
 
-        <div class="control-group" style="background: #f8f9fa; padding: 5px; border-radius: 4px">
+        <div
+          class="control-group"
+          style="background: #f8f9fa; padding: 5px; border-radius: 4px"
+        >
           <div class="header-row">
             <label>Gap g (calculado: p - d)</label>
-            <input type="number" id="g_num" value="2.921" readonly style="background: #e9ecef; border: 1px solid #ced4da" />
+            <input
+              type="number"
+              id="g_num"
+              value="0.25"
+              readonly
+              style="background: #e9ecef; border: 1px solid #ced4da"
+            />
           </div>
         </div>
 
@@ -154,7 +204,14 @@
             <label>Dielétrico (er)</label>
             <input type="number" id="er_num" value="1.12" step="0.01" />
           </div>
-          <input type="range" id="er_slider" min="1.0" max="10.0" step="0.01" value="1.12" />
+          <input
+            type="range"
+            id="er_slider"
+            min="1.0"
+            max="10.0"
+            step="0.01"
+            value="1.12"
+          />
         </div>
       </div>
 
@@ -172,7 +229,7 @@
             <canvas id="shapeCanvas" width="400" height="400"></canvas>
             <div class="geo-legend">
               <strong>Linha pontilhada:</strong> Limites do período (p x p)<br />
-              Tradução 1:1 do código Matlab com precisão corrigida para 3 casas decimais.
+              Tradução 1:1 do código Matlab contendo o fator de correção GG.
             </div>
           </div>
         </div>
@@ -183,21 +240,15 @@
       function bindInputs(idPrefix) {
         const slider = document.getElementById(idPrefix + "_slider");
         const num = document.getElementById(idPrefix + "_num");
-        
         slider.addEventListener("input", (e) => {
-          // Define as casas decimais de acordo com a grandeza
-          const decimals = (idPrefix === "fStart" || idPrefix === "fEnd") ? 0 : 
-                           (idPrefix === "er") ? 2 : 3;
-          num.value = parseFloat(e.target.value).toFixed(decimals);
+          num.value = parseFloat(e.target.value).toFixed(2);
           updateAll();
         });
-        
         num.addEventListener("input", (e) => {
           slider.value = e.target.value;
           updateAll();
         });
       }
-      
       ["fStart", "fEnd", "p", "d", "w", "er"].forEach(bindInputs);
 
       function mmToCm(value) {
@@ -244,7 +295,10 @@
         }
 
         const neighbors = [
-          { i: 0, j: -1 }, { i: 0, j: 1 }, { i: -1, j: 0 }, { i: 1, j: 0 },
+          { i: 0, j: -1 },
+          { i: 0, j: 1 },
+          { i: -1, j: 0 },
+          { i: 1, j: 0 },
         ];
         neighbors.forEach((n) =>
           drawSquareLoop(center + n.i * pPixel, center + n.j * pPixel, false),
@@ -254,7 +308,12 @@
         ctx.setLineDash([5, 5]);
         ctx.strokeStyle = "rgba(0, 0, 0, 0.25)";
         ctx.lineWidth = 1;
-        ctx.strokeRect(center - pPixel / 2, center - pPixel / 2, pPixel, pPixel);
+        ctx.strokeRect(
+          center - pPixel / 2,
+          center - pPixel / 2,
+          pPixel,
+          pPixel,
+        );
         ctx.setLineDash([]);
 
         ctx.fillStyle = "#cc0000";
@@ -264,7 +323,16 @@
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
-        function drawCota(x1, y1, x2, y2, text, textOffsetX, textOffsetY, isVertical = false) {
+        function drawCota(
+          x1,
+          y1,
+          x2,
+          y2,
+          text,
+          textOffsetX,
+          textOffsetY,
+          isVertical = false,
+        ) {
           ctx.beginPath();
           ctx.moveTo(x1, y1);
           ctx.lineTo(x2, y2);
@@ -273,11 +341,15 @@
           const tick = 4;
           ctx.beginPath();
           if (isVertical) {
-            ctx.moveTo(x1 - tick, y1); ctx.lineTo(x1 + tick, y1);
-            ctx.moveTo(x2 - tick, y2); ctx.lineTo(x2 + tick, y2);
+            ctx.moveTo(x1 - tick, y1);
+            ctx.lineTo(x1 + tick, y1);
+            ctx.moveTo(x2 - tick, y2);
+            ctx.lineTo(x2 + tick, y2);
           } else {
-            ctx.moveTo(x1, y1 - tick); ctx.lineTo(x1, y1 + tick);
-            ctx.moveTo(x2, y2 - tick); ctx.lineTo(x2, y2 + tick);
+            ctx.moveTo(x1, y1 - tick);
+            ctx.lineTo(x1, y1 + tick);
+            ctx.moveTo(x2, y2 - tick);
+            ctx.lineTo(x2, y2 + tick);
           }
           ctx.stroke();
 
@@ -293,45 +365,87 @@
         const topY = center - pPixel / 2;
         ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
         ctx.beginPath();
-        ctx.moveTo(center - pPixel / 2, topY); ctx.lineTo(center - pPixel / 2, topY - 25);
-        ctx.moveTo(center + pPixel / 2, topY); ctx.lineTo(center + pPixel / 2, topY - 25);
+        ctx.moveTo(center - pPixel / 2, topY);
+        ctx.lineTo(center - pPixel / 2, topY - 25);
+        ctx.moveTo(center + pPixel / 2, topY);
+        ctx.lineTo(center + pPixel / 2, topY - 25);
         ctx.stroke();
         ctx.strokeStyle = "#cc0000";
-        drawCota(center - pPixel / 2, topY - 18, center + pPixel / 2, topY - 18, "p = " + p.toFixed(3), 0, -10);
+        drawCota(
+          center - pPixel / 2,
+          topY - 18,
+          center + pPixel / 2,
+          topY - 18,
+          "p = " + p.toFixed(2),
+          0,
+          -10,
+        );
 
         const dY = center + dPixel / 2 + 25;
         ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
         ctx.beginPath();
-        ctx.moveTo(center - dPixel / 2, center + dPixel / 2); ctx.lineTo(center - dPixel / 2, dY + 5);
-        ctx.moveTo(center + dPixel / 2, center + dPixel / 2); ctx.lineTo(center + dPixel / 2, dY + 5);
+        ctx.moveTo(center - dPixel / 2, center + dPixel / 2);
+        ctx.lineTo(center - dPixel / 2, dY + 5);
+        ctx.moveTo(center + dPixel / 2, center + dPixel / 2);
+        ctx.lineTo(center + dPixel / 2, dY + 5);
         ctx.stroke();
         ctx.strokeStyle = "#cc0000";
-        drawCota(center - dPixel / 2, dY, center + dPixel / 2, dY, "d = " + d.toFixed(3), 0, 10);
+        drawCota(
+          center - dPixel / 2,
+          dY,
+          center + dPixel / 2,
+          dY,
+          "d = " + d.toFixed(3),
+          0,
+          10,
+        );
 
         const leftX = center - dPixel / 2;
         ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
         ctx.beginPath();
-        ctx.moveTo(leftX, center); ctx.lineTo(leftX - 25, center);
-        ctx.moveTo(leftX + wPixel, center); ctx.lineTo(leftX + wPixel - 25, center);
+        ctx.moveTo(leftX, center);
+        ctx.lineTo(leftX - 25, center);
+        ctx.moveTo(leftX + wPixel, center);
+        ctx.lineTo(leftX + wPixel - 25, center);
         ctx.stroke();
         ctx.strokeStyle = "#cc0000";
-        drawCota(leftX - 18, center, leftX + wPixel - 18, center, "w = " + w.toFixed(3), -15, 0, true);
+        drawCota(
+          leftX - 18,
+          center,
+          leftX + wPixel - 18,
+          center,
+          "w = " + w.toFixed(2),
+          -15,
+          0,
+          true,
+        );
 
         const centralRightEdge = center + dPixel / 2;
         const neighborLeftEdge = center + pPixel - dPixel / 2;
         ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
         ctx.beginPath();
-        ctx.moveTo(centralRightEdge, center); ctx.lineTo(centralRightEdge, center + 20);
-        ctx.moveTo(neighborLeftEdge, center); ctx.lineTo(neighborLeftEdge, center + 20);
+        ctx.moveTo(centralRightEdge, center);
+        ctx.lineTo(centralRightEdge, center + 20);
+        ctx.moveTo(neighborLeftEdge, center);
+        ctx.lineTo(neighborLeftEdge, center + 20);
         ctx.stroke();
         ctx.strokeStyle = "#cc0000";
-        drawCota(centralRightEdge, center + 12, neighborLeftEdge, center + 12, "g = " + g.toFixed(3), 0, 10);
+        drawCota(
+          centralRightEdge,
+          center + 12,
+          neighborLeftEdge,
+          center + 12,
+          "g = " + g.toFixed(3),
+          0,
+          10,
+        );
       }
 
       function csc(x) {
         return 1 / Math.sin(x);
       }
 
+      // Formulação RIGOROSA extraída da rotina Matlab do livro
       function GG(p, w, lamb, ang) {
         const b = Math.sin((Math.PI * w) / (2 * p));
         const term1 = (2 * p * Math.sin(ang)) / lamb;
@@ -347,8 +461,15 @@
         const b4 = b2 * b2;
         const b6 = b2 * b4;
 
-        const num = 0.5 * Math.pow(1 - b2, 2) * ((1 - b2 / 4) * (Cp + Cn) + 4 * b2 * Cp * Cn);
-        const den = 1 - b2 / 4 + b2 * (1 + b2 / 2 - b4 / 8) * (Cp + Cn) + 2 * b6 * Cp * Cn;
+        const num =
+          0.5 *
+          Math.pow(1 - b2, 2) *
+          ((1 - b2 / 4) * (Cp + Cn) + 4 * b2 * Cp * Cn);
+        const den =
+          1 -
+          b2 / 4 +
+          b2 * (1 + b2 / 2 - b4 / 8) * (Cp + Cn) +
+          2 * b6 * Cp * Cn;
 
         return num / den;
       }
@@ -367,23 +488,22 @@
         const er = parseFloat(document.getElementById("er_num").value);
 
         if (d >= p) {
-          d = p - 0.001;
-          document.getElementById("d_num").value = d.toFixed(3);
+          d = p - 0.01;
+          document.getElementById("d_num").value = d.toFixed(2);
           document.getElementById("d_slider").value = d;
         }
         if (2 * w >= d) {
-          w = d / 2 - 0.001;
-          document.getElementById("w_num").value = w.toFixed(3);
+          w = d / 2 - 0.01;
+          document.getElementById("w_num").value = w.toFixed(2);
           document.getElementById("w_slider").value = w;
         }
 
         const g = p - d;
-        document.getElementById("g_num").value = g.toFixed(3);
+        document.getElementById("g_num").value = g.toFixed(2);
 
         drawGeometry(p, d, w, g);
 
-        // Aumentei a resolução (df) para capturar o pico exato
-        const df = 0.02;
+        const df = 0.1;
         const pCm = mmToCm(p);
         const dCm = mmToCm(d);
         const wCm = mmToCm(w);
@@ -394,9 +514,10 @@
 
         for (let freq = fStart; freq <= fEnd; freq += df) {
           const lamb = 30 / freq;
-          const ang = 0;
+          const ang = 0; // Teta e Fi em radianos (zero para incidência normal)
 
           try {
+            // Equações idênticas ao código Matlab do eBook
             const XL = (dCm / pCm) * FF(pCm, 2 * wCm, lamb, ang);
             const BC = 4 * er * (dCm / pCm) * FF(pCm, gCm, lamb, ang);
 
@@ -404,7 +525,7 @@
             const pt = 1 / (1 + 0.25 * Math.pow(ct, 2));
             const pt_dB = 10 * Math.log10(pt);
 
-            labels.push(freq.toFixed(2));
+            labels.push(freq.toFixed(1));
             data.push(Math.max(-60, pt_dB));
           } catch (e) {
             data.push(0);
@@ -440,20 +561,27 @@
             animation: false,
             scales: {
               x: {
-                title: { display: true, text: "Freqüência (GHz)", font: { family: "Times New Roman", size: 14 } },
+                title: {
+                  display: true,
+                  text: "Freqüência (GHz)",
+                  font: { family: "Times New Roman", size: 14 },
+                },
                 grid: { color: "#eee" },
-                ticks: {
-                  maxTicksLimit: 20 // Deixa o eixo X mais limpo
-                }
               },
               y: {
                 min: -60,
                 max: 0,
-                title: { display: true, text: "Potência Transmitida (dB)", font: { family: "Times New Roman", size: 14 } },
+                title: {
+                  display: true,
+                  text: "Potência Transmitida (dB)",
+                  font: { family: "Times New Roman", size: 14 },
+                },
                 grid: { color: "#eee" },
               },
             },
-            plugins: { legend: { labels: { font: { family: "Times New Roman" } } } },
+            plugins: {
+              legend: { labels: { font: { family: "Times New Roman" } } },
+            },
           },
         });
       }
