@@ -62,7 +62,10 @@
         border-radius: 3px;
         font-family: "Times New Roman";
       }
-      .header-row { gap: 8px; align-items: center; }
+      .header-row {
+        gap: 8px;
+        align-items: center;
+      }
       input[type="range"] {
         width: 100%;
         cursor: pointer;
@@ -72,8 +75,12 @@
         flex-direction: row;
         gap: 20px;
       }
-      .visuals > .panel {
-        flex: 1 1 50%;
+      /* Make chart panel wider horizontally and drawing panel narrower */
+      .visuals > .panel:first-child {
+        flex: 2 1 65%;
+      }
+      .visuals > .panel:last-child {
+        flex: 1 1 35%;
       }
       .chart-container {
         position: relative;
