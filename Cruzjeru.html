@@ -570,7 +570,7 @@
         drawGeometry(p, d, w, h, g);
 
         // 2. Atualizar o Gráfico
-        const df = 0.1;
+        const df = 0.001;
         const pCm = mmToCm(p);
         const dCm = mmToCm(d);
         const wCm = mmToCm(w);
@@ -605,7 +605,7 @@
             const pt = Math.pow(ct, 2);
             const pt_dB = 10 * Math.log10(pt);
 
-            labels.push(freq.toFixed(1));
+            labels.push(freq.toFixed(3));
             data.push(Math.max(-60, pt_dB));
           } catch (e) {
             data.push(0);
@@ -734,7 +734,7 @@
               x: {
                 title: {
                   display: true,
-                  text: "Freqüência (GHz)",
+                  text: "Frequency (GHz)",
                   font: { family: "Times New Roman", size: 14 },
                 },
                 grid: { color: "#eee" },
@@ -770,7 +770,7 @@
               document.querySelector(".chart-container").nextSibling,
             );
         }
-        infoBox.innerHTML = `<strong>Frequência de Ressonância (fr):</strong> ${frFreq.toFixed(2)} GHz | <strong>Banda Passante (BW):</strong> ${bw.toFixed(2)} GHz (${fLower.toFixed(2)} - ${fUpper.toFixed(2)} GHz)`;
+        infoBox.innerHTML = `<strong>Resonant Frequency (fr):</strong> ${frFreq.toFixed(2)} GHz | <strong>Bandwidth (BW):</strong> ${bw.toFixed(2)} GHz (${fLower.toFixed(2)} - ${fUpper.toFixed(2)} GHz)`;
       }
 
       function exportToCSV() {
@@ -780,10 +780,23 @@
           );
           return;
         }
-        let csv = "Frequência (GHz);S21 (dB)\n";
+        // CSV header in English; use semicolon as field separator for broader Excel compatibility
+        let csv = "Frequency (GHz);S21 (dB)\n";
         chart.data.labels.forEach((freq, index) => {
-          const s21 = chart.data.datasets[0].data[index];
-          csv += `${freq};${s21}\n`;
+          const rawFreq = freq;
+          const rawS21 = chart.data.datasets[0].data[index];
+          const f = parseFloat(String(rawFreq).replace(',', '.'));
+          let s21Val = rawS21;
+          if (s21Val === null || s21Val === undefined || s21Val === '') {
+            csv += `${isNaN(f) ? rawFreq : f.toFixed(3)};\n`;
+            return;
+          }
+          if (typeof s21Val === 'string') s21Val = parseFloat(s21Val.replace(',', '.'));
+          if (typeof s21Val === 'number' && !isNaN(s21Val)) {
+            csv += `${isNaN(f) ? rawFreq : f.toFixed(3)};${s21Val.toFixed(2)}\n`;
+          } else {
+            csv += `${isNaN(f) ? rawFreq : f.toFixed(3)};${rawS21}\n`;
+          }
         });
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
         const link = document.createElement("a");
