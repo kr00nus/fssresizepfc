@@ -1,0 +1,56 @@
+/* Centralized styles for FSS simulator */
+body {
+  font-family: "Times New Roman", serif;
+  background-color: #eef2f5;
+  color: #333;
+  margin: 0;
+  padding: 20px;
+}
+.dashboard {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
+  max-width: 1300px;
+  margin: auto;
+}
+.panel {
+  background: white;
+  padding: 18px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e6e6e6;
+}
+.panel.params {
+  max-height: 72vh;
+  overflow: auto;
+  padding: 12px;
+}
+h2 {
+  text-align: center;
+  color: #000;
+  border-bottom: 2px solid #000;
+  padding-bottom: 10px;
+  margin-top: 0;
+  font-size: 1.4em;
+}
+.control-group {
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #f0f0f0;
+}
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+label { font-weight: 600; font-size: 0.85em; }
+input[type="number"] { width: 60px; padding: 3px; border: 1px solid #d0d0d0; border-radius: 3px; }
+input[type="range"] { width: 100%; cursor: pointer; }
+.visuals { display: flex; flex-direction: row; gap: 20px; }
+.visuals > .panel:first-child { flex: 2 1 65%; }
+.visuals > .panel:last-child { flex: 1 1 35%; }
+.chart-container { position: relative; height: 360px; width: 100%; border: 1px solid #e6e6e6; padding: 8px; box-sizing: border-box; background: #fff; }
+.geometry-container { display: flex; justify-content: center; align-items: center; flex-direction: column; border: 1px solid #000; padding: 15px; background: #fff; }
+canvas#shapeCanvas { background-color: #fafafa; border: 1px dashed #999; }
+.geo-legend { font-size: 0.85em; color: #555; margin-top: 10px; text-align: center; }
