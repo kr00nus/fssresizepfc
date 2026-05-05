@@ -1,46 +1,46 @@
-import { mmToCm, csc, GG, FF } from './math.js';
-import { exportChartToCSV } from './visual.js';
+import { mmToCm, csc, GG, FF } from "./math.js";
+import { exportChartToCSV, createLineChart } from "./visual.js";
 
 let chart = null;
 
 function bindInputs(idPrefix) {
-  const slider = document.getElementById(idPrefix + '_slider');
-  const num = document.getElementById(idPrefix + '_num');
+  const slider = document.getElementById(idPrefix + "_slider");
+  const num = document.getElementById(idPrefix + "_num");
   if (!slider || !num) return;
-  slider.addEventListener('input', (e) => {
+  slider.addEventListener("input", (e) => {
     const decimals =
-      idPrefix === 'fStart' || idPrefix === 'fEnd'
+      idPrefix === "fStart" || idPrefix === "fEnd"
         ? 0
-        : idPrefix === 'er' || idPrefix === 'h_sub'
-        ? 2
-        : 3;
+        : idPrefix === "er" || idPrefix === "h_sub"
+          ? 2
+          : 3;
     num.value = parseFloat(e.target.value).toFixed(decimals);
     updateAll();
   });
-  num.addEventListener('input', (e) => {
+  num.addEventListener("input", (e) => {
     slider.value = e.target.value;
     updateAll();
   });
 }
 
 function applySubstratePreset(preset) {
-  if (preset === 'RO3003') {
-    document.getElementById('er_num').value = 3.0;
-    document.getElementById('h_sub_num').value = 1.52;
-    document.getElementById('er_slider').value = 3.0;
-    document.getElementById('h_sub_slider').value = 1.52;
-  } else if (preset === 'RO3006') {
-    document.getElementById('er_num').value = 6.5;
-    document.getElementById('h_sub_num').value = 1.28;
-    document.getElementById('er_slider').value = 6.5;
-    document.getElementById('h_sub_slider').value = 1.28;
+  if (preset === "RO3003") {
+    document.getElementById("er_num").value = 3.0;
+    document.getElementById("h_sub_num").value = 1.52;
+    document.getElementById("er_slider").value = 3.0;
+    document.getElementById("h_sub_slider").value = 1.52;
+  } else if (preset === "RO3006") {
+    document.getElementById("er_num").value = 6.5;
+    document.getElementById("h_sub_num").value = 1.28;
+    document.getElementById("er_slider").value = 6.5;
+    document.getElementById("h_sub_slider").value = 1.28;
   }
   updateAll();
 }
 
 function drawGeometry(p, d, w, g) {
-  const canvas = document.getElementById('shapeCanvas');
-  const ctx = canvas.getContext('2d');
+  const canvas = document.getElementById("shapeCanvas");
+  const ctx = canvas.getContext("2d");
   const size = canvas.width;
 
   ctx.clearRect(0, 0, size, size);
@@ -54,7 +54,7 @@ function drawGeometry(p, d, w, g) {
   const innerPixel = Math.max(0, dPixel - 2 * wPixel);
 
   function drawSquareLoop(cx, cy, isCenter) {
-    ctx.fillStyle = isCenter ? '#003366' : 'rgba(0, 51, 102, 0.12)';
+    ctx.fillStyle = isCenter ? "#003366" : "rgba(0, 51, 102, 0.12)";
     ctx.fillRect(cx - dPixel / 2, cy - dPixel / 2, dPixel, dPixel);
     if (innerPixel > 0) {
       ctx.clearRect(
@@ -64,7 +64,7 @@ function drawGeometry(p, d, w, g) {
         innerPixel,
       );
       if (!isCenter) {
-        ctx.fillStyle = '#fafafa';
+        ctx.fillStyle = "#fafafa";
         ctx.fillRect(
           cx - innerPixel / 2,
           cy - innerPixel / 2,
@@ -87,19 +87,28 @@ function drawGeometry(p, d, w, g) {
   drawSquareLoop(center, center, true);
 
   ctx.setLineDash([5, 5]);
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
+  ctx.strokeStyle = "rgba(0, 0, 0, 0.25)";
   ctx.lineWidth = 1;
   ctx.strokeRect(center - pPixel / 2, center - pPixel / 2, pPixel, pPixel);
   ctx.setLineDash([]);
 
-  ctx.fillStyle = '#cc0000';
-  ctx.strokeStyle = '#cc0000';
+  ctx.fillStyle = "#cc0000";
+  ctx.strokeStyle = "#cc0000";
   ctx.lineWidth = 1.2;
   ctx.font = "bold 13px 'Times New Roman'";
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
 
-  function drawCota(x1, y1, x2, y2, text, textOffsetX, textOffsetY, isVertical = false) {
+  function drawCota(
+    x1,
+    y1,
+    x2,
+    y2,
+    text,
+    textOffsetX,
+    textOffsetY,
+    isVertical = false,
+  ) {
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
@@ -122,60 +131,93 @@ function drawGeometry(p, d, w, g) {
     const txtX = (x1 + x2) / 2 + textOffsetX;
     const txtY = (y1 + y2) / 2 + textOffsetY;
     const m = ctx.measureText(text);
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
     ctx.fillRect(txtX - m.width / 2 - 2, txtY - 8, m.width + 4, 16);
-    ctx.fillStyle = '#cc0000';
+    ctx.fillStyle = "#cc0000";
     ctx.fillText(text, txtX, txtY);
   }
 
   const topY = center - pPixel / 2;
-  ctx.strokeStyle = 'rgba(204, 0, 0, 0.4)';
+  ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
   ctx.beginPath();
   ctx.moveTo(center - pPixel / 2, topY);
   ctx.lineTo(center - pPixel / 2, topY - 25);
   ctx.moveTo(center + pPixel / 2, topY);
   ctx.lineTo(center + pPixel / 2, topY - 25);
   ctx.stroke();
-  ctx.strokeStyle = '#cc0000';
-  drawCota(center - pPixel / 2, topY - 18, center + pPixel / 2, topY - 18, 'p = ' + p.toFixed(3), 0, -10);
+  ctx.strokeStyle = "#cc0000";
+  drawCota(
+    center - pPixel / 2,
+    topY - 18,
+    center + pPixel / 2,
+    topY - 18,
+    "p = " + p.toFixed(3),
+    0,
+    -10,
+  );
 
   const dY = center + dPixel / 2 + 25;
-  ctx.strokeStyle = 'rgba(204, 0, 0, 0.4)';
+  ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
   ctx.beginPath();
   ctx.moveTo(center - dPixel / 2, center + dPixel / 2);
   ctx.lineTo(center - dPixel / 2, dY + 5);
   ctx.moveTo(center + dPixel / 2, center + dPixel / 2);
   ctx.lineTo(center + dPixel / 2, dY + 5);
   ctx.stroke();
-  ctx.strokeStyle = '#cc0000';
-  drawCota(center - dPixel / 2, dY, center + dPixel / 2, dY, 'd = ' + d.toFixed(3), 0, 10);
+  ctx.strokeStyle = "#cc0000";
+  drawCota(
+    center - dPixel / 2,
+    dY,
+    center + dPixel / 2,
+    dY,
+    "d = " + d.toFixed(3),
+    0,
+    10,
+  );
 
   const leftX = center - dPixel / 2;
-  ctx.strokeStyle = 'rgba(204, 0, 0, 0.4)';
+  ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
   ctx.beginPath();
   ctx.moveTo(leftX, center);
   ctx.lineTo(leftX - 25, center);
   ctx.moveTo(leftX + wPixel, center);
   ctx.lineTo(leftX + wPixel - 25, center);
   ctx.stroke();
-  ctx.strokeStyle = '#cc0000';
-  drawCota(leftX - 18, center, leftX + wPixel - 18, center, 'w = ' + w.toFixed(3), -15, 0, true);
+  ctx.strokeStyle = "#cc0000";
+  drawCota(
+    leftX - 18,
+    center,
+    leftX + wPixel - 18,
+    center,
+    "w = " + w.toFixed(3),
+    -15,
+    0,
+    true,
+  );
 
   const centralRightEdge = center + dPixel / 2;
   const neighborLeftEdge = center + pPixel - dPixel / 2;
-  ctx.strokeStyle = 'rgba(204, 0, 0, 0.4)';
+  ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
   ctx.beginPath();
   ctx.moveTo(centralRightEdge, center);
   ctx.lineTo(centralRightEdge, center + 20);
   ctx.moveTo(neighborLeftEdge, center);
   ctx.lineTo(neighborLeftEdge, center + 20);
   ctx.stroke();
-  ctx.strokeStyle = '#cc0000';
-  drawCota(centralRightEdge, center + 12, neighborLeftEdge, center + 12, 'g = ' + g.toFixed(3), 0, 10);
+  ctx.strokeStyle = "#cc0000";
+  drawCota(
+    centralRightEdge,
+    center + 12,
+    neighborLeftEdge,
+    center + 12,
+    "g = " + g.toFixed(3),
+    0,
+    10,
+  );
 }
 
 function updateChart(labels, data) {
-  const ctx = document.getElementById('fssChart').getContext('2d');
+  const ctx = document.getElementById("fssChart").getContext("2d");
   if (chart) chart.destroy();
 
   const minIndex = data.indexOf(Math.min(...data));
@@ -193,7 +235,10 @@ function updateChart(labels, data) {
   }
   for (let i = minIndex; i < data.length; i++) {
     if (data[i] >= threshold) {
-      fUpper = i < data.length - 1 ? parseFloat(labels[i]) : parseFloat(labels[data.length - 1]);
+      fUpper =
+        i < data.length - 1
+          ? parseFloat(labels[i])
+          : parseFloat(labels[data.length - 1]);
       break;
     }
   }
@@ -204,121 +249,84 @@ function updateChart(labels, data) {
   let frIndex = minIndex;
   let lowerIndex = minIndex;
   for (let i = minIndex; i >= 0; i--) {
-    if (Math.abs(parseFloat(labels[i]) - fLower) < Math.abs(parseFloat(labels[lowerIndex]) - fLower)) {
+    if (
+      Math.abs(parseFloat(labels[i]) - fLower) <
+      Math.abs(parseFloat(labels[lowerIndex]) - fLower)
+    ) {
       lowerIndex = i;
     }
   }
   let upperIndex = minIndex;
   for (let i = minIndex; i < data.length; i++) {
-    if (Math.abs(parseFloat(labels[i]) - fUpper) < Math.abs(parseFloat(labels[upperIndex]) - fUpper)) {
+    if (
+      Math.abs(parseFloat(labels[i]) - fUpper) <
+      Math.abs(parseFloat(labels[upperIndex]) - fUpper)
+    ) {
       upperIndex = i;
     }
   }
 
-  const frPointData = labels.map((_, idx) => (idx === frIndex ? data[idx] : null));
-  const bwPointsData = labels.map((_, idx) => (idx === lowerIndex || idx === upperIndex ? data[idx] : null));
+  const frPointData = labels.map((_, idx) =>
+    idx === frIndex ? data[idx] : null,
+  );
+  const bwPointsData = labels.map((_, idx) =>
+    idx === lowerIndex || idx === upperIndex ? data[idx] : null,
+  );
 
-  chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          label: 'S21 Simulado (Espira Quadrada)',
-          data: data,
-          borderColor: '#000',
-          borderWidth: 2,
-          pointRadius: 0,
-          fill: false,
-          tension: 0.1,
-        },
-        {
-          label: `fr = ${frFreq.toFixed(2)} GHz`,
-          data: frPointData,
-          borderColor: '#ff0000',
-          borderWidth: 3,
-          borderDash: [5, 5],
-          pointRadius: 6,
-          pointBackgroundColor: '#ff0000',
-          pointBorderColor: '#ff0000',
-          fill: false,
-          showLine: false,
-        },
-        {
-          label: `BW = ${bw.toFixed(2)} GHz (-3dB)`,
-          data: bwPointsData,
-          borderColor: '#0066cc',
-          borderWidth: 3,
-          borderDash: [3, 3],
-          pointRadius: 6,
-          pointBackgroundColor: '#0066cc',
-          pointBorderColor: '#0066cc',
-          fill: false,
-          showLine: false,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: false,
-      scales: {
-        x: {
-          title: { display: true, text: 'Frequency (GHz)', font: { family: 'Times New Roman', size: 14 } },
-          grid: { color: '#eee' },
-          ticks: { maxTicksLimit: 20 },
-        },
-        y: {
-          min: -50,
-          max: 0,
-          title: { display: true, text: 'Potência Transmitida (dB)', font: { family: 'Times New Roman', size: 14 } },
-          grid: { color: '#eee' },
-        },
-      },
-      plugins: { legend: { labels: { font: { family: 'Times New Roman' } } } },
-    },
-  });
+  chart = createLineChart(ctx, labels, [
+    { label: 'S21 Simulado (Espira Quadrada)', data: data, borderColor: '#000', borderWidth: 2 },
+    { label: `fr = ${frFreq.toFixed(2)} GHz`, data: frPointData, borderColor: '#ff0000', borderWidth: 3, borderDash: [5,5], pointRadius: 6, pointBackgroundColor: '#ff0000', pointBorderColor: '#ff0000', showLine: false },
+    { label: `BW = ${bw.toFixed(2)} GHz (-3dB)`, data: bwPointsData, borderColor: '#0066cc', borderWidth: 3, borderDash: [3,3], pointRadius: 6, pointBackgroundColor: '#0066cc', pointBorderColor: '#0066cc', showLine: false },
+  ], { yTitle: 'Potência Transmitida (dB)', yMin: -50, yMax: 0 });
 
-  let infoBox = document.getElementById('resonanceInfo');
+  let infoBox = document.getElementById("resonanceInfo");
   if (!infoBox) {
-    infoBox = document.createElement('div');
-    infoBox.id = 'resonanceInfo';
-    infoBox.style.cssText = "margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 4px; font-family: 'Times New Roman'; font-size: 14px;";
-    document.querySelector('.chart-container').parentNode.insertBefore(infoBox, document.querySelector('.chart-container').nextSibling);
+    infoBox = document.createElement("div");
+    infoBox.id = "resonanceInfo";
+    infoBox.style.cssText =
+      "margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 4px; font-family: 'Times New Roman'; font-size: 14px;";
+    document
+      .querySelector(".chart-container")
+      .parentNode.insertBefore(
+        infoBox,
+        document.querySelector(".chart-container").nextSibling,
+      );
   }
   infoBox.innerHTML = `<strong>Resonant Frequency (fr):</strong> ${frFreq.toFixed(2)} GHz | <strong>Bandwidth (BW):</strong> ${bw.toFixed(2)} GHz (${fLower.toFixed(2)} - ${fUpper.toFixed(2)} GHz)`;
 }
 
 function exportToCSVHandler() {
-  exportChartToCSV(chart, 'dados_s21_espira_quadrada.csv');
+  exportChartToCSV(chart, "dados_s21_espira_quadrada.csv");
 }
 
 export function init() {
   // Bind inputs
-  ['fStart', 'fEnd', 'p', 'd', 'w', 'h_sub', 'er'].forEach(bindInputs);
+  ["fStart", "fEnd", "p", "d", "w", "h_sub", "er"].forEach(bindInputs);
 
-  const substrateSelect = document.getElementById('substrate_select');
+  const substrateSelect = document.getElementById("substrate_select");
   if (substrateSelect) {
-    substrateSelect.addEventListener('change', (e) => {
+    substrateSelect.addEventListener("change", (e) => {
       const val = e.target.value;
-      if (val === 'manual') {
-        document.getElementById('er_num').removeAttribute('disabled');
-        document.getElementById('h_sub_num').removeAttribute('disabled');
-        document.getElementById('er_slider').removeAttribute('disabled');
-        document.getElementById('h_sub_slider').removeAttribute('disabled');
+      if (val === "manual") {
+        document.getElementById("er_num").removeAttribute("disabled");
+        document.getElementById("h_sub_num").removeAttribute("disabled");
+        document.getElementById("er_slider").removeAttribute("disabled");
+        document.getElementById("h_sub_slider").removeAttribute("disabled");
       } else {
-        document.getElementById('er_num').setAttribute('disabled', 'true');
-        document.getElementById('h_sub_num').setAttribute('disabled', 'true');
-        document.getElementById('er_slider').setAttribute('disabled', 'true');
-        document.getElementById('h_sub_slider').setAttribute('disabled', 'true');
+        document.getElementById("er_num").setAttribute("disabled", "true");
+        document.getElementById("h_sub_num").setAttribute("disabled", "true");
+        document.getElementById("er_slider").setAttribute("disabled", "true");
+        document
+          .getElementById("h_sub_slider")
+          .setAttribute("disabled", "true");
         applySubstratePreset(val);
       }
     });
   }
 
-  const exportBtn = document.getElementById('exportBtn');
+  const exportBtn = document.getElementById("exportBtn");
   if (exportBtn) {
-    exportBtn.addEventListener('click', exportToCSVHandler);
+    exportBtn.addEventListener("click", exportToCSVHandler);
   }
 
   // Initial render
@@ -327,30 +335,30 @@ export function init() {
 
 // Main simulation logic (adapted from original)
 function updateAll() {
-  const fStart = parseFloat(document.getElementById('fStart_num').value);
-  const fEnd = parseFloat(document.getElementById('fEnd_num').value);
-  let p = parseFloat(document.getElementById('p_num').value);
-  let d = parseFloat(document.getElementById('d_num').value);
-  let w = parseFloat(document.getElementById('w_num').value);
-  let h_sub = parseFloat(document.getElementById('h_sub_num').value);
-  const er_real = parseFloat(document.getElementById('er_num').value);
+  const fStart = parseFloat(document.getElementById("fStart_num").value);
+  const fEnd = parseFloat(document.getElementById("fEnd_num").value);
+  let p = parseFloat(document.getElementById("p_num").value);
+  let d = parseFloat(document.getElementById("d_num").value);
+  let w = parseFloat(document.getElementById("w_num").value);
+  let h_sub = parseFloat(document.getElementById("h_sub_num").value);
+  const er_real = parseFloat(document.getElementById("er_num").value);
 
   if (d >= p) {
     d = p - 0.001;
-    document.getElementById('d_num').value = d.toFixed(3);
-    document.getElementById('d_slider').value = d;
+    document.getElementById("d_num").value = d.toFixed(3);
+    document.getElementById("d_slider").value = d;
   }
   if (2 * w >= d) {
     w = d / 2 - 0.001;
-    document.getElementById('w_num').value = w.toFixed(3);
-    document.getElementById('w_slider').value = w;
+    document.getElementById("w_num").value = w.toFixed(3);
+    document.getElementById("w_slider").value = w;
   }
 
   const g = p - d;
-  document.getElementById('g_num').value = g.toFixed(3);
+  document.getElementById("g_num").value = g.toFixed(3);
 
   const er_eff = 1 + ((er_real - 1) / 2) * (1 - Math.exp(-1.8 * (h_sub / p)));
-  document.getElementById('er_eff_num').value = er_eff.toFixed(3);
+  document.getElementById("er_eff_num").value = er_eff.toFixed(3);
 
   drawGeometry(p, d, w, g);
 
@@ -386,8 +394,8 @@ function updateAll() {
 }
 
 // Auto-init when module is loaded in the page
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
 } else {
   init();
 }

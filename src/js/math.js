@@ -19,14 +19,9 @@ export function GG(p, w, lamb, ang) {
   const b4 = b2 * b2;
   const b6 = b2 * b4;
   const num =
-    0.5 *
-    Math.pow(1 - b2, 2) *
-    ((1 - b2 / 4) * (Cp + Cn) + 4 * b2 * Cp * Cn);
+    0.5 * Math.pow(1 - b2, 2) * ((1 - b2 / 4) * (Cp + Cn) + 4 * b2 * Cp * Cn);
   const den =
-    1 -
-    b2 / 4 +
-    b2 * (1 + b2 / 2 - b4 / 8) * (Cp + Cn) +
-    2 * b6 * Cp * Cn;
+    1 - b2 / 4 + b2 * (1 + b2 / 2 - b4 / 8) * (Cp + Cn) + 2 * b6 * Cp * Cn;
   return num / den;
 }
 
