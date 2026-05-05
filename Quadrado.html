@@ -1,54 +1,66 @@
 <!doctype html>
-<html lang="pt-br">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Simulador FSS - Patch Quadrado (Chen)</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-      body {
-        font-family: "Times New Roman", serif;
-        background-color: #eef2f5;
-        color: #333;
-        margin: 0;
-        padding: 20px;
-      }
-      .dashboard {
-        display: grid;
-        grid-template-columns: 350px 1fr;
-        gap: 20px;
-        max-width: 1300px;
-        margin: auto;
-      }
-      .panel {
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        border: 1px solid #ddd;
-      }
-      h2 {
-        text-align: center;
-        color: #000;
-        border-bottom: 2px solid #000;
-        padding-bottom: 10px;
-        margin-top: 0;
-        font-size: 1.4em;
-      }
+        <h3>Substrate Parameters</h3>
+        <div class="control-group">
+          <div class="header-row">
+            <label>Substrate</label>
+            <select id="substrate_select">
+              <option value="manual">Manual</option>
+              <option value="RO3003">RO3003 (εr=3.00, h=1.52mm)</option>
+              <option value="RO3006">RO3006 (εr=6.50, h=1.28mm)</option>
+            </select>
+          </div>
+        </div>
 
-      .control-group {
-        margin-bottom: 15px;
-        padding-bottom: 10px;
-        border-bottom: 1px dashed #eee;
-      }
-      .header-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 5px;
-      }
-      label {
-        font-weight: bold;
+        <div class="control-group">
+          <div class="header-row">
+            <label>Substrate thickness h (mm)</label>
+            <input type="number" id="h_sub_num" value="10.0" step="0.1" />
+          </div>
+          <input
+            type="range"
+            id="h_sub_slider"
+            min="0.1"
+            max="10.0"
+            step="0.1"
+            value="10.0"
+          />
+        </div>
+
+        <div class="control-group">
+          <div class="header-row">
+            <label>Real Permittivity (εr)</label>
+            <input type="number" id="er_num" value="1.30" step="0.01" />
+          </div>
+          <input
+            type="range"
+            id="er_slider"
+            min="1.0"
+            max="15.0"
+            step="0.01"
+            value="1.30"
+          />
+        </div>
+
+        <div
+          class="control-group"
+          style="background: #f8f9fa; padding: 5px; border-radius: 4px"
+        >
+          <div class="header-row">
+            <label>Effective Dielectric (ε_eff)</label>
+            <input
+              type="number"
+              id="er_eff_num"
+              value="1.145"
+              readonly
+              style="
+                background: #e9ecef;
+                border: 1px solid #ced4da;
+                color: #cc0000;
+                font-weight: bold;
+              "
+            />
+          </div>
+        </div>
         font-size: 0.9em;
       }
       input[type="number"] {
@@ -65,8 +77,11 @@
 
       .visuals {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         gap: 20px;
+      }
+      .visuals > .panel {
+        flex: 1 1 50%;
       }
       .chart-container {
         position: relative;
@@ -220,6 +235,41 @@
         });
       }
       ["fStart", "fEnd", "p", "c"].forEach(bindInputs);
+
+      // substrate presets
+      function applySubstratePreset(preset) {
+        if (preset === "RO3003") {
+          document.getElementById("er_num").value = 3.0;
+          document.getElementById("h_sub_num").value = 1.52;
+          document.getElementById("er_slider").value = 3.0;
+          document.getElementById("h_sub_slider").value = 1.52;
+        } else if (preset === "RO3006") {
+          document.getElementById("er_num").value = 6.5;
+          document.getElementById("h_sub_num").value = 1.28;
+          document.getElementById("er_slider").value = 6.5;
+          document.getElementById("h_sub_slider").value = 1.28;
+        }
+        updateAll();
+      }
+
+      const substrateSelect = document.getElementById("substrate_select");
+      if (substrateSelect) {
+        substrateSelect.addEventListener("change", (e) => {
+          const val = e.target.value;
+          if (val === "manual") {
+            document.getElementById("er_num").removeAttribute("disabled");
+            document.getElementById("h_sub_num").removeAttribute("disabled");
+            document.getElementById("er_slider").removeAttribute("disabled");
+            document.getElementById("h_sub_slider").removeAttribute("disabled");
+          } else {
+            document.getElementById("er_num").setAttribute("disabled", "true");
+            document.getElementById("h_sub_num").setAttribute("disabled", "true");
+            document.getElementById("er_slider").setAttribute("disabled", "true");
+            document.getElementById("h_sub_slider").setAttribute("disabled", "true");
+            applySubstratePreset(val);
+          }
+        });
+      }
 
       function mmToCm(value) {
         return value / 10;
@@ -644,14 +694,15 @@
         chart.data.labels.forEach((freq, index) => {
           const rawFreq = freq;
           const rawS21 = chart.data.datasets[0].data[index];
-          const f = parseFloat(String(rawFreq).replace(',', '.'));
+          const f = parseFloat(String(rawFreq).replace(",", "."));
           let s21Val = rawS21;
-          if (s21Val === null || s21Val === undefined || s21Val === '') {
+          if (s21Val === null || s21Val === undefined || s21Val === "") {
             csv += `${isNaN(f) ? rawFreq : f.toFixed(3)};\n`;
             return;
           }
-          if (typeof s21Val === 'string') s21Val = parseFloat(s21Val.replace(',', '.'));
-          if (typeof s21Val === 'number' && !isNaN(s21Val)) {
+          if (typeof s21Val === "string")
+            s21Val = parseFloat(s21Val.replace(",", "."));
+          if (typeof s21Val === "number" && !isNaN(s21Val)) {
             csv += `${isNaN(f) ? rawFreq : f.toFixed(3)};${s21Val.toFixed(2)}\n`;
           } else {
             csv += `${isNaN(f) ? rawFreq : f.toFixed(3)};${rawS21}\n`;
