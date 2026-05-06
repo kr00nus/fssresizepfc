@@ -87,7 +87,13 @@ input[type="range"] {
 
 /* Params grid columns */
 .params-grid {
-  display: contents;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px 20px;
+}
+.panel.params > h2 {
+  grid-column: 1 / -1;
+  text-align: center;
 }
 .param-col {
   display: flex;
