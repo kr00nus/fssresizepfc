@@ -23,12 +23,12 @@ body {
   border: 1px solid #e6e6e6;
 }
 .panel.params {
-  padding: 10px;
+  padding: 12px;
   max-height: none;
   overflow: visible;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 10px 18px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px 20px;
 }
 h2 {
   text-align: center;
@@ -83,6 +83,32 @@ input[type="range"] {
   padding: 8px;
   box-sizing: border-box;
   background: #fff;
+}
+
+/* Params grid columns */
+.params-grid {
+  display: contents;
+}
+.param-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.param-col h3 {
+  margin: 0 0 6px 0;
+  font-size: 1.05em;
+  color: #222;
+  border-left: 4px solid transparent;
+  padding-left: 6px;
+}
+
+@media (max-width: 1000px) {
+  .panel.params {
+    grid-template-columns: 1fr;
+  }
+  .chart-container {
+    height: 360px;
+  }
 }
 .geometry-container {
   display: flex;

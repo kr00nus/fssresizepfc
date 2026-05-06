@@ -11,166 +11,168 @@
     <div class="dashboard">
       <div class="panel params">
         <h2>Parâmetros</h2>
+        <div class="params-grid">
+          <div class="param-col">
+            <h3>Parâmetros Físicos</h3>
+            <div
+              class="control-group"
+              style="border-left: 4px solid #007bff; padding-left: 5px"
+            >
+              <div class="header-row">
+                <label>Período p (mm)</label>
+                <input type="number" id="p_num" value="5.250" step="0.001" />
+              </div>
+              <input
+                type="range"
+                id="p_slider"
+                min="0"
+                max="10.0"
+                step="0.001"
+                value="5.250"
+              />
+            </div>
 
-        <h3>Parâmetros de Frequência</h3>
-        <div class="control-group">
-          <div class="header-row">
-            <label>Freq. Inicial (GHz)</label>
-            <input type="number" id="fStart_num" value="5" step="0.1" />
+            <div
+              class="control-group"
+              style="border-left: 4px solid #28a745; padding-left: 5px"
+            >
+              <div class="header-row">
+                <label>Tamanho d (mm)</label>
+                <input type="number" id="d_num" value="5.000" step="0.001" />
+              </div>
+              <input
+                type="range"
+                id="d_slider"
+                min="0"
+                max="10.0"
+                step="0.001"
+                value="5.000"
+              />
+            </div>
+
+            <div class="control-group">
+              <div class="header-row">
+                <label>Largura w (mm)</label>
+                <input type="number" id="w_num" value="0.470" step="0.001" />
+              </div>
+              <input
+                type="range"
+                id="w_slider"
+                min="0"
+                max="10.0"
+                step="0.001"
+                value="0.470"
+              />
+            </div>
+
+            <div
+              class="control-group"
+              style="background: #f8f9fa; padding: 5px; border-radius: 4px"
+            >
+              <div class="header-row">
+                <label>Gap g (calculado: p - d)</label>
+                <input
+                  type="number"
+                  id="g_num"
+                  value="0.250"
+                  readonly
+                  style="background: #e9ecef; border: 1px solid #ced4da"
+                />
+              </div>
+            </div>
           </div>
-          <input
-            type="range"
-            id="fStart_slider"
-            min="0"
-            max="50"
-            step="0.1"
-            value="5"
-          />
-        </div>
 
-        <div class="control-group">
-          <div class="header-row">
-            <label>Freq. Final (GHz)</label>
-            <input type="number" id="fEnd_num" value="25" step="0.1" />
+          <div class="param-col">
+            <h3>Parâmetros de Frequência</h3>
+            <div class="control-group">
+              <div class="header-row">
+                <label>Freq. Inicial (GHz)</label>
+                <input type="number" id="fStart_num" value="5" step="0.1" />
+              </div>
+              <input
+                type="range"
+                id="fStart_slider"
+                min="0"
+                max="50"
+                step="0.1"
+                value="5"
+              />
+            </div>
+
+            <div class="control-group">
+              <div class="header-row">
+                <label>Freq. Final (GHz)</label>
+                <input type="number" id="fEnd_num" value="25" step="0.1" />
+              </div>
+              <input
+                type="range"
+                id="fEnd_slider"
+                min="0"
+                max="50"
+                step="0.1"
+                value="25"
+              />
+            </div>
           </div>
-          <input
-            type="range"
-            id="fEnd_slider"
-            min="0"
-            max="50"
-            step="0.1"
-            value="25"
-          />
-        </div>
 
-        <h3>Parâmetros Físicos</h3>
-        <div
-          class="control-group"
-          style="border-left: 4px solid #007bff; padding-left: 5px"
-        >
-          <div class="header-row">
-            <label>Período p (mm)</label>
-            <input type="number" id="p_num" value="5.250" step="0.001" />
-          </div>
-          <input
-            type="range"
-            id="p_slider"
-            min="0"
-            max="10.0"
-            step="0.001"
-            value="5.250"
-          />
-        </div>
+          <div class="param-col">
+            <h3>Parâmetros do Substrato</h3>
+            <div class="control-group">
+              <div class="header-row">
+                <label>Substrato</label>
+                <select id="substrate_select">
+                  <option value="manual">Manual</option>
+                  <option value="RO3003">RO3003 (εr=3.00, h=1.52mm)</option>
+                  <option value="RO3006">RO3006 (εr=6.50, h=1.28mm)</option>
+                </select>
+              </div>
+            </div>
 
-        <div
-          class="control-group"
-          style="border-left: 4px solid #28a745; padding-left: 5px"
-        >
-          <div class="header-row">
-            <label>Tamanho d (mm)</label>
-            <input type="number" id="d_num" value="5.000" step="0.001" />
-          </div>
-          <input
-            type="range"
-            id="d_slider"
-            min="0"
-            max="10.0"
-            step="0.001"
-            value="5.000"
-          />
-        </div>
+            <div class="control-group">
+              <div class="header-row">
+                <label>Espessura do Substrato h (mm)</label>
+                <input type="number" id="h_sub_num" value="10.0" step="0.1" />
+              </div>
+              <input
+                type="range"
+                id="h_sub_slider"
+                min="0"
+                max="10.0"
+                step="0.1"
+                value="10.0"
+              />
+            </div>
 
-        <div class="control-group">
-          <div class="header-row">
-            <label>Largura w (mm)</label>
-            <input type="number" id="w_num" value="0.470" step="0.001" />
-          </div>
-          <input
-            type="range"
-            id="w_slider"
-            min="0"
-            max="10.0"
-            step="0.001"
-            value="0.470"
-          />
-        </div>
+            <div class="control-group">
+              <div class="header-row">
+                <label>Permissividade Real (εr)</label>
+                <input type="number" id="er_num" value="1.30" step="0.01" />
+              </div>
+              <input
+                type="range"
+                id="er_slider"
+                min="1.0"
+                max="15.0"
+                step="0.01"
+                value="1.30"
+              />
+            </div>
 
-        <div
-          class="control-group"
-          style="background: #f8f9fa; padding: 5px; border-radius: 4px"
-        >
-          <div class="header-row">
-            <label>Gap g (calculado: p - d)</label>
-            <input
-              type="number"
-              id="g_num"
-              value="0.250"
-              readonly
-              style="background: #e9ecef; border: 1px solid #ced4da"
-            />
-          </div>
-        </div>
-
-        <h3>Parâmetros do Substrato</h3>
-        <div class="control-group">
-          <div class="header-row">
-            <label>Substrato</label>
-            <select id="substrate_select">
-              <option value="manual">Manual</option>
-              <option value="RO3003">RO3003 (εr=3.00, h=1.52mm)</option>
-              <option value="RO3006">RO3006 (εr=6.50, h=1.28mm)</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <div class="header-row">
-            <label>Espessura do Substrato h (mm)</label>
-            <input type="number" id="h_sub_num" value="10.0" step="0.1" />
-          </div>
-          <input
-            type="range"
-            id="h_sub_slider"
-            min="0"
-            max="10.0"
-            step="0.1"
-            value="10.0"
-          />
-        </div>
-
-        <div class="control-group">
-          <div class="header-row">
-            <label>Permissividade Real (εr)</label>
-            <input type="number" id="er_num" value="1.30" step="0.01" />
-          </div>
-          <input
-            type="range"
-            id="er_slider"
-            min="1.0"
-            max="15.0"
-            step="0.01"
-            value="1.30"
-          />
-        </div>
-
-        <div
-          class="control-group"
-          style="background: #f8f9fa; padding: 5px; border-radius: 4px"
-        >
-          <div class="header-row">
-            <label>Dielétrico Efetivo (ε_eff)</label>
-            <input
-              type="number"
-              id="er_eff_num"
-              value="1.145"
-              readonly
-              style="
-                background: #e9ecef;
-                border: 1px solid #ced4da;
-                color: #cc0000;
-                font-weight: bold;
-              "
-            />
+            <div
+              class="control-group"
+              style="background: #f8f9fa; padding: 5px; border-radius: 4px"
+            >
+              <div class="header-row">
+                <label>Dielétrico Efetivo (ε_eff)</label>
+                <input
+                  type="number"
+                  id="er_eff_num"
+                  value="1.145"
+                  readonly
+                  style="background: #e9ecef; border: 1px solid #ced4da; color: #cc0000; font-weight: bold;"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
