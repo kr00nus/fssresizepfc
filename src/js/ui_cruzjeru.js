@@ -143,11 +143,41 @@ function updateChart(labels, data) {
     idx === lowerIndex || idx === upperIndex ? data[idx] : null,
   );
 
-  chart = createLineChart(ctx, labels, [
-    { label: 'Simulados (Cruz de Jerusalém)', data: data, borderColor: '#000', borderWidth: 1.5 },
-    { label: `fr = ${frFreq.toFixed(2)} GHz`, data: frPointData, borderColor: '#ff0000', borderWidth: 3, borderDash: [5,5], pointRadius: 6, pointBackgroundColor: '#ff0000', pointBorderColor: '#ff0000', showLine: false },
-    { label: `BW = ${bw.toFixed(2)} GHz (-3dB)`, data: bwPointsData, borderColor: '#0066cc', borderWidth: 3, borderDash: [3,3], pointRadius: 6, pointBackgroundColor: '#0066cc', pointBorderColor: '#0066cc', showLine: false },
-  ], { yTitle: 'Potência Transmitida (dB)', yMin: -60, yMax: 0 });
+  chart = createLineChart(
+    ctx,
+    labels,
+    [
+      {
+        label: "Simulados (Cruz de Jerusalém)",
+        data: data,
+        borderColor: "#000",
+        borderWidth: 1.5,
+      },
+      {
+        label: `fr = ${frFreq.toFixed(2)} GHz`,
+        data: frPointData,
+        borderColor: "#ff0000",
+        borderWidth: 3,
+        borderDash: [5, 5],
+        pointRadius: 6,
+        pointBackgroundColor: "#ff0000",
+        pointBorderColor: "#ff0000",
+        showLine: false,
+      },
+      {
+        label: `BW = ${bw.toFixed(2)} GHz (-3dB)`,
+        data: bwPointsData,
+        borderColor: "#0066cc",
+        borderWidth: 3,
+        borderDash: [3, 3],
+        pointRadius: 6,
+        pointBackgroundColor: "#0066cc",
+        pointBorderColor: "#0066cc",
+        showLine: false,
+      },
+    ],
+    { yTitle: "Potência Transmitida (dB)", yMin: -60, yMax: 0 },
+  );
 
   let infoBox = document.getElementById("resonanceInfo");
   if (!infoBox) {
