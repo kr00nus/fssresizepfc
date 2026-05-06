@@ -239,8 +239,8 @@ function updateAll() {
   const g = parseFloat(document.getElementById("g_num").value);
   const er = parseFloat(document.getElementById("er_num").value);
 
+  // Allow fStart == 0 so charts can start at 0 GHz; validate other params and fEnd
   if (
-    fStart <= 0 ||
     fEnd <= 0 ||
     p <= 0 ||
     d <= 0 ||

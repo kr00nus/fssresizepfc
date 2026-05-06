@@ -226,7 +226,8 @@ function updateAll() {
   let p = parseFloat(document.getElementById("p_num").value); // 'a' no documento
   let c = parseFloat(document.getElementById("c_num").value); // 'c' no documento
 
-  if (fStart <= 0 || fEnd <= 0 || p <= 0 || c <= 0 || fStart >= fEnd) {
+  // Allow fStart == 0 (start at 0 GHz). Only require fEnd > 0 and physical params > 0
+  if (fEnd <= 0 || p <= 0 || c <= 0 || fStart >= fEnd) {
     if (chart) chart.destroy();
     return;
   }

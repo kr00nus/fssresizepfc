@@ -59,23 +59,30 @@ export function createLineChart(ctx, labels, data, options = {}) {
 }
 
 export function exportChartToCSV(chart, filename = "export.csv") {
-  if (!chart || !chart.data || !chart.data.labels || !chart.data.labels.length) {
+  if (
+    !chart ||
+    !chart.data ||
+    !chart.data.labels ||
+    !chart.data.labels.length
+  ) {
     alert("Nenhum dado disponível.");
     return;
   }
   let csv = "Frequency (GHz);S21 (dB)\n";
   chart.data.labels.forEach((freq, index) => {
     const rawFreq = freq;
-    const rawS21 = chart.data.datasets && chart.data.datasets[0]
-      ? chart.data.datasets[0].data[index]
-      : null;
+    const rawS21 =
+      chart.data.datasets && chart.data.datasets[0]
+        ? chart.data.datasets[0].data[index]
+        : null;
     const f = parseFloat(String(rawFreq).replace(",", "."));
     let s21Val = rawS21;
     if (s21Val === null || s21Val === undefined || s21Val === "") {
       csv += `${isNaN(f) ? rawFreq : f.toFixed(3)};\n`;
       return;
     }
-    if (typeof s21Val === "string") s21Val = parseFloat(s21Val.replace(",", "."));
+    if (typeof s21Val === "string")
+      s21Val = parseFloat(s21Val.replace(",", "."));
     if (typeof s21Val === "number" && !isNaN(s21Val)) {
       csv += `${isNaN(f) ? rawFreq : f.toFixed(3)};${s21Val.toFixed(2)}\n`;
     } else {
