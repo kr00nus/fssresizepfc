@@ -275,7 +275,7 @@ function updateAll() {
 
   drawGeometry(p, d, w, g);
 
-  const df = 0.05;
+  const df = 0.001;
   const pCm = mmToCm(p);
   const dCm = mmToCm(d);
   const wCm = mmToCm(w);
