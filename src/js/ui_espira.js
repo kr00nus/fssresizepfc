@@ -1,6 +1,6 @@
 import { mmToCm, FF } from "./math.js";
 
-let chart;
+let chart = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   function bindInputs(idPrefix) {
@@ -107,138 +107,15 @@ function drawGeometry(p, d, w, g) {
   ctx.lineWidth = 1;
   ctx.strokeRect(center - pPixel / 2, center - pPixel / 2, pPixel, pPixel);
   ctx.setLineDash([]);
-
-  ctx.fillStyle = "#cc0000";
-  ctx.strokeStyle = "#cc0000";
-  ctx.lineWidth = 1.2;
-  ctx.font = "bold 13px 'Times New Roman'";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-
-  function drawCota(
-    x1,
-    y1,
-    x2,
-    y2,
-    text,
-    textOffsetX,
-    textOffsetY,
-    isVertical = false,
-  ) {
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
-    const tick = 4;
-    ctx.beginPath();
-    if (isVertical) {
-      ctx.moveTo(x1 - tick, y1);
-      ctx.lineTo(x1 + tick, y1);
-      ctx.moveTo(x2 - tick, y2);
-      ctx.lineTo(x2 + tick, y2);
-    } else {
-      ctx.moveTo(x1, y1 - tick);
-      ctx.lineTo(x1, y1 + tick);
-      ctx.moveTo(x2, y2 - tick);
-      ctx.lineTo(x2, y2 + tick);
-    }
-    ctx.stroke();
-
-    const txtX = (x1 + x2) / 2 + textOffsetX;
-    const txtY = (y1 + y2) / 2 + textOffsetY;
-    const m = ctx.measureText(text);
-    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-    ctx.fillRect(txtX - m.width / 2 - 2, txtY - 8, m.width + 4, 16);
-    ctx.fillStyle = "#cc0000";
-    ctx.fillText(text, txtX, txtY);
-  }
-
-  const topY = center - pPixel / 2;
-  ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
-  ctx.beginPath();
-  ctx.moveTo(center - pPixel / 2, topY);
-  ctx.lineTo(center - pPixel / 2, topY - 25);
-  ctx.moveTo(center + pPixel / 2, topY);
-  ctx.lineTo(center + pPixel / 2, topY - 25);
-  ctx.stroke();
-  ctx.strokeStyle = "#cc0000";
-  drawCota(
-    center - pPixel / 2,
-    topY - 18,
-    center + pPixel / 2,
-    topY - 18,
-    "p = " + p.toFixed(3),
-    0,
-    -10,
-  );
-
-  const dY = center + dPixel / 2 + 25;
-  ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
-  ctx.beginPath();
-  ctx.moveTo(center - dPixel / 2, center + dPixel / 2);
-  ctx.lineTo(center - dPixel / 2, dY + 5);
-  ctx.moveTo(center + dPixel / 2, center + dPixel / 2);
-  ctx.lineTo(center + dPixel / 2, dY + 5);
-  ctx.stroke();
-  ctx.strokeStyle = "#cc0000";
-  drawCota(
-    center - dPixel / 2,
-    dY,
-    center + dPixel / 2,
-    dY,
-    "d = " + d.toFixed(3),
-    0,
-    10,
-  );
-
-  const leftX = center - dPixel / 2;
-  ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
-  ctx.beginPath();
-  ctx.moveTo(leftX, center);
-  ctx.lineTo(leftX - 25, center);
-  ctx.moveTo(leftX + wPixel, center);
-  ctx.lineTo(leftX + wPixel - 25, center);
-  ctx.stroke();
-  ctx.strokeStyle = "#cc0000";
-  drawCota(
-    leftX - 18,
-    center,
-    leftX + wPixel - 18,
-    center,
-    "w = " + w.toFixed(3),
-    -15,
-    0,
-    true,
-  );
-
-  const centralRightEdge = center + dPixel / 2;
-  const neighborLeftEdge = center + pPixel - dPixel / 2;
-  ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
-  ctx.beginPath();
-  ctx.moveTo(centralRightEdge, center);
-  ctx.lineTo(centralRightEdge, center + 20);
-  ctx.moveTo(neighborLeftEdge, center);
-  ctx.lineTo(neighborLeftEdge, center + 20);
-  ctx.stroke();
-  ctx.strokeStyle = "#cc0000";
-  drawCota(
-    centralRightEdge,
-    center + 12,
-    neighborLeftEdge,
-    center + 12,
-    "g = " + g.toFixed(3),
-    0,
-    10,
-  );
 }
 
 function updateAll() {
   const fStart = parseFloat(document.getElementById("fStart_num").value);
   const fEnd = parseFloat(document.getElementById("fEnd_num").value);
-  let p = parseFloat(document.getElementById("p_num").value);
+  const p = parseFloat(document.getElementById("p_num").value);
   let d = parseFloat(document.getElementById("d_num").value);
-  let w = parseFloat(document.getElementById("w_num").value);
-  let h_sub = parseFloat(document.getElementById("h_sub_num").value);
+  const w = parseFloat(document.getElementById("w_num").value);
+  const h_sub = parseFloat(document.getElementById("h_sub_num").value);
   const er_real = parseFloat(document.getElementById("er_num").value);
 
   if (
@@ -257,12 +134,6 @@ function updateAll() {
   if (d >= p) {
     d = p - 0.001;
     document.getElementById("d_num").value = d.toFixed(3);
-    document.getElementById("d_slider").value = d;
-  }
-  if (2 * w >= d) {
-    w = d / 2 - 0.001;
-    document.getElementById("w_num").value = w.toFixed(3);
-    document.getElementById("w_slider").value = w;
   }
 
   const g = p - d;
@@ -275,18 +146,16 @@ function updateAll() {
 
   drawGeometry(p, d, w, g);
 
-  const df = 0.001;
+  const df = 0.001; // Alta resolução
   const pCm = mmToCm(p);
   const dCm = mmToCm(d);
   const wCm = mmToCm(w);
   const gCm = mmToCm(g);
-
-  // Resistência Superficial Rs inserida para modelar perdas ôhmicas e do substrato.
-  // O valor 0.008 fixa a atenuação da ressonância perto de -36 dB simulando o CST do eBook.
-  const Rs = 0.008;
+  const Rs = 0.008; // Resistência superficial para modelar perdas (TCC/CST)
 
   const data = [];
   const labels = [];
+  const f_limit = 30 / pCm; // Limite de Grating Lobes
 
   for (let freq = fStart; freq <= fEnd; freq += df) {
     const lamb = 30 / freq;
@@ -295,33 +164,38 @@ function updateAll() {
     try {
       const XL = (dCm / pCm) * FF(pCm, 2 * wCm, lamb, ang);
       const BC = 4 * er_eff * (dCm / pCm) * FF(pCm, gCm, lamb, ang);
-
-      // Reatância Total ideal (X)
       const X = XL - 1 / BC;
 
-      // Potência Transmitida de um circuito RLC em série/paralelo com a linha
-      // Pt = (Rs^2 + X^2) / (Rs^2 + X^2 + Rs + 0.25)
+      // Cálculo Pt com perdas (R_s)
       const pt = (Rs * Rs + X * X) / (Rs * Rs + X * X + Rs + 0.25);
       let pt_dB = 10 * Math.log10(pt);
 
-      labels.push(freq.toFixed(2));
+      labels.push(freq.toFixed(3)); // Necessário 3 casas para o passo 0.001
       data.push(Math.max(-60, pt_dB));
     } catch (e) {
       data.push(0);
     }
   }
 
-  updateChart(labels, data);
+  let limitIndex = -1;
+  for (let i = 0; i < labels.length; i++) {
+    if (parseFloat(labels[i]) >= f_limit) {
+      limitIndex = i;
+      break;
+    }
+  }
+
+  updateChart(labels, data, limitIndex, f_limit);
 }
 
-function updateChart(labels, data) {
+function updateChart(labels, data, limitIndex, f_limit) {
   const ctx = document.getElementById("fssChart").getContext("2d");
   if (chart) chart.destroy();
 
-  const minIndex = data.indexOf(Math.min(...data));
+  const validData = limitIndex !== -1 ? data.slice(0, limitIndex) : data;
+  const minIndex = validData.indexOf(Math.min(...validData));
   const frFreq = parseFloat(labels[minIndex]);
 
-  // Medição da banda passante cravada nos -10 dB!
   const threshold = -10.0;
   let fLower = null,
     fUpper = null;
@@ -335,7 +209,11 @@ function updateChart(labels, data) {
       break;
     }
   }
-  for (let i = minIndex; i < data.length; i++) {
+  for (
+    let i = minIndex;
+    i < (limitIndex !== -1 ? limitIndex : data.length);
+    i++
+  ) {
     if (data[i] >= threshold) {
       fUpper = parseFloat(labels[i]);
       upperIndex = i;
@@ -343,14 +221,8 @@ function updateChart(labels, data) {
     }
   }
 
-  if (fLower === null) {
-    fLower = parseFloat(labels[0]);
-    lowerIndex = 0;
-  }
-  if (fUpper === null) {
-    fUpper = parseFloat(labels[data.length - 1]);
-    upperIndex = data.length - 1;
-  }
+  if (fLower === null) fLower = parseFloat(labels[0]);
+  if (fUpper === null) fUpper = parseFloat(labels[data.length - 1]);
   const bw = fUpper - fLower;
 
   const frPointData = labels.map((_, idx) =>
@@ -359,6 +231,9 @@ function updateChart(labels, data) {
   const bwPointsData = labels.map((_, idx) =>
     idx === lowerIndex || idx === upperIndex ? data[idx] : null,
   );
+  const limitPointData = labels.map((_, idx) =>
+    idx === limitIndex ? data[idx] : null,
+  );
 
   chart = new Chart(ctx, {
     type: "line",
@@ -366,13 +241,13 @@ function updateChart(labels, data) {
       labels: labels,
       datasets: [
         {
-          label: "S21 Simulado ECM com Perdas (Espira Quadrada)",
+          label: "S21 Simulado ECM (Espira Quadrada)",
           data: data,
           borderColor: "#000",
           borderWidth: 2,
           pointRadius: 0,
           fill: false,
-          tension: 0.1,
+          tension: 0, // Desligado para evitar borrão na alta resolução
         },
         {
           label: `fr = ${frFreq.toFixed(2)} GHz`,
@@ -382,8 +257,6 @@ function updateChart(labels, data) {
           borderDash: [5, 5],
           pointRadius: 6,
           pointBackgroundColor: "#ff0000",
-          pointBorderColor: "#ff0000",
-          fill: false,
           showLine: false,
         },
         {
@@ -394,10 +267,21 @@ function updateChart(labels, data) {
           borderDash: [3, 3],
           pointRadius: 6,
           pointBackgroundColor: "#0066cc",
-          pointBorderColor: "#0066cc",
-          fill: false,
           showLine: false,
         },
+        // Marcador do Limite de Difração
+        ...(limitIndex !== -1
+          ? [
+              {
+                label: `Limite ECM (λ=p) em ${f_limit.toFixed(2)} GHz`,
+                data: limitPointData,
+                borderColor: "#ff8c00",
+                pointRadius: 9,
+                pointStyle: "triangle",
+                showLine: false,
+              },
+            ]
+          : []),
       ],
     },
     options: {
@@ -406,24 +290,10 @@ function updateChart(labels, data) {
       animation: false,
       scales: {
         x: {
-          title: {
-            display: true,
-            text: "Freqüência (GHz)",
-            font: { family: "Times New Roman", size: 14 },
-          },
-          grid: { color: "#eee" },
           ticks: { maxTicksLimit: 20 },
+          title: { display: true, text: "Frequência (GHz)" },
         },
-        y: {
-          min: -60,
-          max: 0,
-          title: {
-            display: true,
-            text: "Potência Transmitida (dB)",
-            font: { family: "Times New Roman", size: 14 },
-          },
-          grid: { color: "#eee" },
-        },
+        y: { min: -60, max: 0, title: { display: true, text: "S21 (dB)" } },
       },
       plugins: { legend: { labels: { font: { family: "Times New Roman" } } } },
     },
@@ -434,50 +304,30 @@ function updateChart(labels, data) {
     infoBox = document.createElement("div");
     infoBox.id = "resonanceInfo";
     infoBox.style.cssText =
-      "margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 4px; font-family: 'Times New Roman'; font-size: 14px;";
-    document
-      .querySelector(".chart-container")
-      .parentNode.insertBefore(
-        infoBox,
-        document.querySelector(".chart-container").nextSibling,
-      );
+      "margin-top: 10px; padding: 10px; background: #fdfd96; border-radius: 4px; font-size: 14px;";
+    document.querySelector(".chart-container").after(infoBox);
   }
-  infoBox.innerHTML = `<strong>Frequência de Ressonância (fr):</strong> ${frFreq.toFixed(2)} GHz | <strong>Banda de Rejeição (BW):</strong> ${bw.toFixed(2)} GHz (${fLower.toFixed(2)} - ${fUpper.toFixed(2)} GHz)`;
+
+  let infoHtml = `<strong>fr:</strong> ${frFreq.toFixed(2)} GHz | <strong>BW:</strong> ${bw.toFixed(2)} GHz`;
+  if (limitIndex !== -1) {
+    infoHtml += `<br><small style="color: #d35400">⚠️ Aviso: Acima de ${f_limit.toFixed(2)} GHz o modelo ECM perde precisão devido à difração.</small>`;
+  }
+  infoBox.innerHTML = infoHtml;
 }
 
 function exportToCSV() {
-  if (!chart || !chart.data.labels.length) { 
-    alert("Nenhum dado disponível."); 
-    return; 
-  }
-  
-  // Cabeçalho da tabela
-  let csv = "Frequência (GHz);S21 (dB)\n";
-  
+  if (!chart) return;
+  let csv = "\uFEFF" + "Frequência (GHz);S21 (dB)\n";
   chart.data.labels.forEach((freq, index) => {
-    // Pega o valor de S21
     let s21 = chart.data.datasets[0].data[index];
-
-    // O SEGREDO: Troca o PONTO por VÍRGULA para o Excel brasileiro ler como decimal!
-    let freq_BR = String(freq).replace(".", ",");
+    // Formato BR (Vércula) e alta precisão
+    let freq_BR = Number(freq).toFixed(3).replace(".", ",");
     let s21_BR = Number(s21).toFixed(4).replace(".", ",");
-
-    // Adiciona a linha na tabela (colunas separadas por ponto-e-vírgula)
     csv += `${freq_BR};${s21_BR}\n`;
   });
-
-  // O "\uFEFF" (BOM) garante que o Excel leia os acentos (UTF-8) corretamente
-  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
-  
-  if (link.download !== undefined) {
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", "dados_s21.csv"); // Nome do arquivo exportado
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
+  link.href = URL.createObjectURL(blob);
+  link.download = "dados_espira_quadrada.csv";
+  link.click();
 }
-
