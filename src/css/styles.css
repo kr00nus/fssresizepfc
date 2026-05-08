@@ -18,21 +18,20 @@ body {
 }
 .panel {
   background: white;
-  padding: 10px;
+  padding: 12px;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
   border: 1px solid #e6e6e6;
 }
 .panel.params {
-  padding: 8px 10px;
+  padding: 16px 20px;
   max-height: none;
   overflow: visible;
   display: grid;
-  /* Use a responsive grid that fits as many columns as will reasonably fit
-     each column keeps a minimum width so controls remain readable */
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 8px 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px 24px;
   align-items: start;
+  min-height: 220px;
 }
 h2 {
   text-align: center;
@@ -43,8 +42,8 @@ h2 {
   font-size: 1.25em;
 }
 .control-group {
-  margin-bottom: 6px;
-  padding-bottom: 4px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
   border-bottom: 1px dashed #f0f0f0;
 }
 .header-row {
@@ -55,12 +54,13 @@ h2 {
 }
 label {
   font-weight: 600;
-  font-size: 0.80em;
+  font-size: 0.90em;
+  display: block;
+  margin-bottom: 4px;
 }
 input[type="number"] {
-  width: 56px;
-  max-width: 100%;
-  padding: 2px 4px;
+  width: 70px;
+  padding: 4px 6px;
   border: 1px solid #d0d0d0;
   border-radius: 3px;
   font-size: 0.95em;
@@ -68,27 +68,23 @@ input[type="number"] {
 input[type="range"] {
   width: 100%;
   cursor: pointer;
-  height: 10px;
+  height: 12px;
 }
 .visuals {
   display: flex;
   flex-direction: row;
-  gap: 14px;
+  gap: 18px;
   align-items: flex-start;
-  /* allow panels to wrap when space is limited */
-  flex-wrap: wrap;
 }
 .visuals > .panel:first-child {
-  flex: 1 1 65%;
-  min-width: 320px;
+  flex: 3 1 65%;
 }
 .visuals > .panel:last-child {
-  flex: 1 1 35%;
-  min-width: 200px;
+  flex: 2 1 35%;
 }
 .chart-container {
   position: relative;
-  height: 300px;
+  height: 320px;
   width: 100%;
   border: 1px solid #e6e6e6;
   padding: 8px;
@@ -99,8 +95,8 @@ input[type="range"] {
 /* Params grid columns */
 .params-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 10px 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px 20px;
 }
 .panel.params > h2 {
   grid-column: 1 / -1;
@@ -109,39 +105,23 @@ input[type="range"] {
 .param-col {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 12px;
 }
 .param-col h3 {
-  margin: 0 0 6px 0;
-  font-size: 1.05em;
+  margin: 0 0 8px 0;
+  font-size: 1.1em;
   color: #222;
-  border-left: 4px solid transparent;
-  padding-left: 6px;
+  border-left: 4px solid #0066cc;
+  padding-left: 8px;
+  font-weight: 700;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 1000px) {
   .panel.params {
     grid-template-columns: 1fr;
   }
   .chart-container {
     height: 360px;
-  }
-  .visuals {
-    flex-direction: column;
-  }
-  .visuals > .panel:first-child,
-  .visuals > .panel:last-child {
-    min-width: unset;
-    width: 100%;
-  }
-}
-
-@media (min-width: 1400px) {
-  .panel.params {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  .params-grid {
-    grid-template-columns: repeat(3, 1fr);
   }
 }
 .geometry-container {
