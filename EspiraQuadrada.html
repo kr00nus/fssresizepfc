@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Simulador FSS - Espira Quadrada (ECM Completo)</title>
+    <title>Simulador FSS - Espira Quadrada (Matlab eBook)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="src/css/styles.css" />
   </head>
   <body>
     <div class="dashboard">
       <div class="panel params">
-        <h2>Parâmetros</h2>
+        <h2>Parâmetros (Padrão: Fig. 4.5)</h2>
         <div class="params-grid">
           <div class="param-col">
             <h3>Parâmetros Físicos</h3>
@@ -20,15 +20,15 @@
             >
               <div class="header-row">
                 <label>Período p (mm)</label>
-                <input type="number" id="p_num" value="5.250" step="0.001" />
+                <input type="number" id="p_num" value="8.966" step="0.001" />
               </div>
               <input
                 type="range"
                 id="p_slider"
                 min="0"
-                max="10.0"
+                max="15.0"
                 step="0.001"
-                value="5.250"
+                value="8.966"
               />
             </div>
 
@@ -38,30 +38,30 @@
             >
               <div class="header-row">
                 <label>Tamanho d (mm)</label>
-                <input type="number" id="d_num" value="5.000" step="0.001" />
+                <input type="number" id="d_num" value="6.045" step="0.001" />
               </div>
               <input
                 type="range"
                 id="d_slider"
                 min="0"
-                max="10.0"
+                max="14.9"
                 step="0.001"
-                value="5.000"
+                value="6.045"
               />
             </div>
 
             <div class="control-group">
               <div class="header-row">
                 <label>Largura w (mm)</label>
-                <input type="number" id="w_num" value="0.470" step="0.001" />
+                <input type="number" id="w_num" value="0.305" step="0.001" />
               </div>
               <input
                 type="range"
                 id="w_slider"
                 min="0"
-                max="10.0"
+                max="2.0"
                 step="0.001"
-                value="0.470"
+                value="0.305"
               />
             </div>
 
@@ -74,7 +74,7 @@
                 <input
                   type="number"
                   id="g_num"
-                  value="0.250"
+                  value="2.921"
                   readonly
                   style="background: #e9ecef; border: 1px solid #ced4da"
                 />
@@ -87,7 +87,7 @@
             <div class="control-group">
               <div class="header-row">
                 <label>Freq. Inicial (GHz)</label>
-                <input type="number" id="fStart_num" value="5" step="0.1" />
+                <input type="number" id="fStart_num" value="10" step="0.1" />
               </div>
               <input
                 type="range"
@@ -95,7 +95,7 @@
                 min="0"
                 max="50"
                 step="0.1"
-                value="5"
+                value="10"
               />
             </div>
 
@@ -131,22 +131,22 @@
             <div class="control-group">
               <div class="header-row">
                 <label>Espessura do Substrato h (mm)</label>
-                <input type="number" id="h_sub_num" value="10.0" step="0.1" />
+                <input type="number" id="h_sub_num" value="1.00" step="0.01" />
               </div>
               <input
                 type="range"
                 id="h_sub_slider"
                 min="0"
                 max="10.0"
-                step="0.1"
-                value="10.0"
+                step="0.01"
+                value="1.00"
               />
             </div>
 
             <div class="control-group">
               <div class="header-row">
                 <label>Permissividade Real (εr)</label>
-                <input type="number" id="er_num" value="1.30" step="0.01" />
+                <input type="number" id="er_num" value="1.12" step="0.01" />
               </div>
               <input
                 type="range"
@@ -154,7 +154,7 @@
                 min="1.0"
                 max="15.0"
                 step="0.01"
-                value="1.30"
+                value="1.12"
               />
             </div>
 
@@ -167,7 +167,7 @@
                 <input
                   type="number"
                   id="er_eff_num"
-                  value="1.145"
+                  value="1.02"
                   readonly
                   style="
                     background: #e9ecef;
@@ -209,9 +209,9 @@
           <div class="geometry-container">
             <canvas id="shapeCanvas" width="400" height="400"></canvas>
             <div class="geo-legend">
-              <strong>Linha pontilhada:</strong> Limites do período (p x p)<br />
-              Cálculo reajustado para física pura sem limite de amortecimento
-              virtual.
+              <strong>Linha pontilhada:</strong> Limites da Célula Unitária (p x
+              p)<br />
+              As cotas representam com exatidão matemática o Modelo Equivalente.
             </div>
           </div>
         </div>
