@@ -107,89 +107,6 @@ function drawGeometry(p, d, w, h_arm, g) {
   ctx.lineWidth = 1;
   ctx.strokeRect(center - pPixel / 2, center - pPixel / 2, pPixel, pPixel);
   ctx.setLineDash([]);
-
-  ctx.fillStyle = "#cc0000";
-  ctx.strokeStyle = "#cc0000";
-  ctx.lineWidth = 1.2;
-  ctx.font = "bold 13px 'Times New Roman'";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-
-  function drawCota(
-    x1,
-    y1,
-    x2,
-    y2,
-    text,
-    textOffsetX,
-    textOffsetY,
-    isVertical = false,
-  ) {
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
-    const tick = 4;
-    ctx.beginPath();
-    if (isVertical) {
-      ctx.moveTo(x1 - tick, y1);
-      ctx.lineTo(x1 + tick, y1);
-      ctx.moveTo(x2 - tick, y2);
-      ctx.lineTo(x2 + tick, y2);
-    } else {
-      ctx.moveTo(x1, y1 - tick);
-      ctx.lineTo(x1, y1 + tick);
-      ctx.moveTo(x2, y2 - tick);
-      ctx.lineTo(x2, y2 + tick);
-    }
-    ctx.stroke();
-
-    const txtX = (x1 + x2) / 2 + textOffsetX;
-    const txtY = (y1 + y2) / 2 + textOffsetY;
-    const m = ctx.measureText(text);
-    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-    ctx.fillRect(txtX - m.width / 2 - 2, txtY - 8, m.width + 4, 16);
-    ctx.fillStyle = "#cc0000";
-    ctx.fillText(text, txtX, txtY);
-  }
-
-  const topY = center - pPixel / 2;
-  ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
-  ctx.beginPath();
-  ctx.moveTo(center - pPixel / 2, topY);
-  ctx.lineTo(center - pPixel / 2, topY - 25);
-  ctx.moveTo(center + pPixel / 2, topY);
-  ctx.lineTo(center + pPixel / 2, topY - 25);
-  ctx.stroke();
-  ctx.strokeStyle = "#cc0000";
-  drawCota(
-    center - pPixel / 2,
-    topY - 18,
-    center + pPixel / 2,
-    topY - 18,
-    "p = " + p.toFixed(3),
-    0,
-    -10,
-  );
-
-  const dY = center + wPixel / 2 + 25;
-  ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
-  ctx.beginPath();
-  ctx.moveTo(center - dPixel / 2, center + wPixel / 2);
-  ctx.lineTo(center - dPixel / 2, dY + 5);
-  ctx.moveTo(center + dPixel / 2, center + wPixel / 2);
-  ctx.lineTo(center + dPixel / 2, dY + 5);
-  ctx.stroke();
-  ctx.strokeStyle = "#cc0000";
-  drawCota(
-    center - dPixel / 2,
-    dY,
-    center + dPixel / 2,
-    dY,
-    "d = " + d.toFixed(3),
-    0,
-    10,
-  );
 }
 
 function updateAll() {
@@ -230,7 +147,7 @@ function updateAll() {
 
   drawGeometry(p, d, w, h_arm, g);
 
-  const df = 0.001;
+  const df = 0.001; // Passo de alta resolução
   const pCm = mmToCm(p);
   const dCm = mmToCm(d);
   const wCm = mmToCm(w);
@@ -238,11 +155,8 @@ function updateAll() {
   const gCm = mmToCm(g);
 
   const Rs = 0.008;
-
   const data = [];
   const labels = [];
-
-  // Limite de Difração (onde o Comprimento de Onda é igual ao Período)
   const f_limit = 30 / pCm;
 
   for (let freq = fStart; freq <= fEnd; freq += df) {
@@ -274,14 +188,14 @@ function updateAll() {
       const pt = 4 / den;
       let pt_dB = 10 * Math.log10(pt);
 
-      labels.push(freq.toFixed(2));
+      // AQUI: Usamos 3 casas para as labels acompanharem o passo 0.001
+      labels.push(freq.toFixed(3));
       data.push(Math.max(-60, pt_dB));
     } catch (e) {
       data.push(0);
     }
   }
 
-  // Encontra o índice exato onde a quebra do gráfico acontece
   let limitIndex = -1;
   for (let i = 0; i < labels.length; i++) {
     if (parseFloat(labels[i]) >= f_limit) {
@@ -295,10 +209,8 @@ function updateAll() {
 
 function updateChart(labels, data, limitIndex, f_limit) {
   const ctx = document.getElementById("fssChart").getContext("2d");
-
   if (chart) chart.destroy();
 
-  // Ignorar picos loucos pós-limite para o cálculo da ressonância verdadeira
   const validData = limitIndex !== -1 ? data.slice(0, limitIndex) : data;
   const minIndex = validData.indexOf(Math.min(...validData));
   const frFreq = parseFloat(labels[minIndex]);
@@ -328,14 +240,8 @@ function updateChart(labels, data, limitIndex, f_limit) {
     }
   }
 
-  if (fLower === null) {
-    fLower = parseFloat(labels[0]);
-    lowerIndex = 0;
-  }
-  if (fUpper === null) {
-    fUpper = parseFloat(labels[data.length - 1]);
-    upperIndex = data.length - 1;
-  }
+  if (fLower === null) fLower = parseFloat(labels[0]);
+  if (fUpper === null) fUpper = parseFloat(labels[data.length - 1]);
   const bw = fUpper - fLower;
 
   const frPointData = labels.map((_, idx) =>
@@ -344,21 +250,19 @@ function updateChart(labels, data, limitIndex, f_limit) {
   const bwPointsData = labels.map((_, idx) =>
     idx === lowerIndex || idx === upperIndex ? data[idx] : null,
   );
-
-  // Conjunto de dados para o ponto de Limite de Difração
   const limitPointData = labels.map((_, idx) =>
     idx === limitIndex ? data[idx] : null,
   );
 
   const datasets = [
     {
-      label: "S21 Simulado ECM com Perdas (Cruz de Jerusalém)",
+      label: "S21 Simulado ECM (Cruz de Jerusalém)",
       data: data,
       borderColor: "#000",
       borderWidth: 2,
       pointRadius: 0,
       fill: false,
-      tension: 0.1,
+      tension: 0.1, // Mantido conforme seu gosto original
     },
     {
       label: `fr = ${frFreq.toFixed(2)} GHz`,
@@ -368,8 +272,6 @@ function updateChart(labels, data, limitIndex, f_limit) {
       borderDash: [5, 5],
       pointRadius: 6,
       pointBackgroundColor: "#ff0000",
-      pointBorderColor: "#ff0000",
-      fill: false,
       showLine: false,
     },
     {
@@ -380,60 +282,32 @@ function updateChart(labels, data, limitIndex, f_limit) {
       borderDash: [3, 3],
       pointRadius: 6,
       pointBackgroundColor: "#0066cc",
-      pointBorderColor: "#0066cc",
-      fill: false,
       showLine: false,
     },
   ];
 
-  // Adiciona o marcador do limite apenas se o limite ocorrer dentro da faixa visível do gráfico
   if (limitIndex !== -1) {
     datasets.push({
       label: `Limite ECM (λ=p) em ${f_limit.toFixed(2)} GHz`,
       data: limitPointData,
       borderColor: "#ff8c00",
-      borderWidth: 2,
       pointRadius: 9,
-      pointBackgroundColor: "#ff8c00",
-      pointBorderColor: "#fff",
       pointStyle: "triangle",
-      fill: false,
       showLine: false,
     });
   }
 
   chart = new Chart(ctx, {
     type: "line",
-    data: {
-      labels: labels,
-      datasets: datasets,
-    },
+    data: { labels, datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       animation: false,
       scales: {
-        x: {
-          title: {
-            display: true,
-            text: "Frequência (GHz)",
-            font: { family: "Times New Roman", size: 14 },
-          },
-          grid: { color: "#eee" },
-          ticks: { maxTicksLimit: 20 },
-        },
-        y: {
-          min: -60,
-          max: 0,
-          title: {
-            display: true,
-            text: "Potência Transmitida (dB)",
-            font: { family: "Times New Roman", size: 14 },
-          },
-          grid: { color: "#eee" },
-        },
+        x: { ticks: { maxTicksLimit: 20 } },
+        y: { min: -60, max: 0 },
       },
-      plugins: { legend: { labels: { font: { family: "Times New Roman" } } } },
     },
   });
 
@@ -442,56 +316,28 @@ function updateChart(labels, data, limitIndex, f_limit) {
     infoBox = document.createElement("div");
     infoBox.id = "resonanceInfo";
     infoBox.style.cssText =
-      "margin-top: 10px; padding: 10px; background: #fdfd96; border-radius: 4px; font-family: 'Times New Roman'; font-size: 14px;";
-    document
-      .querySelector(".chart-container")
-      .parentNode.insertBefore(
-        infoBox,
-        document.querySelector(".chart-container").nextSibling,
-      );
+      "margin-top: 10px; padding: 10px; background: #fdfd96; border-radius: 4px; font-size: 14px;";
+    document.querySelector(".chart-container").after(infoBox);
   }
-
-  let infoHtml = `<strong>Frequência de Ressonância (fr):</strong> ${frFreq.toFixed(2)} GHz | <strong>Banda de Rejeição (BW):</strong> ${bw.toFixed(2)} GHz (${fLower.toFixed(2)} - ${fUpper.toFixed(2)} GHz)`;
-
-  if (limitIndex !== -1) {
-    infoHtml += `<br><span style="color: #d35400; font-size: 0.9em; display: block; margin-top: 5px;">⚠️ <strong>Aviso:</strong> A partir de <strong>${f_limit.toFixed(2)} GHz</strong> (onde o período $p$ supera o comprimento de onda $\\lambda$), o modelo ECM entra na região de Lóbulos de Difração (Grating Lobes) e sofre instabilidade matemática.</span>`;
-  }
-
+  let infoHtml = `<strong>fr:</strong> ${frFreq.toFixed(2)} GHz | <strong>BW:</strong> ${bw.toFixed(2)} GHz`;
+  if (limitIndex !== -1)
+    infoHtml += `<br><small style="color:#d35400">⚠️ Limite de Difração: ${f_limit.toFixed(2)} GHz</small>`;
   infoBox.innerHTML = infoHtml;
 }
 
 function exportToCSV() {
-  if (!chart || !chart.data.labels.length) { 
-    alert("Nenhum dado disponível."); 
-    return; 
-  }
-  
-  // Cabeçalho da tabela
-  let csv = "Frequência (GHz);S21 (dB)\n";
-  
+  if (!chart) return;
+  let csv = "\uFEFF" + "Frequência (GHz);S21 (dB)\n";
   chart.data.labels.forEach((freq, index) => {
-    // Pega o valor de S21
     let s21 = chart.data.datasets[0].data[index];
-
-    // O SEGREDO: Troca o PONTO por VÍRGULA para o Excel brasileiro ler como decimal!
-    let freq_BR = String(freq).replace(".", ",");
-    let s21_BR = Number(s21).toFixed(4).replace(".", ",");
-
-    // Adiciona a linha na tabela (colunas separadas por ponto-e-vírgula)
-    csv += `${freq_BR};${s21_BR}\n`;
+    // Conversão para padrão brasileiro (vírgula decimal)
+    let fBR = Number(freq).toFixed(3).replace(".", ",");
+    let sBR = Number(s21).toFixed(4).replace(".", ",");
+    csv += `${fBR};${sBR}\n`;
   });
-
-  // O "\uFEFF" (BOM) garante que o Excel leia os acentos (UTF-8) corretamente
-  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
-  
-  if (link.download !== undefined) {
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", "dados_s21.csv"); // Nome do arquivo exportado
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
+  link.href = URL.createObjectURL(blob);
+  link.download = "dados_fss_cruz.csv";
+  link.click();
 }
