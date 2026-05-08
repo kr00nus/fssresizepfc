@@ -302,3 +302,39 @@ function updateAll() {
 if (document.readyState === "loading")
   document.addEventListener("DOMContentLoaded", init);
 else init();
+
+function exportToCSV() {
+  if (!chart || !chart.data.labels.length) { 
+    alert("Nenhum dado disponível."); 
+    return; 
+  }
+  
+  // Cabeçalho da tabela
+  let csv = "Frequência (GHz);S21 (dB)\n";
+  
+  chart.data.labels.forEach((freq, index) => {
+    // Pega o valor de S21
+    let s21 = chart.data.datasets[0].data[index];
+
+    // O SEGREDO: Troca o PONTO por VÍRGULA para o Excel brasileiro ler como decimal!
+    let freq_BR = String(freq).replace(".", ",");
+    let s21_BR = Number(s21).toFixed(4).replace(".", ",");
+
+    // Adiciona a linha na tabela (colunas separadas por ponto-e-vírgula)
+    csv += `${freq_BR};${s21_BR}\n`;
+  });
+
+  // O "\uFEFF" (BOM) garante que o Excel leia os acentos (UTF-8) corretamente
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  
+  if (link.download !== undefined) {
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "dados_s21.csv"); // Nome do arquivo exportado
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+}
