@@ -1,4 +1,5 @@
-/* Centralized styles for FSS simulator */
+/* Estilos centrais do Simulador FSS */
+
 body {
   font-family: "Times New Roman", serif;
   background-color: #eef2f5;
@@ -6,6 +7,7 @@ body {
   margin: 0;
   padding: 20px;
 }
+
 .dashboard {
   display: grid;
   grid-template-columns: 1fr;
@@ -16,6 +18,7 @@ body {
   margin: auto;
   padding: 8px 10px;
 }
+
 .panel {
   background: white;
   padding: 12px;
@@ -24,16 +27,12 @@ body {
   border: 1px solid #e6e6e6;
 }
 
-/* --- AJUSTE HORIZONTAL E VERTICAL DOS PARÂMETROS --- */
+/* --- PAINEL DE PARÂMETROS --- */
 .panel.params {
   padding: 8px 12px;
   max-height: none;
   overflow: visible;
-  display: grid;
-  /* Cria múltiplas colunas automaticamente de acordo com a largura da tela */
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 4px 15px; /* Reduzido o espaço vertical para 4px */
-  align-items: end; /* Mantém os sliders alinhados pela base */
+  display: block; /* Remove o grid principal para o delegar ao .params-grid */
 }
 
 h2 {
@@ -45,30 +44,56 @@ h2 {
   font-size: 1.25em;
 }
 
-/* O título dos parâmetros ocupa a linha toda */
 .panel.params > h2 {
-  grid-column: 1 / -1;
   text-align: center;
   margin-bottom: 2px;
   padding-bottom: 4px;
 }
 
-/* Encolhendo os controles para ganhar espaço vertical */
+/* Grelha principal flexível para os sliders */
+.params-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 4px 15px;
+  align-items: end;
+  width: 100%;
+}
+
+/* Desfaz as colunas contentoras e permite que os elementos fluam no grid pai */
+.param-col {
+  display: contents;
+}
+
+/* Subtítulos ocupam toda a largura como separadores de categoria */
+.param-col h3 {
+  grid-column: 1 / -1;
+  margin: 10px 0 4px 0;
+  font-size: 1.05em;
+  color: #222;
+  border-left: 4px solid #3498db;
+  padding-left: 6px;
+  border-bottom: 1px solid #eee;
+}
+
+/* --- CONTROLOS COMPACTOS --- */
 .control-group {
   margin-bottom: 2px;
   padding-bottom: 4px;
   border-bottom: 1px dashed #f0f0f0;
 }
+
 .header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2px;
 }
+
 label {
   font-weight: 600;
   font-size: 0.85em;
 }
+
 input[type="number"] {
   width: 56px;
   padding: 2px 4px;
@@ -76,6 +101,7 @@ input[type="number"] {
   border-radius: 3px;
   font-size: 0.95em;
 }
+
 input[type="range"] {
   width: 100%;
   cursor: pointer;
@@ -83,60 +109,39 @@ input[type="range"] {
   margin-top: 0;
 }
 
+select {
+  padding: 2px 4px;
+  border: 1px solid #d0d0d0;
+  border-radius: 3px;
+  font-size: 0.85em;
+  font-family: "Times New Roman", serif;
+  width: auto;
+}
+
+/* --- ÁREA VISUAL (GRÁFICO E GEOMETRIA) --- */
 .visuals {
   display: flex;
   flex-direction: row;
   gap: 18px;
   align-items: flex-start;
 }
+
 .visuals > .panel:first-child {
   flex: 3 1 65%;
 }
+
 .visuals > .panel:last-child {
   flex: 2 1 35%;
 }
+
 .chart-container {
   position: relative;
-  height: 380px; /* Gráfico ligeiramente mais alto para aproveitar o espaço ganho */
+  height: 380px;
   width: 100%;
   border: 1px solid #e6e6e6;
   padding: 8px;
   box-sizing: border-box;
   background: #fff;
-}
-
-/* Params grid columns atualizado para a mesma lógica flexível */
-.params-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 4px 15px;
-}
-
-.param-col {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.param-col h3 {
-  margin: 0 0 4px 0;
-  font-size: 1.05em;
-  color: #222;
-  border-left: 4px solid transparent;
-  padding-left: 6px;
-}
-
-/* Responsividade para telas menores */
-@media (max-width: 1000px) {
-  .panel.params,
-  .params-grid {
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  }
-  .visuals {
-    flex-direction: column;
-  }
-  .chart-container {
-    height: 360px;
-  }
 }
 
 .geometry-container {
@@ -148,15 +153,30 @@ input[type="range"] {
   padding: 15px;
   background: #fff;
 }
+
 canvas#shapeCanvas {
   background-color: #fafafa;
   border: 1px dashed #999;
   max-width: 100%;
   height: auto;
 }
+
 .geo-legend {
   font-size: 0.85em;
   color: #555;
   margin-top: 8px;
   text-align: center;
+}
+
+/* --- RESPONSIVIDADE --- */
+@media (max-width: 1000px) {
+  .params-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+  .visuals {
+    flex-direction: column;
+  }
+  .chart-container {
+    height: 360px;
+  }
 }
