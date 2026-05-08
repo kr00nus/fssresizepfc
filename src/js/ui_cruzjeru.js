@@ -211,7 +211,7 @@ function updateAll() {
     er_real <= 0 ||
     fStart >= fEnd
   ) {
-    if (chart) chart.destroy(); // <--- O SEGREDO ESTAVA AQUI
+    if (chart) chart.destroy();
     return;
   }
 
@@ -241,6 +241,9 @@ function updateAll() {
 
   const data = [];
   const labels = [];
+
+  // Limite de Difração (onde o Comprimento de Onda é igual ao Período)
+  const f_limit = 30 / pCm;
 
   for (let freq = fStart; freq <= fEnd; freq += df) {
     const lamb = 30 / freq;
@@ -278,15 +281,26 @@ function updateAll() {
     }
   }
 
-  updateChart(labels, data);
+  // Encontra o índice exato onde a quebra do gráfico acontece
+  let limitIndex = -1;
+  for (let i = 0; i < labels.length; i++) {
+    if (parseFloat(labels[i]) >= f_limit) {
+      limitIndex = i;
+      break;
+    }
+  }
+
+  updateChart(labels, data, limitIndex, f_limit);
 }
 
-function updateChart(labels, data) {
+function updateChart(labels, data, limitIndex, f_limit) {
   const ctx = document.getElementById("fssChart").getContext("2d");
 
-  if (chart) chart.destroy(); // <--- E AQUI TAMBÉM (Evita crash do Canvas)
+  if (chart) chart.destroy();
 
-  const minIndex = data.indexOf(Math.min(...data));
+  // Ignorar picos loucos pós-limite para o cálculo da ressonância verdadeira
+  const validData = limitIndex !== -1 ? data.slice(0, limitIndex) : data;
+  const minIndex = validData.indexOf(Math.min(...validData));
   const frFreq = parseFloat(labels[minIndex]);
 
   const threshold = -10.0;
@@ -302,7 +316,11 @@ function updateChart(labels, data) {
       break;
     }
   }
-  for (let i = minIndex; i < data.length; i++) {
+  for (
+    let i = minIndex;
+    i < (limitIndex !== -1 ? limitIndex : data.length);
+    i++
+  ) {
     if (data[i] >= threshold) {
       fUpper = parseFloat(labels[i]);
       upperIndex = i;
@@ -327,45 +345,68 @@ function updateChart(labels, data) {
     idx === lowerIndex || idx === upperIndex ? data[idx] : null,
   );
 
+  // Conjunto de dados para o ponto de Limite de Difração
+  const limitPointData = labels.map((_, idx) =>
+    idx === limitIndex ? data[idx] : null,
+  );
+
+  const datasets = [
+    {
+      label: "S21 Simulado ECM com Perdas (Cruz de Jerusalém)",
+      data: data,
+      borderColor: "#000",
+      borderWidth: 2,
+      pointRadius: 0,
+      fill: false,
+      tension: 0.1,
+    },
+    {
+      label: `fr = ${frFreq.toFixed(2)} GHz`,
+      data: frPointData,
+      borderColor: "#ff0000",
+      borderWidth: 3,
+      borderDash: [5, 5],
+      pointRadius: 6,
+      pointBackgroundColor: "#ff0000",
+      pointBorderColor: "#ff0000",
+      fill: false,
+      showLine: false,
+    },
+    {
+      label: `BW = ${bw.toFixed(2)} GHz (-10dB)`,
+      data: bwPointsData,
+      borderColor: "#0066cc",
+      borderWidth: 3,
+      borderDash: [3, 3],
+      pointRadius: 6,
+      pointBackgroundColor: "#0066cc",
+      pointBorderColor: "#0066cc",
+      fill: false,
+      showLine: false,
+    },
+  ];
+
+  // Adiciona o marcador do limite apenas se o limite ocorrer dentro da faixa visível do gráfico
+  if (limitIndex !== -1) {
+    datasets.push({
+      label: `Limite ECM (λ=p) em ${f_limit.toFixed(2)} GHz`,
+      data: limitPointData,
+      borderColor: "#ff8c00",
+      borderWidth: 2,
+      pointRadius: 9,
+      pointBackgroundColor: "#ff8c00",
+      pointBorderColor: "#fff",
+      pointStyle: "triangle",
+      fill: false,
+      showLine: false,
+    });
+  }
+
   chart = new Chart(ctx, {
     type: "line",
     data: {
       labels: labels,
-      datasets: [
-        {
-          label: "S21 Simulado ECM com Perdas (Cruz de Jerusalém)",
-          data: data,
-          borderColor: "#000",
-          borderWidth: 2,
-          pointRadius: 0,
-          fill: false,
-          tension: 0.1,
-        },
-        {
-          label: `fr = ${frFreq.toFixed(2)} GHz`,
-          data: frPointData,
-          borderColor: "#ff0000",
-          borderWidth: 3,
-          borderDash: [5, 5],
-          pointRadius: 6,
-          pointBackgroundColor: "#ff0000",
-          pointBorderColor: "#ff0000",
-          fill: false,
-          showLine: false,
-        },
-        {
-          label: `BW = ${bw.toFixed(2)} GHz (-10dB)`,
-          data: bwPointsData,
-          borderColor: "#0066cc",
-          borderWidth: 3,
-          borderDash: [3, 3],
-          pointRadius: 6,
-          pointBackgroundColor: "#0066cc",
-          pointBorderColor: "#0066cc",
-          fill: false,
-          showLine: false,
-        },
-      ],
+      datasets: datasets,
     },
     options: {
       responsive: true,
@@ -375,7 +416,7 @@ function updateChart(labels, data) {
         x: {
           title: {
             display: true,
-            text: "Freqüência (GHz)",
+            text: "Frequência (GHz)",
             font: { family: "Times New Roman", size: 14 },
           },
           grid: { color: "#eee" },
@@ -401,7 +442,7 @@ function updateChart(labels, data) {
     infoBox = document.createElement("div");
     infoBox.id = "resonanceInfo";
     infoBox.style.cssText =
-      "margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 4px; font-family: 'Times New Roman'; font-size: 14px;";
+      "margin-top: 10px; padding: 10px; background: #fdfd96; border-radius: 4px; font-family: 'Times New Roman'; font-size: 14px;";
     document
       .querySelector(".chart-container")
       .parentNode.insertBefore(
@@ -409,7 +450,14 @@ function updateChart(labels, data) {
         document.querySelector(".chart-container").nextSibling,
       );
   }
-  infoBox.innerHTML = `<strong>Frequência de Ressonância (fr):</strong> ${frFreq.toFixed(2)} GHz | <strong>Banda de Rejeição (BW):</strong> ${bw.toFixed(2)} GHz (${fLower.toFixed(2)} - ${fUpper.toFixed(2)} GHz)`;
+
+  let infoHtml = `<strong>Frequência de Ressonância (fr):</strong> ${frFreq.toFixed(2)} GHz | <strong>Banda de Rejeição (BW):</strong> ${bw.toFixed(2)} GHz (${fLower.toFixed(2)} - ${fUpper.toFixed(2)} GHz)`;
+
+  if (limitIndex !== -1) {
+    infoHtml += `<br><span style="color: #d35400; font-size: 0.9em; display: block; margin-top: 5px;">⚠️ <strong>Aviso:</strong> A partir de <strong>${f_limit.toFixed(2)} GHz</strong> (onde o período $p$ supera o comprimento de onda $\\lambda$), o modelo ECM entra na região de Lóbulos de Difração (Grating Lobes) e sofre instabilidade matemática.</span>`;
+  }
+
+  infoBox.innerHTML = infoHtml;
 }
 
 function exportToCSV() {
