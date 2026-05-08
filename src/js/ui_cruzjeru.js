@@ -1,8 +1,22 @@
+// ==========================================
+// SIMULADOR FSS - CRUZ DE JERUSALÉM
+// Interface de usuário e atualização de gráficos
+// Geometria: Espira em forma de cruz (Jerusalem Cross)
+// ==========================================
+
 import { mmToCm, FF } from "./math.js";
 
+// Variável global para armazenar a instância do gráfico Chart.js
 let chart = null;
 
 document.addEventListener("DOMContentLoaded", () => {
+  // ==========================================
+  // FUNÇÃO: bindInputs()
+  // Sincroniza pares slider-input numérico
+  // - Quando o slider muda, atualiza o input numérico com o valor formatado
+  // - Quando o input numérico muda, atualiza o slider com o mesmo valor
+  // - Ambos acionam updateAll() para recalcular gráfico e geometria
+  // ==========================================
   function bindInputs(idPrefix) {
     const slider = document.getElementById(idPrefix + "_slider");
     const num = document.getElementById(idPrefix + "_num");
@@ -25,42 +39,72 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Aplica bindInputs() a todos os parâmetros que têm pares slider-input
+  // Inclui: frequências, período, dimensões e parâmetros do substrato
   ["fStart", "fEnd", "p", "d", "w", "h", "h_sub", "er"].forEach(bindInputs);
 
+  // ==========================================
+  // LISTENER: Seletor de Substrato
+  // Quando usuário seleciona um substrato pré-definido (RO3003, RO3006)
+  // atualiza automaticamente seus parâmetros (permissividade e altura)
+  // ==========================================
   const subSelect = document.getElementById("substrate_select");
   if (subSelect) {
     subSelect.addEventListener("change", (e) => {
       if (e.target.value === "RO3003") {
+        // Substrato RO3003: εr=3.00, h=1.52mm
         document.getElementById("er_num").value = "3.00";
         document.getElementById("er_slider").value = "3.00";
         document.getElementById("h_sub_num").value = "1.52";
         document.getElementById("h_sub_slider").value = "1.52";
       } else if (e.target.value === "RO3006") {
+        // Substrato RO3006: εr=6.50, h=1.28mm
         document.getElementById("er_num").value = "6.50";
         document.getElementById("er_slider").value = "6.50";
         document.getElementById("h_sub_num").value = "1.28";
         document.getElementById("h_sub_slider").value = "1.28";
       }
-      updateAll();
+      updateAll(); // Recalcula com novos parâmetros do substrato
     });
   }
 
+  // ==========================================
+  // LISTENER: Botão Exportar CSV
+  // ==========================================
   const exportBtn = document.getElementById("exportBtn");
   if (exportBtn) {
     exportBtn.addEventListener("click", exportToCSV);
   }
 
+  // Realiza primeiro cálculo na inicialização
   updateAll();
 });
 
+// ==========================================
+// FUNÇÃO: drawGeometry()
+// Desenha a célula unitária da Cruz de Jerusalém no canvas
+// Mostra:
+// - Elemento central (preenchido em azul escuro)
+// - Elementos vizinhos ao redor em 4 direções (azul claro)
+// - Contorno pontilhado mostrando o período p
+//
+// Parâmetros:
+//   p: período da célula (mm)
+//   d: comprimento externo da cruz (mm)
+//   w: largura da fita/braço (mm)
+//   h_arm: comprimento adicional dos braços estendidos (mm)
+//   g: gap calculado (p - d) em mm
+// ==========================================
 function drawGeometry(p, d, w, h_arm, g) {
   const canvas = document.getElementById("shapeCanvas");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
   const size = canvas.width;
 
+  // Limpa o canvas para desenho limpo
   ctx.clearRect(0, 0, size, size);
 
+  // Define escala: viewSize = p * 2.2 para mostrar célula + vizinhos
   const viewSize = p * 2.2;
   const scale = size / viewSize;
   const center = size / 2;
@@ -69,20 +113,44 @@ function drawGeometry(p, d, w, h_arm, g) {
   const wPixel = w * scale;
   const hPixel = h_arm * scale;
 
+  // =========================================
+  // Função interna: drawJerusalemCross()
+  // Desenha um braço de cruz em posição especificada
+  // Se isCenter=true: cor azul escuro (célula principal)
+  // Se isCenter=false: cor azul claro (células vizinhas)
+  //
+  // A cruz é formada por:
+  // 1. Braço horizontal central (d x w)
+  // 2. Braço vertical central (w x d)
+  // 3. Quatro braços estendidos nas 4 direções (CapLength x w)
+  // =========================================
   function drawJerusalemCross(cx, cy, isCenter) {
     ctx.fillStyle = isCenter ? "#003366" : "rgba(0, 51, 102, 0.12)";
+
+    // Braço horizontal central
     ctx.fillRect(cx - dPixel / 2, cy - wPixel / 2, dPixel, wPixel);
+
+    // Braço vertical central
     ctx.fillRect(cx - wPixel / 2, cy - dPixel / 2, wPixel, dPixel);
 
+    // Comprimento total dos braços estendidos
     const capLength = 2 * hPixel + wPixel;
+
+    // Braço superior estendido
     ctx.fillRect(cx - capLength / 2, cy - dPixel / 2, capLength, wPixel);
+
+    // Braço inferior estendido
     ctx.fillRect(
       cx - capLength / 2,
       cy + dPixel / 2 - wPixel,
       capLength,
       wPixel,
     );
+
+    // Braço esquerdo estendido
     ctx.fillRect(cx - dPixel / 2, cy - capLength / 2, wPixel, capLength);
+
+    // Braço direito estendido
     ctx.fillRect(
       cx + dPixel / 2 - wPixel,
       cy - capLength / 2,
@@ -91,6 +159,7 @@ function drawGeometry(p, d, w, h_arm, g) {
     );
   }
 
+  // Desenha células vizinhas em 4 direções (up, down, left, right)
   const neighbors = [
     { i: 0, j: -1 },
     { i: 0, j: 1 },
@@ -100,8 +169,11 @@ function drawGeometry(p, d, w, h_arm, g) {
   neighbors.forEach((n) =>
     drawJerusalemCross(center + n.i * pPixel, center + n.j * pPixel, false),
   );
+
+  // Desenha a célula central (elemento principal)
   drawJerusalemCross(center, center, true);
 
+  // Desenha contorno pontilhado mostrando o período p
   ctx.setLineDash([5, 5]);
   ctx.strokeStyle = "rgba(0, 0, 0, 0.25)";
   ctx.lineWidth = 1;
@@ -109,7 +181,22 @@ function drawGeometry(p, d, w, h_arm, g) {
   ctx.setLineDash([]);
 }
 
+// ==========================================
+// FUNÇÃO: updateAll()
+// Função PRINCIPAL que orquestra todo o cálculo
+// Executa quando qualquer parâmetro muda
+//
+// Etapas:
+// 1. Lê todos os parâmetros dos inputs
+// 2. Valida entrada (valores > 0, fStart < fEnd, etc)
+// 3. Garante d < p (evita overflow)
+// 4. Calcula gap g = p - d
+// 5. Calcula permissividade efetiva (er_eff) do substrato
+// 6. Simula resposta de transmissão (S21) em alta resolução
+// 7. Atualiza gráfico e desenho da geometria
+// ==========================================
 function updateAll() {
+  // Lê todos os parâmetros do formulário
   const fStart = parseFloat(document.getElementById("fStart_num").value);
   const fEnd = parseFloat(document.getElementById("fEnd_num").value);
   const p = parseFloat(document.getElementById("p_num").value);
@@ -119,6 +206,7 @@ function updateAll() {
   const h_sub = parseFloat(document.getElementById("h_sub_num").value);
   const er_real = parseFloat(document.getElementById("er_num").value);
 
+  // Valida se todos os valores são válidos (> 0) e fStart < fEnd
   if (
     fStart <= 0 ||
     fEnd <= 0 ||
@@ -128,67 +216,82 @@ function updateAll() {
     er_real <= 0 ||
     fStart >= fEnd
   ) {
+    // Se algum valor inválido, destroi gráfico anterior
     if (chart) chart.destroy();
     return;
   }
 
+  // Garante que d nunca seja >= p (cruz precisa de espaço)
   if (d >= p) {
     d = p - 0.001;
     document.getElementById("d_num").value = d.toFixed(3);
   }
 
+  // Calcula gap (espaço entre cruzes)
   const g = p - d;
   const gEl = document.getElementById("g_num");
   if (gEl) gEl.value = g.toFixed(3);
 
+  // Calcula Permissividade Efetiva (er_eff)
   const er_eff = 1 + ((er_real - 1) / 2) * (1 - Math.exp(-1.8 * (h_sub / p)));
   const erEffEl = document.getElementById("er_eff_num");
   if (erEffEl) erEffEl.value = er_eff.toFixed(3);
 
+  // Desenha a geometria da cruz com os parâmetros atuais
   drawGeometry(p, d, w, h_arm, g);
 
-  const df = 0.001; // Passo de alta resolução
-  const pCm = mmToCm(p);
+  // =========================================
+  // SIMULAÇÃO: Cálculo de S21 em alta resolução
+  // =========================================
+  const df = 0.001; // Passo de frequência: 0.001 GHz (1 MHz)
+  const pCm = mmToCm(p); // Converte período para cm
   const dCm = mmToCm(d);
   const wCm = mmToCm(w);
   const hCm = mmToCm(h_arm);
   const gCm = mmToCm(g);
+  const Rs = 0.008; // Resistência superficial (para modelar perdas)
 
-  const Rs = 0.008;
-  const data = [];
-  const labels = [];
-  const f_limit = 30 / pCm;
+  const data = []; // Array com valores S21 em dB
+  const labels = []; // Array com frequências em GHz
+  const f_limit = 30 / pCm; // Limite de difração
 
+  // Loop de frequência: calcula S21 para cada frequência
   for (let freq = fStart; freq <= fEnd; freq += df) {
-    const lamb = 30 / freq;
-    const ang = 0;
+    const lamb = 30 / freq; // Comprimento de onda em cm
+    const ang = 0; // Ângulo de incidência (0° = normal)
 
     try {
+      // Impedância série do braço horizontal (XL1)
       const XL1 = (dCm / pCm) * FF(pCm, wCm, lamb, ang) * Math.cos(ang);
+
+      // Admitância paralela: gap (Bg) + braços estendidos (Bd)
       const Bg = ((4 * dCm) / pCm) * FF(pCm, gCm, lamb, ang);
       const Bd = ((4 * (2 * hCm + gCm)) / pCm) * FF(pCm, pCm - dCm, lamb, ang);
       const BC1 = er_eff * (Bg + Bd);
       const X1 = XL1 - 1 / BC1;
 
+      // Impedância série do braço vertical (XL2)
       const XL2 = (dCm / pCm) * FF(pCm, wCm, lamb, ang) * Math.cos(ang);
       const lamb3 = dCm / 0.43;
       const f3_eff = 30 / lamb3 / Math.sqrt(er_eff);
       const BC2 = (1 / XL2) * Math.pow(freq / f3_eff, 2);
       const X2 = XL2 - 1 / BC2;
 
+      // Converte impedâncias para admitâncias (parte real e imaginária)
       const Y1_re = Rs / (Rs * Rs + X1 * X1);
       const Y1_im = -X1 / (Rs * Rs + X1 * X1);
       const Y2_re = Rs / (Rs * Rs + X2 * X2);
       const Y2_im = -X2 / (Rs * Rs + X2 * X2);
 
+      // Admitância total
       const Y_total_re = Y1_re + Y2_re;
       const Y_total_im = Y1_im + Y2_im;
 
+      // Calcula transmissão: pt = 4 / (2 + Y_re)² + Y_im²
       const den = Math.pow(2 + Y_total_re, 2) + Math.pow(Y_total_im, 2);
       const pt = 4 / den;
       let pt_dB = 10 * Math.log10(pt);
 
-      // AQUI: Usamos 3 casas para as labels acompanharem o passo 0.001
       labels.push(freq.toFixed(3));
       data.push(Math.max(-60, pt_dB));
     } catch (e) {
@@ -196,6 +299,7 @@ function updateAll() {
     }
   }
 
+  // Identifica limite de difração
   let limitIndex = -1;
   for (let i = 0; i < labels.length; i++) {
     if (parseFloat(labels[i]) >= f_limit) {
