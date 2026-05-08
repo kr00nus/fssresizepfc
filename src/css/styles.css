@@ -24,14 +24,14 @@ body {
   border: 1px solid #e6e6e6;
 }
 .panel.params {
-  padding: 16px 20px;
+  padding: 28px 36px;
   max-height: none;
   overflow: visible;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px 24px;
+  gap: 24px 36px;
   align-items: start;
-  min-height: 220px;
+  min-height: 360px;
 }
 h2 {
   text-align: center;
@@ -42,33 +42,44 @@ h2 {
   font-size: 1.25em;
 }
 .control-group {
-  margin-bottom: 12px;
-  padding-bottom: 8px;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
   border-bottom: 1px dashed #f0f0f0;
 }
 .header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 label {
   font-weight: 600;
-  font-size: 0.90em;
+  font-size: 1.05em;
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 input[type="number"] {
-  width: 70px;
-  padding: 4px 6px;
+  width: 110px;
+  padding: 8px 10px;
   border: 1px solid #d0d0d0;
-  border-radius: 3px;
-  font-size: 0.95em;
+  border-radius: 4px;
+  font-size: 1.0em;
 }
 input[type="range"] {
   width: 100%;
   cursor: pointer;
-  height: 12px;
+  height: 18px;
+}
+
+select {
+  width: 110px;
+  padding: 8px 10px;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  font-size: 1.0em;
+  background-color: white;
 }
 .visuals {
   display: flex;
@@ -105,14 +116,14 @@ input[type="range"] {
 .param-col {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 18px;
 }
 .param-col h3 {
-  margin: 0 0 8px 0;
-  font-size: 1.1em;
+  margin: 0 0 12px 0;
+  font-size: 1.35em;
   color: #222;
   border-left: 4px solid #0066cc;
-  padding-left: 8px;
+  padding-left: 10px;
   font-weight: 700;
 }
 
