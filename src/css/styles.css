@@ -5,23 +5,23 @@ body {
   background-color: #eef2f5;
   color: #333;
   margin: 0;
-  padding: 20px;
+  padding: 15px; /* Reduzido espaço geral da página */
 }
 
 .dashboard {
   display: grid;
   grid-template-columns: 1fr;
   grid-auto-rows: auto;
-  gap: 15px;
+  gap: 10px; /* Reduzido o gap entre os painéis */
   max-width: 1600px;
   width: 95vw;
   margin: auto;
-  padding: 8px 10px;
+  padding: 5px 10px;
 }
 
 .panel {
   background: white;
-  padding: 15px;
+  padding: 10px 15px; /* Menos espaço interno no painel geral */
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
   border: 1px solid #e6e6e6;
@@ -29,7 +29,7 @@ body {
 
 /* --- PAINEL DE PARÂMETROS --- */
 .panel.params {
-  padding: 12px 18px;
+  padding: 10px 15px;
   max-height: none;
   overflow: visible;
   display: block;
@@ -39,23 +39,23 @@ h2 {
   text-align: center;
   color: #000;
   border-bottom: 2px solid #000;
-  padding-bottom: 8px;
+  padding-bottom: 6px;
   margin-top: 0;
-  font-size: 1.25em;
+  font-size: 1.2em;
 }
 
 .panel.params > h2 {
   text-align: center;
-  margin-bottom: 12px;
-  padding-bottom: 6px;
+  margin-bottom: 8px; /* Título mais colado nos blocos */
+  padding-bottom: 4px;
 }
 
 /* Grelha principal flexível para os sliders */
 .params-grid {
   display: grid;
-  /* Aumentamos a largura mínima de 150px para 190px para os bloquinhos ficarem maiores */
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 12px 18px; /* Mais espaço entre os bloquinhos */
+  /* AUMENTADO PARA OS LADOS: Blocos mais largos (mínimo 240px) */
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 6px 15px; /* ACHATADO: Apenas 6px de distância vertical entre os blocos */
   align-items: stretch;
   width: 100%;
 }
@@ -68,60 +68,61 @@ h2 {
 /* Subtítulos ocupam toda a largura como separadores de categoria */
 .param-col h3 {
   grid-column: 1 / -1;
-  margin: 15px 0 5px 0;
-  font-size: 1.1em;
+  margin: 6px 0 2px 0; /* ACHATADO: Margens bem menores */
+  font-size: 1.05em;
   color: #222;
   border-left: 4px solid #3498db;
   padding-left: 8px;
   border-bottom: 1px solid #eee;
 }
 
-/* --- BLOQUINHOS DE CONTROLE MAIORES --- */
+/* --- BLOQUINHOS DE CONTROLE MAIS ACHATADOS E LARGOS --- */
 .control-group {
-  background-color: #fdfdfd; /* Cor de fundo suave para destacar o bloco */
-  border: 1px solid #ebebeb; /* Borda em todo o bloquinho */
+  background-color: #fdfdfd;
+  border: 1px solid #ebebeb;
   border-radius: 6px;
-  padding: 10px 14px; /* Mais "gordura" interna */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02); /* Sombreado leve */
+  padding: 5px 12px; /* ACHATADO: Menos "gordura" vertical (5px) e boa largura (12px) */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-height: 44px; /* Garante um tamanho mínimo sem exagerar */
 }
 
 .header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px; /* Mais espaço entre o texto e o slider */
+  margin-bottom: 2px; /* Slider praticamente colado no texto */
 }
 
 label {
   font-weight: 600;
-  font-size: 0.95em; /* Letra um pouco maior */
+  font-size: 0.9em; /* Levemente menor para caber melhor */
   color: #2c3e50;
 }
 
 input[type="number"] {
-  width: 65px; /* Caixinha de número mais larga */
-  padding: 4px 6px;
+  width: 65px;
+  padding: 2px 4px; /* Caixinha de texto mais fina */
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 1em;
+  font-size: 0.95em;
   text-align: center;
 }
 
 input[type="range"] {
   width: 100%;
   cursor: pointer;
-  height: 10px; /* Slider mais gordinho para facilitar o uso */
-  margin-top: 4px;
+  height: 6px; /* Slider mais fino */
+  margin-top: 2px;
 }
 
 select {
-  padding: 4px 6px;
+  padding: 2px 4px; /* Dropdown mais fino */
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 0.95em;
+  font-size: 0.9em;
   font-family: "Times New Roman", serif;
   width: auto;
 }
@@ -130,7 +131,7 @@ select {
 .visuals {
   display: flex;
   flex-direction: row;
-  gap: 18px;
+  gap: 15px;
   align-items: flex-start;
 }
 
@@ -144,7 +145,7 @@ select {
 
 .chart-container {
   position: relative;
-  height: 400px;
+  height: 380px;
   width: 100%;
   border: 1px solid #e6e6e6;
   padding: 8px;
