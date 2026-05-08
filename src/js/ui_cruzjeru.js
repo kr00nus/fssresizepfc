@@ -1,66 +1,59 @@
 import { mmToCm, FF } from "./math.js";
-import { createLineChart, exportChartToCSV } from "./visual.js";
 
 let chart = null;
 
-function bindInputs(idPrefix) {
-  const slider = document.getElementById(idPrefix + "_slider");
-  const num = document.getElementById(idPrefix + "_num");
-  if (!slider || !num) return;
-
-  slider.addEventListener("input", (e) => {
-    const decimals =
-      idPrefix === "fStart" || idPrefix === "fEnd"
-        ? 1
-        : idPrefix === "er" || idPrefix === "h_sub"
-          ? 2
-          : 3;
-    num.value = parseFloat(e.target.value).toFixed(decimals);
-    updateAll();
-  });
-
-  num.addEventListener("input", (e) => {
-    slider.value = e.target.value;
-    updateAll();
-  });
-}
-
-function applySubstratePreset(preset) {
-  if (preset === "RO3003") {
-    document.getElementById("er_num").value = "3.00";
-    document.getElementById("er_slider").value = "3.00";
-    document.getElementById("h_sub_num").value = "1.52";
-    document.getElementById("h_sub_slider").value = "1.52";
-  } else if (preset === "RO3006") {
-    document.getElementById("er_num").value = "6.50";
-    document.getElementById("er_slider").value = "6.50";
-    document.getElementById("h_sub_num").value = "1.28";
-    document.getElementById("h_sub_slider").value = "1.28";
-  }
-  updateAll();
-}
-
 document.addEventListener("DOMContentLoaded", () => {
+  function bindInputs(idPrefix) {
+    const slider = document.getElementById(idPrefix + "_slider");
+    const num = document.getElementById(idPrefix + "_num");
+    if (!slider || !num) return;
+
+    slider.addEventListener("input", (e) => {
+      const decimals =
+        idPrefix === "fStart" || idPrefix === "fEnd"
+          ? 1
+          : idPrefix === "er" || idPrefix === "h_sub"
+            ? 2
+            : 3;
+      num.value = parseFloat(e.target.value).toFixed(decimals);
+      updateAll();
+    });
+
+    num.addEventListener("input", (e) => {
+      slider.value = e.target.value;
+      updateAll();
+    });
+  }
+
   ["fStart", "fEnd", "p", "d", "w", "h", "h_sub", "er"].forEach(bindInputs);
 
   const subSelect = document.getElementById("substrate_select");
   if (subSelect) {
-    subSelect.addEventListener("change", (e) =>
-      applySubstratePreset(e.target.value),
-    );
+    subSelect.addEventListener("change", (e) => {
+      if (e.target.value === "RO3003") {
+        document.getElementById("er_num").value = "3.00";
+        document.getElementById("er_slider").value = "3.00";
+        document.getElementById("h_sub_num").value = "1.52";
+        document.getElementById("h_sub_slider").value = "1.52";
+      } else if (e.target.value === "RO3006") {
+        document.getElementById("er_num").value = "6.50";
+        document.getElementById("er_slider").value = "6.50";
+        document.getElementById("h_sub_num").value = "1.28";
+        document.getElementById("h_sub_slider").value = "1.28";
+      }
+      updateAll();
+    });
   }
 
   const exportBtn = document.getElementById("exportBtn");
   if (exportBtn) {
-    exportBtn.addEventListener("click", () => {
-      if (chart) exportChartToCSV(chart, "fss_cruz_jerusalem.csv");
-    });
+    exportBtn.addEventListener("click", exportToCSV);
   }
 
   updateAll();
 });
 
-function drawGeometry(p, d, w, h_arm) {
+function drawGeometry(p, d, w, h_arm, g) {
   const canvas = document.getElementById("shapeCanvas");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
@@ -78,11 +71,9 @@ function drawGeometry(p, d, w, h_arm) {
 
   function drawJerusalemCross(cx, cy, isCenter) {
     ctx.fillStyle = isCenter ? "#003366" : "rgba(0, 51, 102, 0.12)";
-    // Braços centrais
     ctx.fillRect(cx - dPixel / 2, cy - wPixel / 2, dPixel, wPixel);
     ctx.fillRect(cx - wPixel / 2, cy - dPixel / 2, wPixel, dPixel);
 
-    // Chapéus (extremidades)
     const capLength = 2 * hPixel + wPixel;
     ctx.fillRect(cx - capLength / 2, cy - dPixel / 2, capLength, wPixel);
     ctx.fillRect(
@@ -116,6 +107,89 @@ function drawGeometry(p, d, w, h_arm) {
   ctx.lineWidth = 1;
   ctx.strokeRect(center - pPixel / 2, center - pPixel / 2, pPixel, pPixel);
   ctx.setLineDash([]);
+
+  ctx.fillStyle = "#cc0000";
+  ctx.strokeStyle = "#cc0000";
+  ctx.lineWidth = 1.2;
+  ctx.font = "bold 13px 'Times New Roman'";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  function drawCota(
+    x1,
+    y1,
+    x2,
+    y2,
+    text,
+    textOffsetX,
+    textOffsetY,
+    isVertical = false,
+  ) {
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    const tick = 4;
+    ctx.beginPath();
+    if (isVertical) {
+      ctx.moveTo(x1 - tick, y1);
+      ctx.lineTo(x1 + tick, y1);
+      ctx.moveTo(x2 - tick, y2);
+      ctx.lineTo(x2 + tick, y2);
+    } else {
+      ctx.moveTo(x1, y1 - tick);
+      ctx.lineTo(x1, y1 + tick);
+      ctx.moveTo(x2, y2 - tick);
+      ctx.lineTo(x2, y2 + tick);
+    }
+    ctx.stroke();
+
+    const txtX = (x1 + x2) / 2 + textOffsetX;
+    const txtY = (y1 + y2) / 2 + textOffsetY;
+    const m = ctx.measureText(text);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+    ctx.fillRect(txtX - m.width / 2 - 2, txtY - 8, m.width + 4, 16);
+    ctx.fillStyle = "#cc0000";
+    ctx.fillText(text, txtX, txtY);
+  }
+
+  const topY = center - pPixel / 2;
+  ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
+  ctx.beginPath();
+  ctx.moveTo(center - pPixel / 2, topY);
+  ctx.lineTo(center - pPixel / 2, topY - 25);
+  ctx.moveTo(center + pPixel / 2, topY);
+  ctx.lineTo(center + pPixel / 2, topY - 25);
+  ctx.stroke();
+  ctx.strokeStyle = "#cc0000";
+  drawCota(
+    center - pPixel / 2,
+    topY - 18,
+    center + pPixel / 2,
+    topY - 18,
+    "p = " + p.toFixed(3),
+    0,
+    -10,
+  );
+
+  const dY = center + wPixel / 2 + 25;
+  ctx.strokeStyle = "rgba(204, 0, 0, 0.4)";
+  ctx.beginPath();
+  ctx.moveTo(center - dPixel / 2, center + wPixel / 2);
+  ctx.lineTo(center - dPixel / 2, dY + 5);
+  ctx.moveTo(center + dPixel / 2, center + wPixel / 2);
+  ctx.lineTo(center + dPixel / 2, dY + 5);
+  ctx.stroke();
+  ctx.strokeStyle = "#cc0000";
+  drawCota(
+    center - dPixel / 2,
+    dY,
+    center + dPixel / 2,
+    dY,
+    "d = " + d.toFixed(3),
+    0,
+    10,
+  );
 }
 
 function updateAll() {
@@ -128,6 +202,19 @@ function updateAll() {
   const h_sub = parseFloat(document.getElementById("h_sub_num").value);
   const er_real = parseFloat(document.getElementById("er_num").value);
 
+  if (
+    fStart <= 0 ||
+    fEnd <= 0 ||
+    p <= 0 ||
+    d <= 0 ||
+    w <= 0 ||
+    er_real <= 0 ||
+    fStart >= fEnd
+  ) {
+    if (chart) chart.destroy(); // <--- O SEGREDO ESTAVA AQUI
+    return;
+  }
+
   if (d >= p) {
     d = p - 0.001;
     document.getElementById("d_num").value = d.toFixed(3);
@@ -137,12 +224,11 @@ function updateAll() {
   const gEl = document.getElementById("g_num");
   if (gEl) gEl.value = g.toFixed(3);
 
-  // --- CÁLCULO DA PERMISSIVIDADE EFETIVA DEPENDENTE DE H ---
   const er_eff = 1 + ((er_real - 1) / 2) * (1 - Math.exp(-1.8 * (h_sub / p)));
   const erEffEl = document.getElementById("er_eff_num");
   if (erEffEl) erEffEl.value = er_eff.toFixed(3);
 
-  drawGeometry(p, d, w, h_arm);
+  drawGeometry(p, d, w, h_arm, g);
 
   const df = 0.05;
   const pCm = mmToCm(p);
@@ -151,7 +237,6 @@ function updateAll() {
   const hCm = mmToCm(h_arm);
   const gCm = mmToCm(g);
 
-  // Resistência Superficial Rs para evitar infinito e simular perdas reais (CST)
   const Rs = 0.008;
 
   const data = [];
@@ -162,22 +247,18 @@ function updateAll() {
     const ang = 0;
 
     try {
-      // Ramo 1: Estrutura Principal
       const XL1 = (dCm / pCm) * FF(pCm, wCm, lamb, ang) * Math.cos(ang);
       const Bg = ((4 * dCm) / pCm) * FF(pCm, gCm, lamb, ang);
       const Bd = ((4 * (2 * hCm + gCm)) / pCm) * FF(pCm, pCm - dCm, lamb, ang);
       const BC1 = er_eff * (Bg + Bd);
       const X1 = XL1 - 1 / BC1;
 
-      // Ramo 2: Braços Laterais
       const XL2 = (dCm / pCm) * FF(pCm, wCm, lamb, ang) * Math.cos(ang);
       const lamb3 = dCm / 0.43;
       const f3_eff = 30 / lamb3 / Math.sqrt(er_eff);
       const BC2 = (1 / XL2) * Math.pow(freq / f3_eff, 2);
       const X2 = XL2 - 1 / BC2;
 
-      // Admitâncias com componente real (Perdas)
-      // Y = 1 / (Rs + jX) = (Rs - jX) / (Rs^2 + X^2)
       const Y1_re = Rs / (Rs * Rs + X1 * X1);
       const Y1_im = -X1 / (Rs * Rs + X1 * X1);
       const Y2_re = Rs / (Rs * Rs + X2 * X2);
@@ -186,7 +267,6 @@ function updateAll() {
       const Y_total_re = Y1_re + Y2_re;
       const Y_total_im = Y1_im + Y2_im;
 
-      // Potência Transmitida: Pt = | 2 / (2 + Y_total) |^2
       const den = Math.pow(2 + Y_total_re, 2) + Math.pow(Y_total_im, 2);
       const pt = 4 / den;
       let pt_dB = 10 * Math.log10(pt);
@@ -198,60 +278,159 @@ function updateAll() {
     }
   }
 
+  updateChart(labels, data);
+}
+
+function updateChart(labels, data) {
   const ctx = document.getElementById("fssChart").getContext("2d");
 
-  // Cálculo de Ressonância e Banda (-10dB)
+  if (chart) chart.destroy(); // <--- E AQUI TAMBÉM (Evita crash do Canvas)
+
   const minIndex = data.indexOf(Math.min(...data));
   const frFreq = parseFloat(labels[minIndex]);
+
   const threshold = -10.0;
-  let fL = null,
-    fU = null,
-    iL = 0,
-    iU = data.length - 1;
+  let fLower = null,
+    fUpper = null;
+  let lowerIndex = null,
+    upperIndex = null;
 
   for (let i = minIndex; i >= 0; i--) {
     if (data[i] >= threshold) {
-      fL = labels[i];
-      iL = i;
+      fLower = parseFloat(labels[i]);
+      lowerIndex = i;
       break;
     }
   }
   for (let i = minIndex; i < data.length; i++) {
     if (data[i] >= threshold) {
-      fU = labels[i];
-      iU = i;
+      fUpper = parseFloat(labels[i]);
+      upperIndex = i;
       break;
     }
   }
 
-  const bw = fL && fU ? parseFloat(fU) - parseFloat(fL) : 0;
+  if (fLower === null) {
+    fLower = parseFloat(labels[0]);
+    lowerIndex = 0;
+  }
+  if (fUpper === null) {
+    fUpper = parseFloat(labels[data.length - 1]);
+    upperIndex = data.length - 1;
+  }
+  const bw = fUpper - fLower;
 
-  const datasets = [
-    { label: "S21 (dB)", data: data, borderColor: "#000", borderWidth: 2 },
-    {
-      label: `fr = ${frFreq.toFixed(2)} GHz`,
-      data: labels.map((_, i) => (i === minIndex ? data[i] : null)),
-      pointRadius: 6,
-      pointBackgroundColor: "#ff0000",
-      showLine: false,
+  const frPointData = labels.map((_, idx) =>
+    idx === minIndex ? data[idx] : null,
+  );
+  const bwPointsData = labels.map((_, idx) =>
+    idx === lowerIndex || idx === upperIndex ? data[idx] : null,
+  );
+
+  chart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "S21 Simulado ECM com Perdas (Cruz de Jerusalém)",
+          data: data,
+          borderColor: "#000",
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: false,
+          tension: 0.1,
+        },
+        {
+          label: `fr = ${frFreq.toFixed(2)} GHz`,
+          data: frPointData,
+          borderColor: "#ff0000",
+          borderWidth: 3,
+          borderDash: [5, 5],
+          pointRadius: 6,
+          pointBackgroundColor: "#ff0000",
+          pointBorderColor: "#ff0000",
+          fill: false,
+          showLine: false,
+        },
+        {
+          label: `BW = ${bw.toFixed(2)} GHz (-10dB)`,
+          data: bwPointsData,
+          borderColor: "#0066cc",
+          borderWidth: 3,
+          borderDash: [3, 3],
+          pointRadius: 6,
+          pointBackgroundColor: "#0066cc",
+          pointBorderColor: "#0066cc",
+          fill: false,
+          showLine: false,
+        },
+      ],
     },
-    {
-      label: `BW = ${bw.toFixed(2)} GHz`,
-      data: labels.map((_, i) => (i === iL || i === iU ? data[i] : null)),
-      pointRadius: 6,
-      pointBackgroundColor: "#0066cc",
-      showLine: false,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: "Freqüência (GHz)",
+            font: { family: "Times New Roman", size: 14 },
+          },
+          grid: { color: "#eee" },
+          ticks: { maxTicksLimit: 20 },
+        },
+        y: {
+          min: -60,
+          max: 0,
+          title: {
+            display: true,
+            text: "Potência Transmitida (dB)",
+            font: { family: "Times New Roman", size: 14 },
+          },
+          grid: { color: "#eee" },
+        },
+      },
+      plugins: { legend: { labels: { font: { family: "Times New Roman" } } } },
     },
-  ];
+  });
 
-  chart = createLineChart(ctx, labels, datasets, { min: -60, max: 0 });
+  let infoBox = document.getElementById("resonanceInfo");
+  if (!infoBox) {
+    infoBox = document.createElement("div");
+    infoBox.id = "resonanceInfo";
+    infoBox.style.cssText =
+      "margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 4px; font-family: 'Times New Roman'; font-size: 14px;";
+    document
+      .querySelector(".chart-container")
+      .parentNode.insertBefore(
+        infoBox,
+        document.querySelector(".chart-container").nextSibling,
+      );
+  }
+  infoBox.innerHTML = `<strong>Frequência de Ressonância (fr):</strong> ${frFreq.toFixed(2)} GHz | <strong>Banda de Rejeição (BW):</strong> ${bw.toFixed(2)} GHz (${fLower.toFixed(2)} - ${fUpper.toFixed(2)} GHz)`;
+}
 
-  const info =
-    document.getElementById("resonanceInfo") || document.createElement("div");
-  info.id = "resonanceInfo";
-  info.style.cssText =
-    "margin-top:10px; padding:10px; background:#f0f0f0; border-radius:4px; font-family:serif;";
-  info.innerHTML = `<strong>Frequência de Ressonância:</strong> ${frFreq.toFixed(2)} GHz | <strong>Banda (-10dB):</strong> ${bw.toFixed(2)} GHz`;
-  if (!document.getElementById("resonanceInfo"))
-    document.querySelector(".chart-container").after(info);
+function exportToCSV() {
+  if (!chart || !chart.data.labels.length) {
+    alert("Nenhum dado disponível.");
+    return;
+  }
+  let csv = "Frequência (GHz);S21 (dB)\n";
+  chart.data.labels.forEach((freq, index) => {
+    const s21 = chart.data.datasets[0].data[index];
+    csv += `${freq};${s21}\n`;
+  });
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  if (link.download !== undefined) {
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "dados_s21_cruz_jerusalem.csv");
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 }
