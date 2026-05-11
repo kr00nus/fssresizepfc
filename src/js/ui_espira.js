@@ -1,5 +1,5 @@
 // ==========================================
-// SIMULADOR FSS - ESPIRA QUADRADA (MULTIMODELO + HFSS)
+// SIMULADOR FSS - ESPIRA QUADRADA (BENCHMARK ANALÍTICO + HFSS)
 // Interface de utilizador e atualização de gráficos
 // ==========================================
 
@@ -59,21 +59,18 @@ document.addEventListener("DOMContentLoaded", () => {
   if (exportBtn) {
     exportBtn.addEventListener("click", exportToCSV);
 
-    // Cria o input de ficheiro oculto para o CSV do HFSS
     const hfssInput = document.createElement("input");
     hfssInput.type = "file";
     hfssInput.accept = ".csv";
     hfssInput.style.display = "none";
     hfssInput.addEventListener("change", handleHFSSUpload);
 
-    // Cria o botão estilizado para chamar o input oculto
     const hfssBtn = document.createElement("button");
     hfssBtn.innerText = "Carregar Dados HFSS";
     hfssBtn.style.cssText =
       "margin-top: 10px; margin-left: 10px; padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;";
     hfssBtn.onclick = () => hfssInput.click();
 
-    // Adiciona os botões logo após o botão de Exportar
     exportBtn.parentNode.insertBefore(hfssInput, exportBtn.nextSibling);
     exportBtn.parentNode.insertBefore(hfssBtn, exportBtn.nextSibling);
   }
@@ -93,13 +90,10 @@ function handleHFSSUpload(event) {
   reader.onload = (e) => {
     const text = e.target.result;
     const lines = text.split("\n");
-    hfssData = []; // Limpa os dados anteriores
+    hfssData = [];
 
-    // Começa de i=1 para saltar o cabeçalho ("Freq [GHz]","dB(S...)")
     for (let i = 1; i < lines.length; i++) {
       if (!lines[i].trim()) continue;
-
-      // O Ansys separa por vírgula e usa ponto decimal
       const parts = lines[i].split(",");
       if (parts.length >= 2) {
         const freq = parseFloat(parts[0]);
@@ -113,7 +107,7 @@ function handleHFSSUpload(event) {
     alert(
       `Dados do HFSS carregados com sucesso! (${hfssData.length} pontos encontrados)`,
     );
-    updateAll(); // Recalcula o gráfico para incluir a curva do HFSS
+    updateAll();
   };
   reader.readAsText(file);
 }
@@ -208,29 +202,30 @@ function updateAll() {
   // FATOR DE FORMA DINÂMICO (ALPHA) - COSTA (2020)
   // =========================================
   const ratio = w / p;
-
-  // Interpolação Linear:
-  // Ratio 0.05 -> alpha = 16 (Fitas finas, grande confinamento)
-  // Ratio 0.25 -> alpha = 12.5 (Fitas largas, menor confinamento)
   let alpha = 16 - (ratio - 0.05) * ((16 - 12.5) / (0.25 - 0.05));
-  alpha = Math.max(12.5, Math.min(16, alpha)); // Proteção dos limites físicos
+  alpha = Math.max(12.5, Math.min(16, alpha));
 
   // =========================================
-  // AS 3 FÓRMULAS DE PERMISSIVIDADE EFETIVA
+  // AS 5 FÓRMULAS DE PERMISSIVIDADE EFETIVA
   // =========================================
 
-  // 1. Média (Ar-Dielétrico - Interface Semi-infinita)
-  const er_media = (er_real + 1) / 2;
+  // 1. Nova (Ajuste Exponencial Avançado: Costa, Alpha Dinâmico para Espiras)
+  const er_nova =
+    1 + ((er_real - 1) / 2) * (1 - Math.exp(-alpha * (h_sub / p)));
 
   // 2. Antiga (Ajuste Exponencial Fixo Clássico: Munk, Alpha = 1.8)
   const er_antiga =
     1 + ((er_real - 1) / 2) * (1 - Math.exp(-1.8 * (h_sub / p)));
 
-  // 3. Nova (Ajuste Exponencial Avançado: Costa, Alpha Dinâmico)
-  const er_nova =
-    1 + ((er_real - 1) / 2) * (1 - Math.exp(-alpha * (h_sub / p)));
+  // 3. Média (Ar-Dielétrico - Interface Semi-infinita)
+  const er_media = (er_real + 1) / 2;
 
-  // Atualiza UI com a fórmula Nova (a mais precisa)
+  // 4. Tangente Hiperbólica (Floquet clássico, mais adequado para patches sólidos)
+  const er_tanh = 1 + ((er_real - 1) / 2) * Math.tanh((Math.PI * h_sub) / p);
+
+  // 5. Material Puro (Ignora o Ar e a espessura. Assume bloco infinito do dielétrico)
+  const er_puro = er_real;
+
   const erEffEl = document.getElementById("er_eff_num");
   if (erEffEl) erEffEl.value = er_nova.toFixed(3);
 
@@ -243,9 +238,11 @@ function updateAll() {
   const gCm = mmToCm(g);
   const Rs = 0.008;
 
-  const data_media = [];
-  const data_antiga = [];
   const data_nova = [];
+  const data_antiga = [];
+  const data_media = [];
+  const data_tanh = [];
+  const data_puro = [];
   const labels = [];
   const f_limit = 30 / pCm;
 
@@ -256,40 +253,46 @@ function updateAll() {
     try {
       const XL = (dCm / pCm) * FF(pCm, 2 * wCm, lamb, ang);
 
-      // BC calculado para cada uma das três permissividades
-      const BC_media = 4 * er_media * (dCm / pCm) * FF(pCm, gCm, lamb, ang);
-      const BC_antiga = 4 * er_antiga * (dCm / pCm) * FF(pCm, gCm, lamb, ang);
       const BC_nova = 4 * er_nova * (dCm / pCm) * FF(pCm, gCm, lamb, ang);
+      const BC_antiga = 4 * er_antiga * (dCm / pCm) * FF(pCm, gCm, lamb, ang);
+      const BC_media = 4 * er_media * (dCm / pCm) * FF(pCm, gCm, lamb, ang);
+      const BC_tanh = 4 * er_tanh * (dCm / pCm) * FF(pCm, gCm, lamb, ang);
+      const BC_puro = 4 * er_puro * (dCm / pCm) * FF(pCm, gCm, lamb, ang);
 
-      // Reatâncias
-      const X_media = XL - 1 / BC_media;
-      const X_antiga = XL - 1 / BC_antiga;
       const X_nova = XL - 1 / BC_nova;
+      const X_antiga = XL - 1 / BC_antiga;
+      const X_media = XL - 1 / BC_media;
+      const X_tanh = XL - 1 / BC_tanh;
+      const X_puro = XL - 1 / BC_puro;
 
-      // Potência Transmitida (Pt) para cada modelo
-      const pt_media =
-        (Rs * Rs + X_media * X_media) /
-        (Rs * Rs + X_media * X_media + Rs + 0.25);
+      const pt_nova =
+        (Rs * Rs + X_nova * X_nova) / (Rs * Rs + X_nova * X_nova + Rs + 0.25);
       const pt_antiga =
         (Rs * Rs + X_antiga * X_antiga) /
         (Rs * Rs + X_antiga * X_antiga + Rs + 0.25);
-      const pt_nova =
-        (Rs * Rs + X_nova * X_nova) / (Rs * Rs + X_nova * X_nova + Rs + 0.25);
+      const pt_media =
+        (Rs * Rs + X_media * X_media) /
+        (Rs * Rs + X_media * X_media + Rs + 0.25);
+      const pt_tanh =
+        (Rs * Rs + X_tanh * X_tanh) / (Rs * Rs + X_tanh * X_tanh + Rs + 0.25);
+      const pt_puro =
+        (Rs * Rs + X_puro * X_puro) / (Rs * Rs + X_puro * X_puro + Rs + 0.25);
 
       labels.push(freq.toFixed(3));
-      data_media.push(Math.max(-60, 10 * Math.log10(pt_media)));
-      data_antiga.push(Math.max(-60, 10 * Math.log10(pt_antiga)));
       data_nova.push(Math.max(-60, 10 * Math.log10(pt_nova)));
+      data_antiga.push(Math.max(-60, 10 * Math.log10(pt_antiga)));
+      data_media.push(Math.max(-60, 10 * Math.log10(pt_media)));
+      data_tanh.push(Math.max(-60, 10 * Math.log10(pt_tanh)));
+      data_puro.push(Math.max(-60, 10 * Math.log10(pt_puro)));
     } catch (e) {
-      data_media.push(0);
-      data_antiga.push(0);
       data_nova.push(0);
+      data_antiga.push(0);
+      data_media.push(0);
+      data_tanh.push(0);
+      data_puro.push(0);
     }
   }
 
-  // =========================================
-  // ALINHAMENTO DOS DADOS DO HFSS (se carregado)
-  // =========================================
   let hfssPlotData = [];
   if (hfssData && hfssData.length > 0) {
     let hfssIndex = 0;
@@ -318,6 +321,8 @@ function updateAll() {
     data_nova,
     data_antiga,
     data_media,
+    data_tanh,
+    data_puro,
     hfssPlotData,
     limitIndex,
     f_limit,
@@ -330,6 +335,8 @@ function updateChart(
   data_nova,
   data_antiga,
   data_media,
+  data_tanh,
+  data_puro,
   hfssPlotData,
   limitIndex,
   f_limit,
@@ -345,18 +352,18 @@ function updateChart(
 
   const datasets = [
     {
-      label: "ε_eff Nova (Costa 2020: Dinâmico)",
+      label: "1. ε_eff Fator de Forma Dinâmico (Costa, Loop)",
       data: data_nova,
-      borderColor: "#000000",
-      borderWidth: 2,
+      borderColor: "#000000", // Preto (A principal)
+      borderWidth: 2.5,
       pointRadius: 0,
       fill: false,
       tension: 0,
     },
     {
-      label: "ε_eff Antiga (Munk: Fixo 1.8)",
-      data: data_antiga,
-      borderColor: "#28a745", // Verde
+      label: "2. ε_eff Tangente Hiperbólica (Floquet)",
+      data: data_tanh,
+      borderColor: "#fd7e14", // Laranja
       borderWidth: 2,
       borderDash: [5, 5],
       pointRadius: 0,
@@ -364,7 +371,17 @@ function updateChart(
       tension: 0,
     },
     {
-      label: "ε_eff Média (Semi-infinita)",
+      label: "3. ε_eff Exponencial Fixo 1.8 (Munk)",
+      data: data_antiga,
+      borderColor: "#28a745", // Verde
+      borderWidth: 2,
+      borderDash: [3, 6],
+      pointRadius: 0,
+      fill: false,
+      tension: 0,
+    },
+    {
+      label: "4. ε_eff Média (Ar-Dielétrico)",
       data: data_media,
       borderColor: "#007bff", // Azul
       borderWidth: 2,
@@ -373,14 +390,24 @@ function updateChart(
       fill: false,
       tension: 0,
     },
+    {
+      label: "5. ε_eff = ε_r (Sem correção de h)",
+      data: data_puro,
+      borderColor: "#6f42c1", // Roxo
+      borderWidth: 2,
+      borderDash: [1, 3],
+      pointRadius: 0,
+      fill: false,
+      tension: 0,
+    },
   ];
 
   if (hfssPlotData && hfssPlotData.length > 0) {
     datasets.push({
-      label: "Ansys HFSS (Medição Real)",
+      label: "Ansys HFSS (Medição 3D)",
       data: hfssPlotData,
-      borderColor: "#dc3545", // Vermelho Alerta
-      borderWidth: 2.5,
+      borderColor: "#dc3545", // Vermelho
+      borderWidth: 3,
       pointRadius: 0,
       fill: false,
       tension: 0,
@@ -391,7 +418,7 @@ function updateChart(
     idx === minIndex ? data_nova[idx] : null,
   );
   datasets.push({
-    label: `fr = ${frFreq.toFixed(2)} GHz (Fórmula Nova)`,
+    label: `fr = ${frFreq.toFixed(2)} GHz (Curva Principal)`,
     data: frPointData,
     borderColor: "#ff0000",
     borderWidth: 3,
@@ -441,9 +468,9 @@ function updateChart(
     document.querySelector(".chart-container").after(infoBox);
   }
 
-  let infoHtml = `<strong>Ressonância (Fórmula Nova):</strong> ${frFreq.toFixed(2)} GHz | <strong style="color:#0056b3;">Fator de Forma (α) aplicado: ${alpha.toFixed(2)}</strong>`;
+  let infoHtml = `<strong>Ressonância (Fator de Forma):</strong> ${frFreq.toFixed(2)} GHz | <strong style="color:#0056b3;">Fator (α) dinâmico aplicado: ${alpha.toFixed(2)}</strong>`;
   if (hfssData && hfssData.length > 0) {
-    infoHtml += `<br><span style="color:#dc3545; font-weight:bold;">A curva vermelha (HFSS) sobrepõe as formulações matemáticas. Analise qual aproximação ECM é mais fiel.</span>`;
+    infoHtml += `<br><span style="color:#dc3545; font-weight:bold;">Comparativo ativo: Avalie qual curva aproxima melhor a ressonância do Ansys HFSS.</span>`;
   }
   if (limitIndex !== -1) {
     infoHtml += `<br><small style="color: #d35400">⚠️ Aviso: Acima de ${f_limit.toFixed(2)} GHz o modelo analítico perde precisão.</small>`;
@@ -455,22 +482,26 @@ function exportToCSV() {
   if (!chart) return;
   let csv =
     "\uFEFF" +
-    "Frequência (GHz);S21 Nova (dB);S21 Antiga (dB);S21 Media (dB)\n";
+    "Frequência (GHz);S21 Nova (dB);S21 Tanh (dB);S21 Antiga (dB);S21 Media (dB);S21 Sem Correcao (dB)\n";
   chart.data.labels.forEach((freq, index) => {
     let s21_nova = chart.data.datasets[0].data[index];
-    let s21_antiga = chart.data.datasets[1].data[index];
-    let s21_media = chart.data.datasets[2].data[index];
+    let s21_tanh = chart.data.datasets[1].data[index];
+    let s21_antiga = chart.data.datasets[2].data[index];
+    let s21_media = chart.data.datasets[3].data[index];
+    let s21_puro = chart.data.datasets[4].data[index];
 
     let f_BR = Number(freq).toFixed(3).replace(".", ",");
     let sN_BR = Number(s21_nova).toFixed(4).replace(".", ",");
+    let sT_BR = Number(s21_tanh).toFixed(4).replace(".", ",");
     let sA_BR = Number(s21_antiga).toFixed(4).replace(".", ",");
     let sM_BR = Number(s21_media).toFixed(4).replace(".", ",");
+    let sP_BR = Number(s21_puro).toFixed(4).replace(".", ",");
 
-    csv += `${f_BR};${sN_BR};${sA_BR};${sM_BR}\n`;
+    csv += `${f_BR};${sN_BR};${sT_BR};${sA_BR};${sM_BR};${sP_BR}\n`;
   });
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = "dados_espira_comparacao.csv";
+  link.download = "dados_espira_comparacao_completa.csv";
   link.click();
 }
