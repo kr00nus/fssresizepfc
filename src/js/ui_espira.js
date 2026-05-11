@@ -1,6 +1,6 @@
 // ==========================================
 // SIMULADOR FSS - ESPIRA QUADRADA (MULTIMODELO + HFSS)
-// Interface de usuário e atualização de gráficos
+// Interface de utilizador e atualização de gráficos
 // ==========================================
 
 import { mmToCm, FF } from "./math.js";
@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (exportBtn) {
     exportBtn.addEventListener("click", exportToCSV);
 
-    // Cria o input de arquivo oculto para o CSV do HFSS
+    // Cria o input de ficheiro oculto para o CSV do HFSS
     const hfssInput = document.createElement("input");
     hfssInput.type = "file";
     hfssInput.accept = ".csv";
@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // ==========================================
 // FUNÇÃO: handleHFSSUpload()
-// Lê o arquivo CSV gerado pelo Ansys HFSS
+// Lê o ficheiro CSV gerado pelo Ansys HFSS
 // ==========================================
 function handleHFSSUpload(event) {
   const file = event.target.files[0];
@@ -95,7 +95,7 @@ function handleHFSSUpload(event) {
     const lines = text.split("\n");
     hfssData = []; // Limpa os dados anteriores
 
-    // Começa de i=1 para pular o cabeçalho ("Freq [GHz]","dB(S...)")
+    // Começa de i=1 para saltar o cabeçalho ("Freq [GHz]","dB(S...)")
     for (let i = 1; i < lines.length; i++) {
       if (!lines[i].trim()) continue;
 
@@ -205,18 +205,30 @@ function updateAll() {
   if (gEl) gEl.value = g.toFixed(3);
 
   // =========================================
+  // FATOR DE FORMA DINÂMICO (ALPHA) - COSTA (2020)
+  // =========================================
+  const ratio = w / p;
+
+  // Interpolação Linear:
+  // Ratio 0.05 -> alpha = 16 (Fitas finas, grande confinamento)
+  // Ratio 0.25 -> alpha = 12.5 (Fitas largas, menor confinamento)
+  let alpha = 16 - (ratio - 0.05) * ((16 - 12.5) / (0.25 - 0.05));
+  alpha = Math.max(12.5, Math.min(16, alpha)); // Proteção dos limites físicos
+
+  // =========================================
   // AS 3 FÓRMULAS DE PERMISSIVIDADE EFETIVA
   // =========================================
 
   // 1. Média (Ar-Dielétrico - Interface Semi-infinita)
   const er_media = (er_real + 1) / 2;
 
-  // 2. Antiga (Ajuste Exponencial de Langley/Munk)
+  // 2. Antiga (Ajuste Exponencial Fixo Clássico: Munk, Alpha = 1.8)
   const er_antiga =
     1 + ((er_real - 1) / 2) * (1 - Math.exp(-1.8 * (h_sub / p)));
 
-  // 3. Nova (Tangente Hiperbólica de Costa/Floquet)
-  const er_nova = 1 + ((er_real - 1) / 2) * Math.tanh((Math.PI * h_sub) / p);
+  // 3. Nova (Ajuste Exponencial Avançado: Costa, Alpha Dinâmico)
+  const er_nova =
+    1 + ((er_real - 1) / 2) * (1 - Math.exp(-alpha * (h_sub / p)));
 
   // Atualiza UI com a fórmula Nova (a mais precisa)
   const erEffEl = document.getElementById("er_eff_num");
@@ -254,7 +266,7 @@ function updateAll() {
       const X_antiga = XL - 1 / BC_antiga;
       const X_nova = XL - 1 / BC_nova;
 
-      // Potência Transmitida (Pt) para cada
+      // Potência Transmitida (Pt) para cada modelo
       const pt_media =
         (Rs * Rs + X_media * X_media) /
         (Rs * Rs + X_media * X_media + Rs + 0.25);
@@ -277,18 +289,15 @@ function updateAll() {
 
   // =========================================
   // ALINHAMENTO DOS DADOS DO HFSS (se carregado)
-  // Mapeia os dados importados para as labels do eixo X
   // =========================================
   let hfssPlotData = [];
   if (hfssData && hfssData.length > 0) {
     let hfssIndex = 0;
     hfssPlotData = labels.map((labelStr) => {
       const f = parseFloat(labelStr);
-      // Avança no array do HFSS até encontrar a frequência mais próxima
       while (hfssIndex < hfssData.length - 1 && hfssData[hfssIndex].x < f) {
         hfssIndex++;
       }
-      // Se a frequência bate (margem de 5 MHz), retorna o S21
       if (Math.abs(hfssData[hfssIndex].x - f) < 0.005) {
         return hfssData[hfssIndex].y;
       }
@@ -312,6 +321,7 @@ function updateAll() {
     hfssPlotData,
     limitIndex,
     f_limit,
+    alpha,
   );
 }
 
@@ -323,11 +333,11 @@ function updateChart(
   hfssPlotData,
   limitIndex,
   f_limit,
+  alpha,
 ) {
   const ctx = document.getElementById("fssChart").getContext("2d");
   if (chart) chart.destroy();
 
-  // A Ressonância exibida no texto será baseada na Fórmula Nova (a mais confiável)
   const validData =
     limitIndex !== -1 ? data_nova.slice(0, limitIndex) : data_nova;
   const minIndex = validData.indexOf(Math.min(...validData));
@@ -335,7 +345,7 @@ function updateChart(
 
   const datasets = [
     {
-      label: "ε_eff Nova (Tangente Hiperbólica)",
+      label: "ε_eff Nova (Costa 2020: Dinâmico)",
       data: data_nova,
       borderColor: "#000000",
       borderWidth: 2,
@@ -344,7 +354,7 @@ function updateChart(
       tension: 0,
     },
     {
-      label: "ε_eff Antiga (Exponencial Munk)",
+      label: "ε_eff Antiga (Munk: Fixo 1.8)",
       data: data_antiga,
       borderColor: "#28a745", // Verde
       borderWidth: 2,
@@ -365,7 +375,6 @@ function updateChart(
     },
   ];
 
-  // Adiciona a curva do HFSS se o usuário tiver feito upload do CSV
   if (hfssPlotData && hfssPlotData.length > 0) {
     datasets.push({
       label: "Ansys HFSS (Medição Real)",
@@ -378,7 +387,6 @@ function updateChart(
     });
   }
 
-  // Ponto de ressonância
   const frPointData = labels.map((_, idx) =>
     idx === minIndex ? data_nova[idx] : null,
   );
@@ -392,7 +400,6 @@ function updateChart(
     showLine: false,
   });
 
-  // Marcador de Grating Lobes
   if (limitIndex !== -1) {
     const limitPointData = labels.map((_, idx) =>
       idx === limitIndex ? data_nova[idx] : null,
@@ -434,9 +441,9 @@ function updateChart(
     document.querySelector(".chart-container").after(infoBox);
   }
 
-  let infoHtml = `<strong>Ressonância (Fórmula Nova):</strong> ${frFreq.toFixed(2)} GHz`;
+  let infoHtml = `<strong>Ressonância (Fórmula Nova):</strong> ${frFreq.toFixed(2)} GHz | <strong style="color:#0056b3;">Fator de Forma (α) aplicado: ${alpha.toFixed(2)}</strong>`;
   if (hfssData && hfssData.length > 0) {
-    infoHtml += ` | <span style="color:#dc3545; font-weight:bold;">A curva vermelha (HFSS) sobrepõe as formulações matemáticas. Analise qual aproximação ECM é mais fiel.</span>`;
+    infoHtml += `<br><span style="color:#dc3545; font-weight:bold;">A curva vermelha (HFSS) sobrepõe as formulações matemáticas. Analise qual aproximação ECM é mais fiel.</span>`;
   }
   if (limitIndex !== -1) {
     infoHtml += `<br><small style="color: #d35400">⚠️ Aviso: Acima de ${f_limit.toFixed(2)} GHz o modelo analítico perde precisão.</small>`;
