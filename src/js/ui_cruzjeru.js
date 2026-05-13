@@ -9,11 +9,6 @@ let chart = null;
 let hfssData = null;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // ==========================================
-  // FUNÇÃO: handlePDG()
-  // Gere o triângulo de dependência (Período = Dimensão + Gap)
-  // Permite mexer no slider do Gap e atualizar a Dimensão, e vice-versa.
-  // ==========================================
   function handlePDG(changed) {
     const pNum = document.getElementById("p_num");
     const dNum = document.getElementById("d_num");
@@ -50,20 +45,17 @@ document.addEventListener("DOMContentLoaded", () => {
           ? 2
           : 3;
       num.value = parseFloat(e.target.value).toFixed(decimals);
-
-      handlePDG(idPrefix); // Chama o sincronizador bidirecional
+      handlePDG(idPrefix);
       updateAll();
     });
 
     num.addEventListener("input", (e) => {
       slider.value = e.target.value;
-
-      handlePDG(idPrefix); // Chama o sincronizador bidirecional
+      handlePDG(idPrefix);
       updateAll();
     });
   }
 
-  // Agora o "g" (Gap) também está mapeado e interativo!
   ["fStart", "fEnd", "p", "d", "w", "h", "h_sub", "er", "g"].forEach(
     bindInputs,
   );
@@ -152,28 +144,24 @@ function drawGeometry(p, d, w, h_arm, g) {
   const pPixel = p * scale;
   const dPixel = d * scale;
   const wPixel = w * scale;
-  const hPixel = h_arm * scale;
+
+  // A SUA DESCOBERTA:
+  // O comprimento do chapéu é d. A espessura do chapéu é h.
+  const capLen = dPixel;
+  const capThick = h_arm * scale;
 
   function drawJerusalemCross(cx, cy, isCenter) {
     ctx.fillStyle = isCenter ? "#003366" : "rgba(0, 51, 102, 0.12)";
+
+    // Braços centrais
     ctx.fillRect(cx - dPixel / 2, cy - wPixel / 2, dPixel, wPixel);
     ctx.fillRect(cx - wPixel / 2, cy - dPixel / 2, wPixel, dPixel);
 
-    const capLength = hPixel;
-    ctx.fillRect(cx - capLength / 2, cy - dPixel / 2, capLength, wPixel);
-    ctx.fillRect(
-      cx - capLength / 2,
-      cy + dPixel / 2 - wPixel,
-      capLength,
-      wPixel,
-    );
-    ctx.fillRect(cx - dPixel / 2, cy - capLength / 2, wPixel, capLength);
-    ctx.fillRect(
-      cx + dPixel / 2 - wPixel,
-      cy - capLength / 2,
-      wPixel,
-      capLength,
-    );
+    // Chapéus (Bordas externas formando o perímetro)
+    ctx.fillRect(cx - capLen / 2, cy - dPixel / 2, capLen, capThick); // Topo
+    ctx.fillRect(cx - capLen / 2, cy + dPixel / 2 - capThick, capLen, capThick); // Fundo
+    ctx.fillRect(cx - dPixel / 2, cy - capLen / 2, capThick, capLen); // Esquerda
+    ctx.fillRect(cx + dPixel / 2 - capThick, cy - capLen / 2, capThick, capLen); // Direita
   }
 
   const neighbors = [
@@ -217,7 +205,6 @@ function updateAll() {
     return;
   }
 
-  // Trava de Segurança 1: d (Cruz) não pode ser maior ou igual a p (Período)
   if (d >= p) {
     d = p - 0.001;
     document.getElementById("d_num").value = d.toFixed(3);
@@ -225,27 +212,24 @@ function updateAll() {
       document.getElementById("d_slider").value = d.toFixed(3);
   }
 
-  // Trava de Segurança 2: O Chapéu (h) nunca pode ser maior que a Cruz inteira (d)
-  if (h_arm > d) {
-    h_arm = d;
+  // NOVA TRAVA DE SEGURANÇA: Como h é a espessura da borda, ela não pode ser maior que metade da cruz
+  if (h_arm >= d / 2) {
+    h_arm = d / 2 - 0.001;
     document.getElementById("h_num").value = h_arm.toFixed(3);
     if (document.getElementById("h_slider"))
       document.getElementById("h_slider").value = h_arm.toFixed(3);
   }
 
-  // Reafirma o Gap matematicamente e atualiza as caixas visuais
   const g = p - d;
   const gEl = document.getElementById("g_num");
   const gSlider = document.getElementById("g_slider");
   if (gEl) gEl.value = g.toFixed(3);
   if (gSlider) gSlider.value = g.toFixed(3);
 
-  // FATOR DE FORMA DINÂMICO (ALPHA)
   const ratio_hp = h_sub / p;
   let alpha = 22 - (ratio_hp - 0.05) * ((22 - 17) / (0.2 - 0.05));
   alpha = Math.max(17, Math.min(22, alpha));
 
-  // AS 6 FÓRMULAS DE PERMISSIVIDADE EFETIVA
   const er_media = (er_real + 1) / 2;
   const er_nova =
     1 + ((er_real - 1) / 2) * (1 - Math.exp(-alpha * (h_sub / p)));
@@ -264,7 +248,7 @@ function updateAll() {
   const pCm = mmToCm(p);
   const dCm = mmToCm(d);
   const wCm = mmToCm(w);
-  const hCm = mmToCm(h_arm); // Chapéu usa h absoluto
+  const hCm = mmToCm(h_arm); // Agora usamos hCm como espessura
   const gCm = mmToCm(g);
 
   const data_nova = [],
@@ -285,8 +269,9 @@ function updateAll() {
       const XL2 = (dCm / pCm) * FF(pCm, 2 * wCm, lamb, ang);
       const lamb3 = dCm / 0.43;
 
+      // Restauração das Fórmulas Exatas do Livro com h como espessura
       const Bg_base = ((4 * dCm) / pCm) * FF(pCm, gCm, lamb, ang);
-      const Bd_base = ((4 * hCm) / pCm) * FF(pCm, gCm, lamb, ang);
+      const Bd_base = ((4 * (2 * hCm + gCm)) / pCm) * FF(pCm, gCm, lamb, ang);
       const C_total_base = Bg_base + Bd_base;
 
       const calcPt = (er_val) => {
@@ -323,12 +308,11 @@ function updateAll() {
     let hfssIndex = 0;
     hfssPlotData = labels.map((labelStr) => {
       const f = parseFloat(labelStr);
-      while (hfssIndex < hfssData.length - 1 && hfssData[hfssIndex].x < f) {
+      while (hfssIndex < hfssData.length - 1 && hfssData[hfssIndex].x < f)
         hfssIndex++;
-      }
-      if (Math.abs(hfssData[hfssIndex].x - f) < 0.005)
-        return hfssData[hfssIndex].y;
-      return null;
+      return Math.abs(hfssData[hfssIndex].x - f) < 0.005
+        ? hfssData[hfssIndex].y
+        : null;
     });
   }
 
@@ -440,7 +424,7 @@ function updateChart(
     },
   ];
 
-  if (hfssPlotData && hfssPlotData.length > 0) {
+  if (hfssData && hfssData.length > 0) {
     datasets.push({
       label: "Ansys HFSS (Medição 3D)",
       data: hfssPlotData,
