@@ -9,30 +9,6 @@ let chart = null;
 let hfssData = null;
 
 document.addEventListener("DOMContentLoaded", () => {
-  function handlePDG(changed) {
-    const pNum = document.getElementById("p_num");
-    const dNum = document.getElementById("d_num");
-    const gNum = document.getElementById("g_num");
-    const dSlider = document.getElementById("d_slider");
-    const gSlider = document.getElementById("g_slider");
-
-    if (!pNum || !dNum || !gNum) return;
-
-    let p = parseFloat(pNum.value);
-    let d = parseFloat(dNum.value);
-    let g = parseFloat(gNum.value);
-
-    if (changed === "p" || changed === "d") {
-      g = p - d;
-      gNum.value = g.toFixed(3);
-      if (gSlider) gSlider.value = g.toFixed(3);
-    } else if (changed === "g") {
-      d = p - g;
-      dNum.value = d.toFixed(3);
-      if (dSlider) dSlider.value = d.toFixed(3);
-    }
-  }
-
   function bindInputs(idPrefix) {
     const slider = document.getElementById(idPrefix + "_slider");
     const num = document.getElementById(idPrefix + "_num");
@@ -45,17 +21,16 @@ document.addEventListener("DOMContentLoaded", () => {
           ? 2
           : 3;
       num.value = parseFloat(e.target.value).toFixed(decimals);
-      handlePDG(idPrefix);
       updateAll();
     });
 
     num.addEventListener("input", (e) => {
       slider.value = e.target.value;
-      handlePDG(idPrefix);
       updateAll();
     });
   }
 
+  // Todas as variáveis da imagem do livro são agora independentes na interface
   ["fStart", "fEnd", "p", "d", "w", "h", "h_sub", "er", "g"].forEach(
     bindInputs,
   );
@@ -130,7 +105,10 @@ function handleHFSSUpload(event) {
   reader.readAsText(file);
 }
 
-function drawGeometry(p, d, w, h_arm, g) {
+// ==========================================
+// FUNÇÃO: drawGeometry() - Mapeamento fiel da Imagem
+// ==========================================
+function drawGeometry(p, d, w, h, g) {
   const canvas = document.getElementById("shapeCanvas");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
@@ -141,27 +119,35 @@ function drawGeometry(p, d, w, h_arm, g) {
   const viewSize = p * 2.2;
   const scale = size / viewSize;
   const center = size / 2;
-  const pPixel = p * scale;
-  const dPixel = d * scale;
-  const wPixel = w * scale;
 
-  // A SUA DESCOBERTA:
-  // O comprimento do chapéu é d. A espessura do chapéu é h.
-  const capLen = dPixel;
-  const capThick = h_arm * scale;
+  const pPixel = p * scale;
+  const gPixel = g * scale;
+
+  // O tamanho total físico da cruz na tela é p - g
+  const crossSpan = pPixel - gPixel;
+
+  const dPixel = d * scale; // Comprimento do chapéu
+  const hPixel = h * scale; // Espessura do chapéu
+  const wPixel = w * scale; // Espessura do braço interno
 
   function drawJerusalemCross(cx, cy, isCenter) {
     ctx.fillStyle = isCenter ? "#003366" : "rgba(0, 51, 102, 0.12)";
 
-    // Braços centrais
-    ctx.fillRect(cx - dPixel / 2, cy - wPixel / 2, dPixel, wPixel);
-    ctx.fillRect(cx - wPixel / 2, cy - dPixel / 2, wPixel, dPixel);
+    // Braços centrais (cruz interna)
+    // O comprimento do braço central é o span total menos a espessura dos 2 chapéus
+    const innerLen = Math.max(0, crossSpan - 2 * hPixel);
+    ctx.fillRect(cx - innerLen / 2, cy - wPixel / 2, innerLen, wPixel); // Horizontal
+    ctx.fillRect(cx - wPixel / 2, cy - innerLen / 2, wPixel, innerLen); // Vertical
 
-    // Chapéus (Bordas externas formando o perímetro)
-    ctx.fillRect(cx - capLen / 2, cy - dPixel / 2, capLen, capThick); // Topo
-    ctx.fillRect(cx - capLen / 2, cy + dPixel / 2 - capThick, capLen, capThick); // Fundo
-    ctx.fillRect(cx - dPixel / 2, cy - capLen / 2, capThick, capLen); // Esquerda
-    ctx.fillRect(cx + dPixel / 2 - capThick, cy - capLen / 2, capThick, capLen); // Direita
+    // Chapéus (End Caps - de acordo com a imagem do livro)
+    // Topo
+    ctx.fillRect(cx - dPixel / 2, cy - crossSpan / 2, dPixel, hPixel);
+    // Fundo
+    ctx.fillRect(cx - dPixel / 2, cy + crossSpan / 2 - hPixel, dPixel, hPixel);
+    // Esquerda
+    ctx.fillRect(cx - crossSpan / 2, cy - dPixel / 2, hPixel, dPixel);
+    // Direita
+    ctx.fillRect(cx + crossSpan / 2 - hPixel, cy - dPixel / 2, hPixel, dPixel);
   }
 
   const neighbors = [
@@ -175,6 +161,7 @@ function drawGeometry(p, d, w, h_arm, g) {
   );
   drawJerusalemCross(center, center, true);
 
+  // Linha tracejada do Período (p)
   ctx.setLineDash([5, 5]);
   ctx.strokeStyle = "rgba(0, 0, 0, 0.25)";
   ctx.lineWidth = 1;
@@ -185,10 +172,11 @@ function drawGeometry(p, d, w, h_arm, g) {
 function updateAll() {
   const fStart = parseFloat(document.getElementById("fStart_num").value);
   const fEnd = parseFloat(document.getElementById("fEnd_num").value);
-  const p = parseFloat(document.getElementById("p_num").value);
+  let p = parseFloat(document.getElementById("p_num").value);
   let d = parseFloat(document.getElementById("d_num").value);
-  const w = parseFloat(document.getElementById("w_num").value);
-  let h_arm = parseFloat(document.getElementById("h_num").value);
+  let w = parseFloat(document.getElementById("w_num").value);
+  let h = parseFloat(document.getElementById("h_num").value);
+  let g = parseFloat(document.getElementById("g_num").value);
   const h_sub = parseFloat(document.getElementById("h_sub_num").value);
   const er_real = parseFloat(document.getElementById("er_num").value);
 
@@ -198,6 +186,8 @@ function updateAll() {
     p <= 0 ||
     d <= 0 ||
     w <= 0 ||
+    h <= 0 ||
+    g <= 0 ||
     er_real <= 0 ||
     fStart >= fEnd
   ) {
@@ -205,31 +195,30 @@ function updateAll() {
     return;
   }
 
-  if (d >= p) {
-    d = p - 0.001;
-    document.getElementById("d_num").value = d.toFixed(3);
-    if (document.getElementById("d_slider"))
-      document.getElementById("d_slider").value = d.toFixed(3);
-  }
+  // TRAVAS DE SEGURANÇA FÍSICA (Baseado na imagem do livro):
+  // 1. O gap não pode ser maior que o período.
+  if (g >= p) g = p - 0.001;
 
-  // NOVA TRAVA DE SEGURANÇA: Como h é a espessura da borda, ela não pode ser maior que metade da cruz
-  if (h_arm >= d / 2) {
-    h_arm = d / 2 - 0.001;
-    document.getElementById("h_num").value = h_arm.toFixed(3);
-    if (document.getElementById("h_slider"))
-      document.getElementById("h_slider").value = h_arm.toFixed(3);
-  }
+  // 2. O chapéu (d) não pode ser maior que o espaço disponível da célula (p - g)
+  if (d > p - g) d = p - g;
 
-  const g = p - d;
-  const gEl = document.getElementById("g_num");
-  const gSlider = document.getElementById("g_slider");
-  if (gEl) gEl.value = g.toFixed(3);
-  if (gSlider) gSlider.value = g.toFixed(3);
+  // Atualiza os sliders se as travas ativarem
+  const ids = { p, d, w, h, g };
+  Object.keys(ids).forEach((key) => {
+    let elNum = document.getElementById(key + "_num");
+    let elSli = document.getElementById(key + "_slider");
+    if (elNum && elNum.value != ids[key].toFixed(3))
+      elNum.value = ids[key].toFixed(3);
+    if (elSli && elSli.value != ids[key].toFixed(3))
+      elSli.value = ids[key].toFixed(3);
+  });
 
+  // FATOR DE FORMA DINÂMICO (ALPHA)
   const ratio_hp = h_sub / p;
   let alpha = 22 - (ratio_hp - 0.05) * ((22 - 17) / (0.2 - 0.05));
   alpha = Math.max(17, Math.min(22, alpha));
 
+  // AS 6 FÓRMULAS DE PERMISSIVIDADE EFETIVA
   const er_media = (er_real + 1) / 2;
   const er_nova =
     1 + ((er_real - 1) / 2) * (1 - Math.exp(-alpha * (h_sub / p)));
@@ -242,13 +231,13 @@ function updateAll() {
   const erEffEl = document.getElementById("er_eff_num");
   if (erEffEl) erEffEl.value = er_nova.toFixed(3);
 
-  drawGeometry(p, d, w, h_arm, g);
+  drawGeometry(p, d, w, h, g);
 
   const df = 0.001;
   const pCm = mmToCm(p);
   const dCm = mmToCm(d);
   const wCm = mmToCm(w);
-  const hCm = mmToCm(h_arm); // Agora usamos hCm como espessura
+  const hCm = mmToCm(h);
   const gCm = mmToCm(g);
 
   const data_nova = [],
@@ -265,13 +254,16 @@ function updateAll() {
     const ang = 0;
 
     try {
+      // EQUAÇÕES EXATAS DO MATLAB DO LIVRO (Pág 106)
+      // Indutâncias
       const XL1 = FF(pCm, wCm, lamb, ang);
       const XL2 = (dCm / pCm) * FF(pCm, 2 * wCm, lamb, ang);
       const lamb3 = dCm / 0.43;
 
-      // Restauração das Fórmulas Exatas do Livro com h como espessura
+      // Capacitâncias
       const Bg_base = ((4 * dCm) / pCm) * FF(pCm, gCm, lamb, ang);
-      const Bd_base = ((4 * (2 * hCm + gCm)) / pCm) * FF(pCm, gCm, lamb, ang);
+      const Bd_base =
+        ((4 * (2 * hCm + gCm)) / pCm) * FF(pCm, pCm - dCm, lamb, ang);
       const C_total_base = Bg_base + Bd_base;
 
       const calcPt = (er_val) => {
