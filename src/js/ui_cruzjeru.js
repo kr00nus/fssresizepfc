@@ -9,39 +9,6 @@ let chart = null;
 let hfssData = null;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // ==========================================
-  // MOTOR DE CÁLCULO AUTOMÁTICO (Two-Way Binding)
-  // Garante a regra geométrica: Período (p) = Dimensão (d) + Gap (g)
-  // ==========================================
-  function handlePDG(changed) {
-    const pNum = document.getElementById("p_num");
-    const dNum = document.getElementById("d_num");
-    const gNum = document.getElementById("g_num");
-    const dSlider = document.getElementById("d_slider");
-    const gSlider = document.getElementById("g_slider");
-
-    if (!pNum || !dNum || !gNum) return;
-
-    let p = parseFloat(pNum.value);
-    let d = parseFloat(dNum.value);
-    let g = parseFloat(gNum.value);
-
-    // Se o Período ou a Dimensão mudarem, calcula o Gap automaticamente
-    if (changed === "p" || changed === "d") {
-      g = p - d;
-      if (g <= 0) g = 0.001; // Trava de segurança
-      gNum.value = g.toFixed(3);
-      if (gSlider) gSlider.value = g.toFixed(3);
-    }
-    // Se o utilizador mexer diretamente no Gap, calcula a Dimensão automaticamente
-    else if (changed === "g") {
-      d = p - g;
-      if (d <= 0) d = 0.001; // Trava de segurança
-      dNum.value = d.toFixed(3);
-      if (dSlider) dSlider.value = d.toFixed(3);
-    }
-  }
-
   function bindInputs(idPrefix) {
     const slider = document.getElementById(idPrefix + "_slider");
     const num = document.getElementById(idPrefix + "_num");
@@ -54,19 +21,16 @@ document.addEventListener("DOMContentLoaded", () => {
           ? 2
           : 3;
       num.value = parseFloat(e.target.value).toFixed(decimals);
-
-      handlePDG(idPrefix); // Chama o motor de cálculo automático
       updateAll();
     });
 
     num.addEventListener("input", (e) => {
       slider.value = e.target.value;
-
-      handlePDG(idPrefix); // Chama o motor de cálculo automático
       updateAll();
     });
   }
 
+  // Todas as variáveis da imagem do livro são agora independentes na interface
   ["fStart", "fEnd", "p", "d", "w", "h", "h_sub", "er", "g"].forEach(
     bindInputs,
   );
@@ -142,10 +106,9 @@ function handleHFSSUpload(event) {
 }
 
 // ==========================================
-// FUNÇÃO: drawGeometry()
-// Desenha a Cruz com d sendo o tamanho total e h a espessura
+// FUNÇÃO: drawGeometry() - Mapeamento fiel da Imagem
 // ==========================================
-function drawGeometry(p, d, w, h) {
+function drawGeometry(p, d, w, h, g) {
   const canvas = document.getElementById("shapeCanvas");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
@@ -158,23 +121,33 @@ function drawGeometry(p, d, w, h) {
   const center = size / 2;
 
   const pPixel = p * scale;
-  const dPixel = d * scale; // Dimensão Total da Cruz
+  const gPixel = g * scale;
+
+  // O tamanho total físico da cruz na tela é p - g
+  const crossSpan = pPixel - gPixel;
+
+  const dPixel = d * scale; // Comprimento do chapéu
+  const hPixel = h * scale; // Espessura do chapéu
   const wPixel = w * scale; // Espessura do braço interno
-  const hPixel = h * scale; // Espessura do chapéu externo
 
   function drawJerusalemCross(cx, cy, isCenter) {
     ctx.fillStyle = isCenter ? "#003366" : "rgba(0, 51, 102, 0.12)";
 
-    // Braços centrais (cruz interna) - O tamanho da cruz central é d menos os 2 chapéus
-    const innerLen = Math.max(0, dPixel - 2 * hPixel);
+    // Braços centrais (cruz interna)
+    // O comprimento do braço central é o span total menos a espessura dos 2 chapéus
+    const innerLen = Math.max(0, crossSpan - 2 * hPixel);
     ctx.fillRect(cx - innerLen / 2, cy - wPixel / 2, innerLen, wPixel); // Horizontal
     ctx.fillRect(cx - wPixel / 2, cy - innerLen / 2, wPixel, innerLen); // Vertical
 
-    // Chapéus (Bordas externas - d é o comprimento do braço de fora)
-    ctx.fillRect(cx - dPixel / 2, cy - dPixel / 2, dPixel, hPixel); // Topo
-    ctx.fillRect(cx - dPixel / 2, cy + dPixel / 2 - hPixel, dPixel, hPixel); // Fundo
-    ctx.fillRect(cx - dPixel / 2, cy - dPixel / 2, hPixel, dPixel); // Esquerda
-    ctx.fillRect(cx + dPixel / 2 - hPixel, cy - dPixel / 2, hPixel, dPixel); // Direita
+    // Chapéus (End Caps - de acordo com a imagem do livro)
+    // Topo
+    ctx.fillRect(cx - dPixel / 2, cy - crossSpan / 2, dPixel, hPixel);
+    // Fundo
+    ctx.fillRect(cx - dPixel / 2, cy + crossSpan / 2 - hPixel, dPixel, hPixel);
+    // Esquerda
+    ctx.fillRect(cx - crossSpan / 2, cy - dPixel / 2, hPixel, dPixel);
+    // Direita
+    ctx.fillRect(cx + crossSpan / 2 - hPixel, cy - dPixel / 2, hPixel, dPixel);
   }
 
   const neighbors = [
@@ -199,10 +172,11 @@ function drawGeometry(p, d, w, h) {
 function updateAll() {
   const fStart = parseFloat(document.getElementById("fStart_num").value);
   const fEnd = parseFloat(document.getElementById("fEnd_num").value);
-  const p = parseFloat(document.getElementById("p_num").value);
+  let p = parseFloat(document.getElementById("p_num").value);
   let d = parseFloat(document.getElementById("d_num").value);
-  const w = parseFloat(document.getElementById("w_num").value);
+  let w = parseFloat(document.getElementById("w_num").value);
   let h = parseFloat(document.getElementById("h_num").value);
+  let g = parseFloat(document.getElementById("g_num").value);
   const h_sub = parseFloat(document.getElementById("h_sub_num").value);
   const er_real = parseFloat(document.getElementById("er_num").value);
 
@@ -213,6 +187,7 @@ function updateAll() {
     d <= 0 ||
     w <= 0 ||
     h <= 0 ||
+    g <= 0 ||
     er_real <= 0 ||
     fStart >= fEnd
   ) {
@@ -220,27 +195,23 @@ function updateAll() {
     return;
   }
 
-  // TRAVAS DE SEGURANÇA FÍSICA
-  if (d >= p) {
-    d = p - 0.001;
-    document.getElementById("d_num").value = d.toFixed(3);
-    if (document.getElementById("d_slider"))
-      document.getElementById("d_slider").value = d.toFixed(3);
-  }
+  // TRAVAS DE SEGURANÇA FÍSICA (Baseado na imagem do livro):
+  // 1. O gap não pode ser maior que o período.
+  if (g >= p) g = p - 0.001;
 
-  if (h >= d / 2) {
-    h = d / 2 - 0.001;
-    document.getElementById("h_num").value = h.toFixed(3);
-    if (document.getElementById("h_slider"))
-      document.getElementById("h_slider").value = h.toFixed(3);
-  }
+  // 2. O chapéu (d) não pode ser maior que o espaço disponível da célula (p - g)
+  if (d > p - g) d = p - g;
 
-  // Força o Gap matematicamente e atualiza as caixas visuais
-  const g = p - d;
-  const gEl = document.getElementById("g_num");
-  const gSlider = document.getElementById("g_slider");
-  if (gEl && gEl.value !== g.toFixed(3)) gEl.value = g.toFixed(3);
-  if (gSlider && gSlider.value !== g.toFixed(3)) gSlider.value = g.toFixed(3);
+  // Atualiza os sliders se as travas ativarem
+  const ids = { p, d, w, h, g };
+  Object.keys(ids).forEach((key) => {
+    let elNum = document.getElementById(key + "_num");
+    let elSli = document.getElementById(key + "_slider");
+    if (elNum && elNum.value != ids[key].toFixed(3))
+      elNum.value = ids[key].toFixed(3);
+    if (elSli && elSli.value != ids[key].toFixed(3))
+      elSli.value = ids[key].toFixed(3);
+  });
 
   // FATOR DE FORMA DINÂMICO (ALPHA)
   const ratio_hp = h_sub / p;
@@ -260,7 +231,7 @@ function updateAll() {
   const erEffEl = document.getElementById("er_eff_num");
   if (erEffEl) erEffEl.value = er_nova.toFixed(3);
 
-  drawGeometry(p, d, w, h);
+  drawGeometry(p, d, w, h, g);
 
   const df = 0.001;
   const pCm = mmToCm(p);
@@ -284,10 +255,12 @@ function updateAll() {
 
     try {
       // EQUAÇÕES EXATAS DO MATLAB DO LIVRO (Pág 106)
+      // Indutâncias
       const XL1 = FF(pCm, wCm, lamb, ang);
       const XL2 = (dCm / pCm) * FF(pCm, 2 * wCm, lamb, ang);
       const lamb3 = dCm / 0.43;
 
+      // Capacitâncias
       const Bg_base = ((4 * dCm) / pCm) * FF(pCm, gCm, lamb, ang);
       const Bd_base =
         ((4 * (2 * hCm + gCm)) / pCm) * FF(pCm, pCm - dCm, lamb, ang);
