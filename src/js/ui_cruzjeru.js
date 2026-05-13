@@ -133,18 +133,26 @@ function drawGeometry(p, d, w, h_arm, g) {
 
   function drawJerusalemCross(cx, cy, isCenter) {
     ctx.fillStyle = isCenter ? "#003366" : "rgba(0, 51, 102, 0.12)";
+    // Braço Horizontal Principal
     ctx.fillRect(cx - dPixel / 2, cy - wPixel / 2, dPixel, wPixel);
+    // Braço Vertical Principal
     ctx.fillRect(cx - wPixel / 2, cy - dPixel / 2, wPixel, dPixel);
 
-    const capLength = 2 * hPixel + wPixel;
+    // CORREÇÃO VISUAL: hPixel é agora o tamanho total do chapéu!
+    const capLength = hPixel;
+
+    // Chapéu Topo
     ctx.fillRect(cx - capLength / 2, cy - dPixel / 2, capLength, wPixel);
+    // Chapéu Fundo
     ctx.fillRect(
       cx - capLength / 2,
       cy + dPixel / 2 - wPixel,
       capLength,
       wPixel,
     );
+    // Chapéu Esquerdo
     ctx.fillRect(cx - dPixel / 2, cy - capLength / 2, wPixel, capLength);
+    // Chapéu Direito
     ctx.fillRect(
       cx + dPixel / 2 - wPixel,
       cy - capLength / 2,
@@ -237,7 +245,7 @@ function updateAll() {
   const pCm = mmToCm(p);
   const dCm = mmToCm(d);
   const wCm = mmToCm(w);
-  const hCm = mmToCm(h_arm);
+  const hCm = mmToCm(h_arm); // hCm é agora o tamanho total do chapéu
   const gCm = mmToCm(g);
 
   const data_nova = [];
@@ -254,18 +262,18 @@ function updateAll() {
     const ang = 0;
 
     try {
-      // 1. Cálculo das indutâncias base (Corrigidas - Sem reduções espúrias)
+      // 1. Cálculo das indutâncias base
       const XL1 = FF(pCm, wCm, lamb, ang);
       const XL2 = (dCm / pCm) * FF(pCm, 2 * wCm, lamb, ang);
       const lamb3 = dCm / 0.43;
 
-      // 2. Cálculo das capacitâncias base (não dependem de er_eff)
+      // 2. Cálculo das capacitâncias base (Corrigido para h total)
+      // Bg é a capacitância dos braços, Bd é a capacitância dos chapéus
       const Bg_base = ((4 * dCm) / pCm) * FF(pCm, gCm, lamb, ang);
-      const Bd_base =
-        ((4 * (2 * hCm + gCm)) / pCm) * FF(pCm, pCm - dCm, lamb, ang);
+      const Bd_base = ((4 * hCm) / pCm) * FF(pCm, gCm, lamb, ang);
       const C_total_base = Bg_base + Bd_base;
 
-      // 3. Função interna de Transmissão (Limpa de resistências)
+      // 3. Função interna de Transmissão
       const calcPt = (er_val) => {
         const BC1 = er_val * C_total_base;
         const X1 = XL1 - 1 / BC1;
@@ -274,7 +282,7 @@ function updateAll() {
         const BC2 = (1 / XL2) * Math.pow(freq / f3_eff, 2);
         const X2 = XL2 - 1 / BC2;
 
-        // Susceptância Total da Cruz (B = 1/X1 + 1/X2)
+        // Susceptância Total da Cruz
         const B_total = 1 / X1 + 1 / X2;
 
         // Retorna S21 em dB através do condutor ideal do math.js
