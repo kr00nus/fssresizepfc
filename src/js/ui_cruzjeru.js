@@ -1,39 +1,72 @@
 // ==========================================
 // SIMULADOR FSS - CRUZ DE JERUSALÉM (BENCHMARK ANALÍTICO + HFSS)
 // Interface de usuário e atualização de gráficos
-// Geometria: Espira em forma de cruz (Jerusalem Cross)
 // ==========================================
 
 import { mmToCm, FF, calcS21 } from "./math.js";
 
-// Variável global para armazenar a instância do gráfico Chart.js
 let chart = null;
-let hfssData = null; // Armazenará os dados importados do Ansys HFSS
+let hfssData = null;
 
 document.addEventListener("DOMContentLoaded", () => {
+  // ==========================================
+  // FUNÇÃO: handlePDG()
+  // Gere o triângulo de dependência (Período = Dimensão + Gap)
+  // Permite mexer no slider do Gap e atualizar a Dimensão, e vice-versa.
+  // ==========================================
+  function handlePDG(changed) {
+    const pNum = document.getElementById("p_num");
+    const dNum = document.getElementById("d_num");
+    const gNum = document.getElementById("g_num");
+    const dSlider = document.getElementById("d_slider");
+    const gSlider = document.getElementById("g_slider");
+
+    if (!pNum || !dNum || !gNum) return;
+
+    let p = parseFloat(pNum.value);
+    let d = parseFloat(dNum.value);
+    let g = parseFloat(gNum.value);
+
+    if (changed === "p" || changed === "d") {
+      g = p - d;
+      gNum.value = g.toFixed(3);
+      if (gSlider) gSlider.value = g.toFixed(3);
+    } else if (changed === "g") {
+      d = p - g;
+      dNum.value = d.toFixed(3);
+      if (dSlider) dSlider.value = d.toFixed(3);
+    }
+  }
+
   function bindInputs(idPrefix) {
     const slider = document.getElementById(idPrefix + "_slider");
     const num = document.getElementById(idPrefix + "_num");
     if (!slider || !num) return;
 
     slider.addEventListener("input", (e) => {
-      const decimals =
-        idPrefix === "fStart" || idPrefix === "fEnd"
-          ? 1
-          : idPrefix === "er" || idPrefix === "h_sub"
-            ? 2
-            : 3;
+      const decimals = ["fStart", "fEnd"].includes(idPrefix)
+        ? 1
+        : ["er", "h_sub"].includes(idPrefix)
+          ? 2
+          : 3;
       num.value = parseFloat(e.target.value).toFixed(decimals);
+
+      handlePDG(idPrefix); // Chama o sincronizador bidirecional
       updateAll();
     });
 
     num.addEventListener("input", (e) => {
       slider.value = e.target.value;
+
+      handlePDG(idPrefix); // Chama o sincronizador bidirecional
       updateAll();
     });
   }
 
-  ["fStart", "fEnd", "p", "d", "w", "h", "h_sub", "er"].forEach(bindInputs);
+  // Agora o "g" (Gap) também está mapeado e interativo!
+  ["fStart", "fEnd", "p", "d", "w", "h", "h_sub", "er", "g"].forEach(
+    bindInputs,
+  );
 
   const subSelect = document.getElementById("substrate_select");
   if (subSelect) {
@@ -53,9 +86,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ==========================================
-  // BOTÕES DE EXPORTAÇÃO E CARREGAMENTO (HFSS)
-  // ==========================================
   const exportBtn = document.getElementById("exportBtn");
   if (exportBtn) {
     exportBtn.addEventListener("click", exportToCSV);
@@ -79,9 +109,6 @@ document.addEventListener("DOMContentLoaded", () => {
   updateAll();
 });
 
-// ==========================================
-// FUNÇÃO: handleHFSSUpload()
-// ==========================================
 function handleHFSSUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -103,7 +130,6 @@ function handleHFSSUpload(event) {
         }
       }
     }
-
     alert(
       `Dados do HFSS carregados com sucesso! (${hfssData.length} pontos encontrados)`,
     );
@@ -112,9 +138,6 @@ function handleHFSSUpload(event) {
   reader.readAsText(file);
 }
 
-// ==========================================
-// FUNÇÃO: drawGeometry()
-// ==========================================
 function drawGeometry(p, d, w, h_arm, g) {
   const canvas = document.getElementById("shapeCanvas");
   if (!canvas) return;
@@ -133,26 +156,18 @@ function drawGeometry(p, d, w, h_arm, g) {
 
   function drawJerusalemCross(cx, cy, isCenter) {
     ctx.fillStyle = isCenter ? "#003366" : "rgba(0, 51, 102, 0.12)";
-    // Braço Horizontal Principal
     ctx.fillRect(cx - dPixel / 2, cy - wPixel / 2, dPixel, wPixel);
-    // Braço Vertical Principal
     ctx.fillRect(cx - wPixel / 2, cy - dPixel / 2, wPixel, dPixel);
 
-    // CORREÇÃO VISUAL: hPixel é agora o tamanho total do chapéu!
     const capLength = hPixel;
-
-    // Chapéu Topo
     ctx.fillRect(cx - capLength / 2, cy - dPixel / 2, capLength, wPixel);
-    // Chapéu Fundo
     ctx.fillRect(
       cx - capLength / 2,
       cy + dPixel / 2 - wPixel,
       capLength,
       wPixel,
     );
-    // Chapéu Esquerdo
     ctx.fillRect(cx - dPixel / 2, cy - capLength / 2, wPixel, capLength);
-    // Chapéu Direito
     ctx.fillRect(
       cx + dPixel / 2 - wPixel,
       cy - capLength / 2,
@@ -179,16 +194,13 @@ function drawGeometry(p, d, w, h_arm, g) {
   ctx.setLineDash([]);
 }
 
-// ==========================================
-// FUNÇÃO: updateAll()
-// ==========================================
 function updateAll() {
   const fStart = parseFloat(document.getElementById("fStart_num").value);
   const fEnd = parseFloat(document.getElementById("fEnd_num").value);
   const p = parseFloat(document.getElementById("p_num").value);
   let d = parseFloat(document.getElementById("d_num").value);
   const w = parseFloat(document.getElementById("w_num").value);
-  const h_arm = parseFloat(document.getElementById("h_num").value);
+  let h_arm = parseFloat(document.getElementById("h_num").value);
   const h_sub = parseFloat(document.getElementById("h_sub_num").value);
   const er_real = parseFloat(document.getElementById("er_num").value);
 
@@ -205,39 +217,46 @@ function updateAll() {
     return;
   }
 
+  // Trava de Segurança 1: d (Cruz) não pode ser maior ou igual a p (Período)
   if (d >= p) {
     d = p - 0.001;
     document.getElementById("d_num").value = d.toFixed(3);
+    if (document.getElementById("d_slider"))
+      document.getElementById("d_slider").value = d.toFixed(3);
   }
 
+  // Trava de Segurança 2: O Chapéu (h) nunca pode ser maior que a Cruz inteira (d)
+  if (h_arm > d) {
+    h_arm = d;
+    document.getElementById("h_num").value = h_arm.toFixed(3);
+    if (document.getElementById("h_slider"))
+      document.getElementById("h_slider").value = h_arm.toFixed(3);
+  }
+
+  // Reafirma o Gap matematicamente e atualiza as caixas visuais
   const g = p - d;
   const gEl = document.getElementById("g_num");
+  const gSlider = document.getElementById("g_slider");
   if (gEl) gEl.value = g.toFixed(3);
+  if (gSlider) gSlider.value = g.toFixed(3);
 
-  // =========================================
-  // FATOR DE FORMA DINÂMICO (ALPHA) PARA CRUZ DE JERUSALÉM - COSTA (2020)
-  // =========================================
+  // FATOR DE FORMA DINÂMICO (ALPHA)
   const ratio_hp = h_sub / p;
   let alpha = 22 - (ratio_hp - 0.05) * ((22 - 17) / (0.2 - 0.05));
   alpha = Math.max(17, Math.min(22, alpha));
 
-  // =========================================
   // AS 6 FÓRMULAS DE PERMISSIVIDADE EFETIVA
-  // =========================================
   const er_media = (er_real + 1) / 2;
   const er_nova =
     1 + ((er_real - 1) / 2) * (1 - Math.exp(-alpha * (h_sub / p)));
-
-  // A sua heurística (Média Ponderada: 25% Média Clássica + 75% Costa)
   const er_tentativa = (er_media + 3 * er_nova) / 4;
-
   const er_antiga =
     1 + ((er_real - 1) / 2) * (1 - Math.exp(-1.8 * (h_sub / p)));
   const er_tanh = 1 + ((er_real - 1) / 2) * Math.tanh((Math.PI * h_sub) / p);
   const er_puro = er_real;
 
   const erEffEl = document.getElementById("er_eff_num");
-  if (erEffEl) erEffEl.value = er_nova.toFixed(3); // Exibe a de Costa no painel
+  if (erEffEl) erEffEl.value = er_nova.toFixed(3);
 
   drawGeometry(p, d, w, h_arm, g);
 
@@ -245,16 +264,16 @@ function updateAll() {
   const pCm = mmToCm(p);
   const dCm = mmToCm(d);
   const wCm = mmToCm(w);
-  const hCm = mmToCm(h_arm); // hCm é agora o tamanho total do chapéu
+  const hCm = mmToCm(h_arm); // Chapéu usa h absoluto
   const gCm = mmToCm(g);
 
-  const data_nova = [];
-  const data_tentativa = [];
-  const data_antiga = [];
-  const data_media = [];
-  const data_tanh = [];
-  const data_puro = [];
-  const labels = [];
+  const data_nova = [],
+    data_tentativa = [],
+    data_antiga = [],
+    data_media = [],
+    data_tanh = [],
+    data_puro = [],
+    labels = [];
   const f_limit = 30 / pCm;
 
   for (let freq = fStart; freq <= fEnd; freq += df) {
@@ -262,18 +281,14 @@ function updateAll() {
     const ang = 0;
 
     try {
-      // 1. Cálculo das indutâncias base
       const XL1 = FF(pCm, wCm, lamb, ang);
       const XL2 = (dCm / pCm) * FF(pCm, 2 * wCm, lamb, ang);
       const lamb3 = dCm / 0.43;
 
-      // 2. Cálculo das capacitâncias base (Corrigido para h total)
-      // Bg é a capacitância dos braços, Bd é a capacitância dos chapéus
       const Bg_base = ((4 * dCm) / pCm) * FF(pCm, gCm, lamb, ang);
       const Bd_base = ((4 * hCm) / pCm) * FF(pCm, gCm, lamb, ang);
       const C_total_base = Bg_base + Bd_base;
 
-      // 3. Função interna de Transmissão
       const calcPt = (er_val) => {
         const BC1 = er_val * C_total_base;
         const X1 = XL1 - 1 / BC1;
@@ -282,10 +297,7 @@ function updateAll() {
         const BC2 = (1 / XL2) * Math.pow(freq / f3_eff, 2);
         const X2 = XL2 - 1 / BC2;
 
-        // Susceptância Total da Cruz
         const B_total = 1 / X1 + 1 / X2;
-
-        // Retorna S21 em dB através do condutor ideal do math.js
         return calcS21(B_total);
       };
 
@@ -314,9 +326,8 @@ function updateAll() {
       while (hfssIndex < hfssData.length - 1 && hfssData[hfssIndex].x < f) {
         hfssIndex++;
       }
-      if (Math.abs(hfssData[hfssIndex].x - f) < 0.005) {
+      if (Math.abs(hfssData[hfssIndex].x - f) < 0.005)
         return hfssData[hfssIndex].y;
-      }
       return null;
     });
   }
@@ -345,9 +356,6 @@ function updateAll() {
   );
 }
 
-// ==========================================
-// FUNÇÃO: updateChart()
-// ==========================================
 function updateChart(
   labels,
   data_nova,
@@ -507,9 +515,6 @@ function updateChart(
   infoBox.innerHTML = infoHtml;
 }
 
-// ==========================================
-// FUNÇÃO: exportToCSV()
-// ==========================================
 function exportToCSV() {
   if (!chart) return;
   let csv =
