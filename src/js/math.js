@@ -87,3 +87,16 @@ export function FF(p, w, lamb, ang) {
   const logTerm = Math.log(csc((Math.PI * w) / (2 * p)));
   return ((p * Math.cos(ang)) / lamb) * (logTerm + GG(p, w, lamb, ang));
 }
+
+// ==========================================
+// FUNÇÃO: calcS21
+// Calcula o coeficiente de transmissão S21 (em dB)
+// Assumindo modelo de Condutor Ideal (Sem perdas Rs)
+// Parâmetro: B_total (Susceptância normalizada total da estrutura)
+// ==========================================
+export function calcS21(B_total) {
+  // A potência transmitida (Pt) para um circuito puramente reativo (sem Rs)
+  // O sinal da susceptância não afeta a potência pois é elevado ao quadrado
+  const pt = 4 / (4 + Math.pow(B_total, 2));
+  return 10 * Math.log10(pt);
+}

@@ -4,7 +4,7 @@
 // Geometria: Espira em forma de cruz (Jerusalem Cross)
 // ==========================================
 
-import { mmToCm, FF } from "./math.js";
+import { mmToCm, FF, calcS21 } from "./math.js";
 
 // Variável global para armazenar a instância do gráfico Chart.js
 let chart = null;
@@ -239,7 +239,6 @@ function updateAll() {
   const wCm = mmToCm(w);
   const hCm = mmToCm(h_arm);
   const gCm = mmToCm(g);
-  const Rs = 0.008;
 
   const data_nova = [];
   const data_tentativa = [];
@@ -255,18 +254,18 @@ function updateAll() {
     const ang = 0;
 
     try {
-      // Cálculo das indutâncias base (não dependem de er_eff)
-      const XL1 = (dCm / pCm) * FF(pCm, wCm, lamb, ang) * Math.cos(ang);
-      const XL2 = (dCm / pCm) * FF(pCm, wCm, lamb, ang) * Math.cos(ang);
+      // 1. Cálculo das indutâncias base (Corrigidas - Sem reduções espúrias)
+      const XL1 = FF(pCm, wCm, lamb, ang);
+      const XL2 = (dCm / pCm) * FF(pCm, 2 * wCm, lamb, ang);
       const lamb3 = dCm / 0.43;
 
-      // Cálculo das capacitâncias base (não dependem de er_eff)
+      // 2. Cálculo das capacitâncias base (não dependem de er_eff)
       const Bg_base = ((4 * dCm) / pCm) * FF(pCm, gCm, lamb, ang);
       const Bd_base =
         ((4 * (2 * hCm + gCm)) / pCm) * FF(pCm, pCm - dCm, lamb, ang);
       const C_total_base = Bg_base + Bd_base;
 
-      // Função interna para calcular a Transmissão (S21) baseada na er_eff escolhida
+      // 3. Função interna de Transmissão (Limpa de resistências)
       const calcPt = (er_val) => {
         const BC1 = er_val * C_total_base;
         const X1 = XL1 - 1 / BC1;
@@ -275,17 +274,11 @@ function updateAll() {
         const BC2 = (1 / XL2) * Math.pow(freq / f3_eff, 2);
         const X2 = XL2 - 1 / BC2;
 
-        const Y1_re = Rs / (Rs * Rs + X1 * X1);
-        const Y1_im = -X1 / (Rs * Rs + X1 * X1);
-        const Y2_re = Rs / (Rs * Rs + X2 * X2);
-        const Y2_im = -X2 / (Rs * Rs + X2 * X2);
+        // Susceptância Total da Cruz (B = 1/X1 + 1/X2)
+        const B_total = 1 / X1 + 1 / X2;
 
-        const Y_total_re = Y1_re + Y2_re;
-        const Y_total_im = Y1_im + Y2_im;
-
-        const den = Math.pow(2 + Y_total_re, 2) + Math.pow(Y_total_im, 2);
-        const pt = 4 / den;
-        return 10 * Math.log10(pt);
+        // Retorna S21 em dB através do condutor ideal do math.js
+        return calcS21(B_total);
       };
 
       labels.push(freq.toFixed(3));
