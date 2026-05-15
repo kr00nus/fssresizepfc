@@ -5,19 +5,40 @@
 
 import { mmToCm, FF, calcS21 } from "./math.js";
 
-// Variáveis renomeadas para evitar qualquer conflito de Temporal Dead Zone (TDZ)
 let patchChartInstance = null;
 let patchHfssData = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
-  // AUTO-DETETOR DE HTML (Evita erros de Copy-Paste do HTML)
-  // Se o HTML usar d_num (da Espira) assume como Patch (c)
-  // Se o HTML usar w_num (da Espira) assume como Gap (g)
+  // 1. AUTO-DETETOR DE IDs (Suporta HTML antigo da Espira)
   // ==========================================
   const id_c = document.getElementById("c_num") ? "c" : "d";
   const id_g = document.getElementById("g_num") ? "g" : "w";
 
+  // ==========================================
+  // 2. INJEÇÃO DE VALORES INICIAIS (Mata o erro de Null/NaN)
+  // ==========================================
+  const defaultValues = {
+    fStart: "1.0",
+    fEnd: "15.0",
+    p: "15.000",
+    [id_c]: "14.000", // Tamanho do Patch
+    [id_g]: "1.000", // Gap
+    h_sub: "1.52",
+    er: "4.40", // Padrão FR4
+  };
+
+  // Preenche as caixas e sliders no HTML automaticamente
+  for (const [key, value] of Object.entries(defaultValues)) {
+    const numEl = document.getElementById(`${key}_num`);
+    const sliderEl = document.getElementById(`${key}_slider`);
+    if (numEl) numEl.value = value;
+    if (sliderEl) sliderEl.value = value;
+  }
+
+  // ==========================================
+  // 3. MOTOR DE CÁLCULO AUTOMÁTICO (Two-Way Binding)
+  // ==========================================
   function handlePCG(changed) {
     const pNum = document.getElementById("p_num");
     const cNum = document.getElementById(id_c + "_num");
@@ -27,20 +48,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!pNum || !cNum) return;
 
-    let p = parseFloat(pNum.value);
-    let c = parseFloat(cNum.value);
+    let p = parseFloat(pNum.value) || 15;
+    let c = parseFloat(cNum.value) || 14;
 
-    // Se mexer no Período ou no Patch, atualiza o Gap
     if (changed === "p" || changed === id_c) {
       let g = p - c;
       if (g <= 0) g = 0.001;
       if (gNum) gNum.value = g.toFixed(3);
       if (gSlider) gSlider.value = g.toFixed(3);
-    }
-    // Se mexer no Gap (se ele existir), atualiza o Patch
-    else if (changed === id_g) {
-      if (!gNum) return; // Se não tem gap na interface, ignora
-      let g = parseFloat(gNum.value);
+    } else if (changed === id_g) {
+      if (!gNum) return;
+      let g = parseFloat(gNum.value) || 1;
       c = p - g;
       if (c <= 0) c = 0.001;
       cNum.value = c.toFixed(3);
@@ -71,7 +89,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Liga as interações da interface com as variáveis dinâmicas
   ["fStart", "fEnd", "p", id_c, id_g, "h_sub", "er"].forEach(bindInputs);
 
   const subSelect = document.getElementById("substrate_select");
@@ -79,14 +96,18 @@ document.addEventListener("DOMContentLoaded", () => {
     subSelect.addEventListener("change", (e) => {
       if (e.target.value === "RO3003") {
         document.getElementById("er_num").value = "3.00";
-        document.getElementById("er_slider").value = "3.00";
+        if (document.getElementById("er_slider"))
+          document.getElementById("er_slider").value = "3.00";
         document.getElementById("h_sub_num").value = "1.52";
-        document.getElementById("h_sub_slider").value = "1.52";
+        if (document.getElementById("h_sub_slider"))
+          document.getElementById("h_sub_slider").value = "1.52";
       } else if (e.target.value === "RO3006") {
         document.getElementById("er_num").value = "6.50";
-        document.getElementById("er_slider").value = "6.50";
+        if (document.getElementById("er_slider"))
+          document.getElementById("er_slider").value = "6.50";
         document.getElementById("h_sub_num").value = "1.28";
-        document.getElementById("h_sub_slider").value = "1.28";
+        if (document.getElementById("h_sub_slider"))
+          document.getElementById("h_sub_slider").value = "1.28";
       }
       updateAll();
     });
@@ -112,6 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
     exportBtn.parentNode.insertBefore(hfssBtn, exportBtn.nextSibling);
   }
 
+  // Aciona o primeiro cálculo com os valores padrão injetados
   updateAll();
 });
 
@@ -144,10 +166,6 @@ function handleHFSSUpload(event) {
   reader.readAsText(file);
 }
 
-// ==========================================
-// FUNÇÃO: drawGeometry()
-// Desenha a grade de Patches Sólidos (3x3)
-// ==========================================
 function drawGeometry(p, c) {
   const canvas = document.getElementById("shapeCanvas");
   if (!canvas) return;
@@ -168,7 +186,6 @@ function drawGeometry(p, c) {
     ctx.fillRect(cx - cPixel / 2, cy - cPixel / 2, cPixel, cPixel);
   }
 
-  // Grade 3x3 para mostrar os vizinhos
   const offsets = [-1, 0, 1];
   offsets.forEach((dx) => {
     offsets.forEach((dy) => {
@@ -180,7 +197,6 @@ function drawGeometry(p, c) {
     });
   });
 
-  // Linha tracejada do Período (p)
   ctx.setLineDash([5, 5]);
   ctx.strokeStyle = "rgba(0, 0, 0, 0.25)";
   ctx.lineWidth = 1;
@@ -188,59 +204,38 @@ function drawGeometry(p, c) {
   ctx.setLineDash([]);
 }
 
+// Função auxiliar segura para buscar valores do HTML
+function getSafeValue(id, fallback) {
+  const el = document.getElementById(id);
+  if (!el || isNaN(parseFloat(el.value))) return fallback;
+  return parseFloat(el.value);
+}
+
 function updateAll() {
   const id_c = document.getElementById("c_num") ? "c" : "d";
   const id_g = document.getElementById("g_num") ? "g" : "w";
 
-  const el_fStart = document.getElementById("fStart_num");
-  const el_fEnd = document.getElementById("fEnd_num");
-  const el_p = document.getElementById("p_num");
-  const el_c = document.getElementById(id_c + "_num");
-  const el_hsub = document.getElementById("h_sub_num");
-  const el_er = document.getElementById("er_num");
+  // Leitura blindada: se o elemento não existir ou falhar, usa um valor padrão
+  const fStart = getSafeValue("fStart_num", 1.0);
+  const fEnd = getSafeValue("fEnd_num", 15.0);
+  const p = getSafeValue("p_num", 15.0);
+  let c = getSafeValue(id_c + "_num", 14.0);
+  const h_sub = getSafeValue("h_sub_num", 1.52);
+  const er_real = getSafeValue("er_num", 4.4);
 
-  if (!el_fStart || !el_fEnd || !el_p || !el_c || !el_hsub || !el_er) {
-    if (patchChartInstance) patchChartInstance.destroy();
-    return;
-  }
+  if (fStart >= fEnd) return;
 
-  const fStart = parseFloat(el_fStart.value);
-  const fEnd = parseFloat(el_fEnd.value);
-  const p = parseFloat(el_p.value);
-  let c = parseFloat(el_c.value);
-  const h_sub = parseFloat(el_hsub.value);
-  const er_real = parseFloat(el_er.value);
-
-  // Proteção total contra quebras
-  if (
-    isNaN(c) ||
-    isNaN(p) ||
-    fStart <= 0 ||
-    fEnd <= 0 ||
-    p <= 0 ||
-    c <= 0 ||
-    er_real <= 0 ||
-    fStart >= fEnd
-  ) {
-    if (patchChartInstance) patchChartInstance.destroy();
-    return;
-  }
-
-  // Trava de segurança: Patch não pode ser maior ou igual ao período
   if (c >= p) {
     c = p - 0.001;
-    el_c.value = c.toFixed(3);
+    const el_c = document.getElementById(id_c + "_num");
     const el_c_slider = document.getElementById(id_c + "_slider");
+    if (el_c) el_c.value = c.toFixed(3);
     if (el_c_slider) el_c_slider.value = c.toFixed(3);
   }
 
-  // Gap (g) é deduzido matematicamente do Patch (c)
   const g = p - c;
 
-  // =========================================
-  // FATOR DE FORMA (ALPHA) FIXO PARA PATCHES
-  // O confinamento de campo no patch maciço tende sempre à constante Pi.
-  // =========================================
+  // O confinamento do patch sólido tende para Pi (3.14)
   const alpha = Math.PI;
 
   const er_media = (er_real + 1) / 2;
@@ -275,10 +270,7 @@ function updateAll() {
     const ang = 0;
 
     try {
-      // =========================================
-      // EQUAÇÃO 36 DA TESE (Luukkonen 2008)
-      // A susceptância capacitiva da grade de patches B_patch = 4 * er_eff * FF(p, g)
-      // =========================================
+      // EQUAÇÃO 36 DA TESE (Transformada para B_patch)
       const B_base = 4 * FF(pCm, gCm, lamb, ang);
 
       const calcPt = (er_val) => {
