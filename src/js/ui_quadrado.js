@@ -5,41 +5,40 @@
 
 import { mmToCm, FF, calcS21 } from "./math.js";
 
-let chart = null;
-let hfssData = null;
+// Variáveis renomeadas para evitar qualquer conflito de Temporal Dead Zone (TDZ)
+let patchChartInstance = null;
+let patchHfssData = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
-  // MOTOR DE CÁLCULO AUTOMÁTICO (Two-Way Binding) BLINDADO
-  // Ignora de forma segura elementos que não existam no HTML
+  // AUTO-DETETOR DE HTML (Evita erros de Copy-Paste do HTML)
+  // Se o HTML usar d_num (da Espira) assume como Patch (c)
+  // Se o HTML usar w_num (da Espira) assume como Gap (g)
   // ==========================================
+  const id_c = document.getElementById("c_num") ? "c" : "d";
+  const id_g = document.getElementById("g_num") ? "g" : "w";
+
   function handlePCG(changed) {
     const pNum = document.getElementById("p_num");
-    const cNum =
-      document.getElementById("c_num") || document.getElementById("d_num");
-    const gNum =
-      document.getElementById("g_num") || document.getElementById("w_num");
-    const cSlider =
-      document.getElementById("c_slider") ||
-      document.getElementById("d_slider");
-    const gSlider =
-      document.getElementById("g_slider") ||
-      document.getElementById("w_slider");
+    const cNum = document.getElementById(id_c + "_num");
+    const gNum = document.getElementById(id_g + "_num");
+    const cSlider = document.getElementById(id_c + "_slider");
+    const gSlider = document.getElementById(id_g + "_slider");
 
     if (!pNum || !cNum) return;
 
     let p = parseFloat(pNum.value);
     let c = parseFloat(cNum.value);
 
-    // Se mexer no Período ou no Patch, atualiza o Gap (se ele existir no ecrã)
-    if (changed === "p" || changed === "c" || changed === "d") {
+    // Se mexer no Período ou no Patch, atualiza o Gap
+    if (changed === "p" || changed === id_c) {
       let g = p - c;
       if (g <= 0) g = 0.001;
       if (gNum) gNum.value = g.toFixed(3);
       if (gSlider) gSlider.value = g.toFixed(3);
     }
     // Se mexer no Gap (se ele existir), atualiza o Patch
-    else if (changed === "g" || changed === "w") {
+    else if (changed === id_g) {
       if (!gNum) return; // Se não tem gap na interface, ignora
       let g = parseFloat(gNum.value);
       c = p - g;
@@ -52,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function bindInputs(idPrefix) {
     const slider = document.getElementById(idPrefix + "_slider");
     const num = document.getElementById(idPrefix + "_num");
-    if (!slider || !num) return; // Sai silenciosamente se o elemento não existir no HTML
+    if (!slider || !num) return;
 
     slider.addEventListener("input", (e) => {
       const decimals = ["fStart", "fEnd"].includes(idPrefix)
@@ -72,10 +71,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Varre todas as possíveis variáveis, independentemente do HTML do Patch estar atualizado ou não
-  ["fStart", "fEnd", "p", "c", "d", "g", "w", "h_sub", "er"].forEach(
-    bindInputs,
-  );
+  // Liga as interações da interface com as variáveis dinâmicas
+  ["fStart", "fEnd", "p", id_c, id_g, "h_sub", "er"].forEach(bindInputs);
 
   const subSelect = document.getElementById("substrate_select");
   if (subSelect) {
@@ -126,7 +123,7 @@ function handleHFSSUpload(event) {
   reader.onload = (e) => {
     const text = e.target.result;
     const lines = text.split("\n");
-    hfssData = [];
+    patchHfssData = [];
 
     for (let i = 1; i < lines.length; i++) {
       if (!lines[i].trim()) continue;
@@ -135,12 +132,12 @@ function handleHFSSUpload(event) {
         const freq = parseFloat(parts[0]);
         const s21 = parseFloat(parts[1]);
         if (!isNaN(freq) && !isNaN(s21)) {
-          hfssData.push({ x: freq, y: s21 });
+          patchHfssData.push({ x: freq, y: s21 });
         }
       }
     }
     alert(
-      `Dados do HFSS carregados com sucesso! (${hfssData.length} pontos encontrados)`,
+      `Dados do HFSS carregados com sucesso! (${patchHfssData.length} pontos encontrados)`,
     );
     updateAll();
   };
@@ -192,17 +189,18 @@ function drawGeometry(p, c) {
 }
 
 function updateAll() {
-  // Procura pelos elementos no HTML (suporta nomes da espira se copiados)
+  const id_c = document.getElementById("c_num") ? "c" : "d";
+  const id_g = document.getElementById("g_num") ? "g" : "w";
+
   const el_fStart = document.getElementById("fStart_num");
   const el_fEnd = document.getElementById("fEnd_num");
   const el_p = document.getElementById("p_num");
-  const el_c =
-    document.getElementById("c_num") || document.getElementById("d_num");
+  const el_c = document.getElementById(id_c + "_num");
   const el_hsub = document.getElementById("h_sub_num");
   const el_er = document.getElementById("er_num");
 
   if (!el_fStart || !el_fEnd || !el_p || !el_c || !el_hsub || !el_er) {
-    if (chart) chart.destroy();
+    if (patchChartInstance) patchChartInstance.destroy();
     return;
   }
 
@@ -213,7 +211,7 @@ function updateAll() {
   const h_sub = parseFloat(el_hsub.value);
   const er_real = parseFloat(el_er.value);
 
-  // Proteção total contra falhas
+  // Proteção total contra quebras
   if (
     isNaN(c) ||
     isNaN(p) ||
@@ -224,7 +222,7 @@ function updateAll() {
     er_real <= 0 ||
     fStart >= fEnd
   ) {
-    if (chart) chart.destroy();
+    if (patchChartInstance) patchChartInstance.destroy();
     return;
   }
 
@@ -232,18 +230,16 @@ function updateAll() {
   if (c >= p) {
     c = p - 0.001;
     el_c.value = c.toFixed(3);
-    const el_c_slider =
-      document.getElementById("c_slider") ||
-      document.getElementById("d_slider");
+    const el_c_slider = document.getElementById(id_c + "_slider");
     if (el_c_slider) el_c_slider.value = c.toFixed(3);
   }
 
-  // Gap (g) é deduzido matematicamente
+  // Gap (g) é deduzido matematicamente do Patch (c)
   const g = p - c;
 
   // =========================================
   // FATOR DE FORMA (ALPHA) FIXO PARA PATCHES
-  // Conforme a literatura de Costa (2020), o confinamento de patches maciços tende para Pi.
+  // O confinamento de campo no patch maciço tende sempre à constante Pi.
   // =========================================
   const alpha = Math.PI;
 
@@ -281,8 +277,7 @@ function updateAll() {
     try {
       // =========================================
       // EQUAÇÃO 36 DA TESE (Luukkonen 2008)
-      // A susceptância (B) de um patch é equivalente a um capacitor paralelo.
-      // B_patch = 4 * er_eff * FF(p, g)
+      // A susceptância capacitiva da grade de patches B_patch = 4 * er_eff * FF(p, g)
       // =========================================
       const B_base = 4 * FF(pCm, gCm, lamb, ang);
 
@@ -295,7 +290,6 @@ function updateAll() {
 
       const val_nova = calcPt(er_nova);
       data_nova.push(isNaN(val_nova) ? -60 : Math.max(-60, val_nova));
-
       data_tentativa.push(Math.max(-60, calcPt(er_tentativa)));
       data_antiga.push(Math.max(-60, calcPt(er_antiga)));
       data_media.push(Math.max(-60, calcPt(er_media)));
@@ -312,14 +306,17 @@ function updateAll() {
   }
 
   let hfssPlotData = [];
-  if (hfssData && hfssData.length > 0) {
+  if (patchHfssData && patchHfssData.length > 0) {
     let hfssIndex = 0;
     hfssPlotData = labels.map((labelStr) => {
       const f = parseFloat(labelStr);
-      while (hfssIndex < hfssData.length - 1 && hfssData[hfssIndex].x < f)
+      while (
+        hfssIndex < patchHfssData.length - 1 &&
+        patchHfssData[hfssIndex].x < f
+      )
         hfssIndex++;
-      return Math.abs(hfssData[hfssIndex].x - f) < 0.005
-        ? hfssData[hfssIndex].y
+      return Math.abs(patchHfssData[hfssIndex].x - f) < 0.005
+        ? patchHfssData[hfssIndex].y
         : null;
     });
   }
@@ -363,11 +360,10 @@ function updateChart(
   er_tentativa,
 ) {
   const ctx = document.getElementById("fssChart").getContext("2d");
-  if (chart) chart.destroy();
+  if (patchChartInstance) patchChartInstance.destroy();
 
   const validData =
     limitIndex !== -1 ? data_nova.slice(0, limitIndex) : data_nova;
-  // Patch Quadrado atua como Filtro Passa-Baixa
   const minIndex = validData.indexOf(Math.min(...validData));
   const frFreq = parseFloat(labels[minIndex]);
 
@@ -433,7 +429,7 @@ function updateChart(
     },
   ];
 
-  if (hfssData && hfssData.length > 0) {
+  if (patchHfssData && patchHfssData.length > 0) {
     datasets.push({
       label: "Ansys HFSS (Medição 3D)",
       data: hfssPlotData,
@@ -445,7 +441,6 @@ function updateChart(
     });
   }
 
-  // Marca o ponto de corte máximo
   if (minIndex !== -1 && !isNaN(frFreq)) {
     const frPointData = labels.map((_, idx) =>
       idx === minIndex ? data_nova[idx] : null,
@@ -475,7 +470,7 @@ function updateChart(
     });
   }
 
-  chart = new Chart(ctx, {
+  patchChartInstance = new Chart(ctx, {
     type: "line",
     data: { labels, datasets },
     options: {
@@ -503,7 +498,7 @@ function updateChart(
   }
 
   let infoHtml = `<strong>Ressonância (Corte):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz | <strong style="color:#0056b3;">Fator (α) Fixo Aplicado: ${alpha.toFixed(3)}</strong> | <strong>ε_eff (Sua Tentativa):</strong> ${er_tentativa.toFixed(3)}`;
-  if (hfssData && hfssData.length > 0) {
+  if (patchHfssData && patchHfssData.length > 0) {
     infoHtml += `<br><span style="color:#dc3545; font-weight:bold;">Comparativo ativo: Avalie qual curva aproxima melhor o corte do Patch no Ansys HFSS.</span>`;
   }
   if (limitIndex !== -1)
@@ -512,17 +507,17 @@ function updateChart(
 }
 
 function exportToCSV() {
-  if (!chart) return;
+  if (!patchChartInstance) return;
   let csv =
     "\uFEFF" +
     "Frequência (GHz);S21 Nova (dB);S21 Tentativa (dB);S21 Tanh (dB);S21 Antiga (dB);S21 Media (dB);S21 Sem Correcao (dB)\n";
-  chart.data.labels.forEach((freq, index) => {
-    let s21_nova = chart.data.datasets[0].data[index];
-    let s21_tentativa = chart.data.datasets[1].data[index];
-    let s21_tanh = chart.data.datasets[2].data[index];
-    let s21_antiga = chart.data.datasets[3].data[index];
-    let s21_media = chart.data.datasets[4].data[index];
-    let s21_puro = chart.data.datasets[5].data[index];
+  patchChartInstance.data.labels.forEach((freq, index) => {
+    let s21_nova = patchChartInstance.data.datasets[0].data[index];
+    let s21_tentativa = patchChartInstance.data.datasets[1].data[index];
+    let s21_tanh = patchChartInstance.data.datasets[2].data[index];
+    let s21_antiga = patchChartInstance.data.datasets[3].data[index];
+    let s21_media = patchChartInstance.data.datasets[4].data[index];
+    let s21_puro = patchChartInstance.data.datasets[5].data[index];
 
     let fBR = Number(freq).toFixed(3).replace(".", ",");
     let sN_BR = Number(s21_nova).toFixed(4).replace(".", ",");
