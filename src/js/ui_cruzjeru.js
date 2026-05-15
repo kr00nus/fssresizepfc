@@ -580,6 +580,9 @@ function updateChart(
       fill: false, // Sem preenchimento
       tension: 0, // Linha reta
     },
+
+    /* ===== CURVAS SECUNDÁRIAS OCULTADAS A PEDIDO =====
+    ,
     // CURVA 2: Modelo heurístico personalizado (linha tracejada azul)
     {
       label: "2. ε_eff Heurística Personalizada (Sua Tentativa)",
@@ -634,7 +637,8 @@ function updateChart(
       pointRadius: 0,
       fill: false,
       tension: 0,
-    },
+    }
+    ================================================= */
   ];
 
   // Se o usuário carregou dados do HFSS, adiciona uma curva extra ao gráfico
@@ -653,7 +657,7 @@ function updateChart(
 
   // ===== MARCADORES ESPECIAIS NO GRÁFICO =====
 
-  // Cria um array com um único ponto vermelhoonde está a frequência de ressonância
+  // Cria um array com um único ponto vermelho onde está a frequência de ressonância
   const frPointData = labels.map(
     (_, idx) => (idx === minIndex ? data_nova[idx] : null), // Coloca um ponto no mínimo
   );
@@ -753,32 +757,23 @@ function exportToCSV() {
   if (!chart) return;
   // Começa a criar o conteúdo CSV
   // \uFEFF é um marcador especial que indica a codificação UTF-8 com BOM
-  // Primeira linha é o cabeçalho com os nomes das colunas
+  // Exporta de forma limpa apenas o modelo principal (Costa)
   let csv =
     "\uFEFF" + // Marcador UTF-8
-    "Frequência (GHz);S21 Nova (dB);S21 Tentativa (dB);S21 Tanh (dB);S21 Antiga (dB);S21 Media (dB);S21 Sem Correcao (dB)\n";
+    "Frequência (GHz);S21 Modelo Costa (dB)\n";
+
   // Percorre cada frequência do gráfico
   chart.data.labels.forEach((freq, index) => {
-    // Extrai os valores de S21 para cada modelo dos dados do gráfico
+    // Extrai os valores de S21 apenas da primeira curva do gráfico (Modelo Novo / Costa)
     let s21_nova = chart.data.datasets[0].data[index]; // Modelo novo
-    let s21_tentativa = chart.data.datasets[1].data[index]; // Modelo tentativa
-    let s21_tanh = chart.data.datasets[2].data[index]; // Modelo tanh
-    let s21_antiga = chart.data.datasets[3].data[index]; // Modelo antigo
-    let s21_media = chart.data.datasets[4].data[index]; // Modelo média
-    let s21_puro = chart.data.datasets[5].data[index]; // Modelo puro
 
     // Converte para formato brasileiro (ponto por vírgula)
     // Isso é importante porque em alguns países usa-se vírgula como separador decimal
     let fBR = Number(freq).toFixed(3).replace(".", ","); // Frequência
     let sN_BR = Number(s21_nova).toFixed(4).replace(".", ","); // S21 novo
-    let sTent_BR = Number(s21_tentativa).toFixed(4).replace(".", ","); // S21 tentativa
-    let sT_BR = Number(s21_tanh).toFixed(4).replace(".", ","); // S21 tanh
-    let sA_BR = Number(s21_antiga).toFixed(4).replace(".", ","); // S21 antigo
-    let sM_BR = Number(s21_media).toFixed(4).replace(".", ","); // S21 média
-    let sP_BR = Number(s21_puro).toFixed(4).replace(".", ","); // S21 puro
 
-    // Adiciona uma linha no CSV com todos os valores separados por ponto-e-vírgula
-    csv += `${fBR};${sN_BR};${sTent_BR};${sT_BR};${sA_BR};${sM_BR};${sP_BR}\n`;
+    // Adiciona uma linha no CSV com os valores separados por ponto-e-vírgula
+    csv += `${fBR};${sN_BR}\n`;
   });
 
   // ===== CRIAÇÃO E DOWNLOAD DO ARQUIVO =====
@@ -789,7 +784,7 @@ function exportToCSV() {
   // Define o link para apontar para o arquivo blob
   link.href = URL.createObjectURL(blob);
   // Define o nome do arquivo a ser baixado
-  link.download = "dados_cruz_jerusalem_comparacao.csv";
+  link.download = "dados_cruz_jerusalem_modelo_costa.csv";
   // Simula um clique no link para iniciar o download
   link.click();
 }
