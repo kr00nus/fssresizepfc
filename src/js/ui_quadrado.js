@@ -1,6 +1,6 @@
 // ==========================================
 // SIMULADOR FSS - PATCH QUADRADO (BENCHMARK ANALÍTICO + HFSS)
-// Interface de usuário e cálculos do gráfico
+// Interface de usuário e atualização de gráficos
 // ==========================================
 
 import { mmToCm, FF, calcS21 } from "./math.js";
@@ -20,20 +20,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const cSlider = document.getElementById("c_slider");
     const gSlider = document.getElementById("g_slider");
 
-    if (!pNum || !cNum) return;
+    if (!pNum || !cNum || !gNum) return;
 
     let p = parseFloat(pNum.value);
     let c = parseFloat(cNum.value);
-    let g = gNum ? parseFloat(gNum.value) : p - c;
+    let g = parseFloat(gNum.value);
 
+    // Se mexer no Período ou no Patch, atualiza o Gap
     if (changed === "p" || changed === "c") {
       g = p - c;
-      if (g <= 0) g = 0.001;
-      if (gNum) gNum.value = g.toFixed(3);
+      if (g <= 0) g = 0.001; // Trava de segurança
+      gNum.value = g.toFixed(3);
       if (gSlider) gSlider.value = g.toFixed(3);
-    } else if (changed === "g") {
+    }
+    // Se mexer no Gap, atualiza o Patch
+    else if (changed === "g") {
       c = p - g;
-      if (c <= 0) c = 0.001;
+      if (c <= 0) c = 0.001; // Trava de segurança
       cNum.value = c.toFixed(3);
       if (cSlider) cSlider.value = c.toFixed(3);
     }
@@ -62,6 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Mapeamento das variáveis: Patch usa 'c' em vez de 'd'
   ["fStart", "fEnd", "p", "c", "g", "h_sub", "er"].forEach(bindInputs);
 
   const subSelect = document.getElementById("substrate_select");
@@ -134,6 +138,10 @@ function handleHFSSUpload(event) {
   reader.readAsText(file);
 }
 
+// ==========================================
+// FUNÇÃO: drawGeometry()
+// Desenha a grade de Patches Sólidos (3x3)
+// ==========================================
 function drawGeometry(p, c) {
   const canvas = document.getElementById("shapeCanvas");
   if (!canvas) return;
@@ -145,31 +153,28 @@ function drawGeometry(p, c) {
   const viewSize = p * 2.2;
   const scale = size / viewSize;
   const center = size / 2;
+
   const pPixel = p * scale;
   const cPixel = c * scale;
 
-  const offsets = [-pPixel, 0, pPixel];
-
-  function drawSinglePatch(offsetX, offsetY, fillColor) {
-    const cellLeft = center - pPixel / 2 + offsetX;
-    const cellTop = center - pPixel / 2 + offsetY;
-    const patchLeft = center - cPixel / 2 + offsetX;
-    const patchTop = center - cPixel / 2 + offsetY;
-
-    ctx.fillStyle = fillColor;
-    ctx.fillRect(patchLeft, patchTop, cPixel, cPixel);
+  function drawSinglePatch(cx, cy, isCenter) {
+    ctx.fillStyle = isCenter ? "#003366" : "rgba(0, 51, 102, 0.12)";
+    ctx.fillRect(cx - cPixel / 2, cy - cPixel / 2, cPixel, cPixel);
   }
 
-  offsets.forEach((dx) =>
-    offsets.forEach((dy) =>
+  // Grade 3x3 para mostrar os vizinhos
+  const offsets = [-1, 0, 1];
+  offsets.forEach((dx) => {
+    offsets.forEach((dy) => {
       drawSinglePatch(
-        dx,
-        dy,
-        dx === 0 && dy === 0 ? "#003366" : "rgba(0, 51, 102, 0.12)",
-      ),
-    ),
-  );
+        center + dx * pPixel,
+        center + dy * pPixel,
+        dx === 0 && dy === 0,
+      );
+    });
+  });
 
+  // Linha tracejada do Período (p)
   ctx.setLineDash([5, 5]);
   ctx.strokeStyle = "rgba(0, 0, 0, 0.25)";
   ctx.lineWidth = 1;
@@ -197,6 +202,7 @@ function updateAll() {
     return;
   }
 
+  // Trava de segurança: Patch não pode ser maior ou igual ao período
   if (c >= p) {
     c = p - 0.001;
     document.getElementById("c_num").value = c.toFixed(3);
@@ -204,13 +210,17 @@ function updateAll() {
       document.getElementById("c_slider").value = c.toFixed(3);
   }
 
+  // Força o Gap matematicamente e atualiza as caixas
   const g = p - c;
   const gEl = document.getElementById("g_num");
   const gSlider = document.getElementById("g_slider");
   if (gEl && gEl.value !== g.toFixed(3)) gEl.value = g.toFixed(3);
   if (gSlider && gSlider.value !== g.toFixed(3)) gSlider.value = g.toFixed(3);
 
-  // FATOR DE FORMA (ALPHA) - Para um patch sólido, Costa(2020) modela alpha como uma constante (π)
+  // =========================================
+  // FATOR DE FORMA (ALPHA) FIXO PARA PATCHES
+  // Conforme a literatura de Costa (2020), o confinamento de patches maciços tende para Pi.
+  // =========================================
   const alpha = Math.PI;
 
   // AS 6 FÓRMULAS DE PERMISSIVIDADE EFETIVA
@@ -230,7 +240,7 @@ function updateAll() {
 
   const df = 0.001;
   const pCm = mmToCm(p);
-  const gCm = mmToCm(g); // A tese usa o tamanho do gap (p - a) para modelar a capacitância
+  const gCm = mmToCm(g);
 
   const data_nova = [],
     data_tentativa = [],
@@ -246,11 +256,16 @@ function updateAll() {
     const ang = 0;
 
     try {
-      // EQUAÇÃO 36 DA TESE (Luukkonen 2008 adaptada)
-      // A susceptância normalizada B deduzida da Equação 36 é igual a 4 * er_eff * FF(p, g)
+      // =========================================
+      // EQUAÇÃO 36 DA TESE (Luukkonen et al, 2008 adaptada)
+      // A susceptância (B) de um patch é equivalente a um capacitor paralelo.
+      // B_patch = 4 * er_eff * FF(p, g)
+      // Nota: A função FF já inclui o termo (p/lamb) e o logaritmo da cossecante do Gap(g).
+      // =========================================
+      const B_base = 4 * FF(pCm, gCm, lamb, ang);
+
       const calcPt = (er_val) => {
-        // O patch atua como um elemento puramente capacitivo
-        const B_patch = 4 * er_val * FF(pCm, gCm, lamb, ang);
+        const B_patch = B_base * er_val;
         return calcS21(B_patch);
       };
 
@@ -327,12 +342,14 @@ function updateChart(
 
   const validData =
     limitIndex !== -1 ? data_nova.slice(0, limitIndex) : data_nova;
+  // Para Patches (Filtros Passa-Baixa), a ressonância atua de forma diferente,
+  // mas o S21 ainda formará um "vale" (ou corte) que queremos identificar.
   const minIndex = validData.indexOf(Math.min(...validData));
   const frFreq = parseFloat(labels[minIndex]);
 
   const datasets = [
     {
-      label: "1. ε_eff Fator Forma Fixo (Patch) ≈ π",
+      label: "1. ε_eff Fator Forma Fixo (Costa, Patch ≈ π)",
       data: data_nova,
       borderColor: "#000000",
       borderWidth: 2.5,
@@ -408,7 +425,7 @@ function updateChart(
     idx === minIndex ? data_nova[idx] : null,
   );
   datasets.push({
-    label: `fr = ${frFreq.toFixed(2)} GHz (Curva Principal)`,
+    label: `fr = ${frFreq.toFixed(2)} GHz (Corte)`,
     data: frPointData,
     borderColor: "#ff0000",
     borderWidth: 3,
@@ -458,12 +475,12 @@ function updateChart(
     document.querySelector(".chart-container").after(infoBox);
   }
 
-  let infoHtml = `<strong>Ressonância:</strong> ${frFreq.toFixed(2)} GHz | <strong style="color:#0056b3;">Fator (α) do Patch: ${alpha.toFixed(2)}</strong> | <strong>ε_eff (Sua Tentativa):</strong> ${er_tentativa.toFixed(3)}`;
+  let infoHtml = `<strong>Ressonância (Corte):</strong> ${frFreq.toFixed(2)} GHz | <strong style="color:#0056b3;">Fator (α) Fixo Aplicado: ${alpha.toFixed(3)}</strong> | <strong>ε_eff (Sua Tentativa):</strong> ${er_tentativa.toFixed(3)}`;
   if (hfssData && hfssData.length > 0) {
-    infoHtml += `<br><span style="color:#dc3545; font-weight:bold;">Comparativo ativo: Avalie qual curva aproxima melhor a ressonância do Patch no Ansys HFSS.</span>`;
+    infoHtml += `<br><span style="color:#dc3545; font-weight:bold;">Comparativo ativo: Avalie qual curva aproxima melhor o corte do Patch no Ansys HFSS.</span>`;
   }
   if (limitIndex !== -1)
-    infoHtml += `<br><small style="color:#d35400">⚠️ Aviso: Acima de ${f_limit.toFixed(2)} GHz o modelo analítico perde precisão.</small>`;
+    infoHtml += `<br><small style="color:#d35400">⚠️ Aviso: Acima de ${f_limit.toFixed(2)} GHz o modelo ECM perde precisão.</small>`;
   infoBox.innerHTML = infoHtml;
 }
 
