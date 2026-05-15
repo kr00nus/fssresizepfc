@@ -271,7 +271,7 @@ function updateAll() {
   // =========================================
 
   // 1. Média (Ar-Dielétrico - Interface Semi-infinita)
-  const er_media = (er_real + 1) / 2;
+  //const er_media = (er_real + 1) / 2;
 
   // 2. Nova (Ajuste Exponencial Avançado: Costa, Alpha Dinâmico para Espiras)
   const er_nova =
@@ -279,19 +279,19 @@ function updateAll() {
 
   // 3. A NOVA HEURÍSTICA DO UTILIZADOR
   // Passo 1: Calcula o Delta (média entre er_media e er_nova)
-  const delta = (er_media + er_nova) / 2;
+  //const delta = (er_media + er_nova) / 2;
   // Passo 2: Calcula a nova média entre o Delta e o er_nova
-  const er_tentativa = (delta + er_nova) / 2;
+  //const er_tentativa = (delta + er_nova) / 2;
 
   // 4. Antiga (Ajuste Exponencial Fixo Clássico: Munk, Alpha = 1.8)
-  const er_antiga =
+  //const er_antiga =
     1 + ((er_real - 1) / 2) * (1 - Math.exp(-1.8 * (h_sub / p)));
 
   // 5. Tangente Hiperbólica (Floquet clássico)
-  const er_tanh = 1 + ((er_real - 1) / 2) * Math.tanh((Math.PI * h_sub) / p);
+  //const er_tanh = 1 + ((er_real - 1) / 2) * Math.tanh((Math.PI * h_sub) / p);
 
   // 6. Material Puro (Ignora o Ar)
-  const er_puro = er_real;
+  //const er_puro = er_real;
 
   const erEffEl = document.getElementById("er_eff_num");
   if (erEffEl) erEffEl.value = er_nova.toFixed(3);
