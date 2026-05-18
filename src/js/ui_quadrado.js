@@ -3,7 +3,6 @@
 // Interface de usuário e cálculos do gráfico
 // ==========================================
 
-// Importamos mmToCm do math.js (calcS21 e FF não são mais usados aqui porque implementamos a Eq 36 direta)
 import { mmToCm } from "./math.js";
 
 let patchChartInstance = null;
@@ -93,31 +92,33 @@ document.addEventListener("DOMContentLoaded", () => {
   ["fStart", "fEnd", "p", id_c, id_g, "h_sub", "er"].forEach(bindInputs);
 
   // ==========================================
-  // LÓGICA DO SELETOR DE SUBSTRATO (MANUAL vs PRESETS)
+  // LÓGICA DO SELETOR DE SUBSTRATO (À PROVA DE BALAS)
   // ==========================================
   const subSelect = document.getElementById("substrate_select");
   if (subSelect) {
     subSelect.addEventListener("change", (e) => {
       const val = e.target.value;
-      const isManual = val === "manual" || val === "Manual";
+
+      // Se NÃO for nenhum dos presets conhecidos, assumimos que é o modo Manual
+      const isPreset = val === "RO3003" || val === "RO3006";
 
       const erNum = document.getElementById("er_num");
       const erSlider = document.getElementById("er_slider");
       const hNum = document.getElementById("h_sub_num");
       const hSlider = document.getElementById("h_sub_slider");
 
-      // Se for manual, remove o bloqueio ("disabled") para permitir a edição
-      if (isManual) {
-        if (erNum) erNum.removeAttribute("disabled");
-        if (erSlider) erSlider.removeAttribute("disabled");
-        if (hNum) hNum.removeAttribute("disabled");
-        if (hSlider) hSlider.removeAttribute("disabled");
+      if (!isPreset) {
+        // MODO MANUAL: Desbloqueia todos os campos
+        if (erNum) erNum.disabled = false;
+        if (erSlider) erSlider.disabled = false;
+        if (hNum) hNum.disabled = false;
+        if (hSlider) hSlider.disabled = false;
       } else {
-        // Se for um preset, bloqueia os inputs para evitar edição
-        if (erNum) erNum.setAttribute("disabled", "true");
-        if (erSlider) erSlider.setAttribute("disabled", "true");
-        if (hNum) hNum.setAttribute("disabled", "true");
-        if (hSlider) hSlider.setAttribute("disabled", "true");
+        // MODO PRESET: Bloqueia os campos e injeta os valores
+        if (erNum) erNum.disabled = true;
+        if (erSlider) erSlider.disabled = true;
+        if (hNum) hNum.disabled = true;
+        if (hSlider) hSlider.disabled = true;
 
         if (val === "RO3003") {
           if (erNum) erNum.value = "3.00";
@@ -133,8 +134,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       updateAll();
     });
-    // Força o disparo do evento na primeira carga para ajustar os bloqueios
-    subSelect.dispatchEvent(new Event("change"));
+    // Força a execução desta regra 50ms após a página carregar,
+    // garantindo que o navegador já renderizou o HTML
+    setTimeout(() => subSelect.dispatchEvent(new Event("change")), 50);
   }
 
   const exportBtn = document.getElementById("exportBtn");
@@ -403,7 +405,7 @@ function updateChart(
   // ===== DATASETS (Curvas Secundárias Comentadas) =====
   const datasets = [
     {
-      label: "ε_eff Fator Forma Fixo (Costa, Patch ≈ π)",
+      label: "ε_eff Fator Forma Fixo (Patch ≈ π)",
       data: data_nova,
       borderColor: "#000000",
       borderWidth: 2.5,
@@ -547,7 +549,7 @@ function updateChart(
 function exportToCSV() {
   if (!patchChartInstance) return;
 
-  // Cabeçalho limpo focando apenas no Modelo Principal de Costa
+  // Cabeçalho limpo focando apenas no Modelo Analítico
   let csv = "\uFEFF" + "Frequência (GHz);S21 Modelo Analítico (dB)\n";
 
   patchChartInstance.data.labels.forEach((freq, index) => {
