@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simulador FSS - Anel Circular</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="src/css/styles.css" />
+  </head>
+  <body>
+    <div class="dashboard">
+      <div class="panel params">
+        <h2>Parâmetros (Anel Circular)</h2>
+        <div class="params-grid">
+          
+          <div class="param-col">
+            <h3>Parâmetros Físicos</h3>
+            
+            <div class="control-group" style="border-left: 4px solid #007bff; padding-left: 5px">
+              <div class="header-row">
+                <label>Período p (mm)</label>
+                <input type="number" id="p_num" value="15.000" step="0.001" />
+              </div>
+              <input type="range" id="p_slider" min="0" max="30.0" step="0.001" value="15.000" />
+            </div>
+
+            <div class="control-group" style="border-left: 4px solid #28a745; padding-left: 5px">
+              <div class="header-row">
+                <label>Raio Médio r (mm)</label>
+                <input type="number" id="r_num" value="6.000" step="0.001" />
+              </div>
+              <input type="range" id="r_slider" min="0" max="15.0" step="0.001" value="6.000" />
+            </div>
+
+            <div class="control-group">
+              <div class="header-row">
+                <label>Espessura do fio w (mm)</label>
+                <input type="number" id="w_num" value="1.000" step="0.001" />
+              </div>
+              <input type="range" id="w_slider" min="0" max="5.0" step="0.001" value="1.000" />
+            </div>
+
+            <div class="control-group" style="background: #f8f9fa; padding: 5px; border-radius: 4px">
+              <div class="header-row">
+                <label>Gap g (calculado: p - 2r)</label>
+                <input
+                  type="number"
+                  id="g_num"
+                  value="3.000"
+                  readonly
+                  style="background: #e9ecef; border: 1px solid #ced4da"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="param-col">
+            <h3>Parâmetros de Frequência</h3>
+            <div class="control-group">
+              <div class="header-row">
+                <label>Freq. Inicial (GHz)</label>
+                <input type="number" id="fStart_num" value="1.0" step="0.1" />
+              </div>
+              <input type="range" id="fStart_slider" min="0" max="50" step="0.1" value="1.0" />
+            </div>
+
+            <div class="control-group">
+              <div class="header-row">
+                <label>Freq. Final (GHz)</label>
+                <input type="number" id="fEnd_num" value="15.0" step="0.1" />
+              </div>
+              <input type="range" id="fEnd_slider" min="0" max="50" step="0.1" value="15.0" />
+            </div>
+          </div>
+
+          <div class="param-col">
+            <h3>Parâmetros do Substrato</h3>
+            <div class="control-group">
+              <div class="header-row">
+                <label>Substrato</label>
+                <select id="substrate_select">
+                  <option value="manual">Manual</option>
+                  <option value="RO3003">RO3003 (εr=3.00, h=1.52mm)</option>
+                  <option value="RO3006">RO3006 (εr=6.50, h=1.28mm)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <div class="header-row">
+                <label>Espessura do Substrato h (mm)</label>
+                <input type="number" id="h_sub_num" value="1.52" step="0.01" />
+              </div>
+              <input type="range" id="h_sub_slider" min="0" max="10.0" step="0.01" value="1.52" />
+            </div>
+
+            <div class="control-group">
+              <div class="header-row">
+                <label>Permissividade Real (εr)</label>
+                <input type="number" id="er_num" value="4.40" step="0.01" />
+              </div>
+              <input type="range" id="er_slider" min="1.0" max="15.0" step="0.01" value="4.40" />
+            </div>
+
+            <div class="control-group" style="background: #f8f9fa; padding: 5px; border-radius: 4px">
+              <div class="header-row">
+                <label>Dielétrico Efetivo (ε_eff)</label>
+                <input
+                  type="number"
+                  id="er_eff_num"
+                  value="1.02"
+                  readonly
+                  style="background: #e9ecef; border: 1px solid #ced4da; color: #cc0000; font-weight: bold;"
+                />
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      <div class="visuals">
+        <div class="panel">
+          <h2>Resposta de Transmissão (S21)</h2>
+          <div class="chart-container">
+            <canvas id="fssChart"></canvas>
+          </div>
+          <button id="exportBtn" style="margin-top: 10px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Exportar CSV
+          </button>
+        </div>
+
+        <div class="panel">
+          <h2>Célula Unitária - Anel Circular</h2>
+          <div class="geometry-container">
+            <canvas id="shapeCanvas" width="400" height="400"></canvas>
+            <div class="geo-legend">
+              <strong>Linha pontilhada:</strong> Limites da Célula Unitária (p x p)<br />
+              <strong>Matemática:</strong> O modelo equivale o anel a uma espira de lado d_eq = π*r / 2.
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+
+    <script type="module" src="src/js/ui_anelcircular.js"></script>
+  </body>
+</html>
