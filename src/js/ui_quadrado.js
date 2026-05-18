@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (subSelect) {
     subSelect.addEventListener("change", (e) => {
       const val = e.target.value;
-      const isPreset = (val === "RO3003" || val === "RO3006");
+      const isPreset = val === "RO3003" || val === "RO3006";
 
       const erNum = document.getElementById("er_num");
       const erSlider = document.getElementById("er_slider");
@@ -232,6 +232,124 @@ function getSafeValue(id, fallback) {
   return parseFloat(el.value);
 }
 
+// ========================================================
+// MOTOR MATEMÁTICO COMPLEXO (Para o Modelo de Cascata Dielétrica)
+// ========================================================
+const C = {
+  add: (A, B) => ({ r: A.r + B.r, i: A.i + B.i }),
+  sub: (A, B) => ({ r: A.r - B.r, i: A.i - B.i }),
+  mul: (A, B) => ({ r: A.r * B.r - A.i * B.i, i: A.r * B.i + A.i * B.r }),
+  div: (A, B) => {
+    const den = B.r * B.r + B.i * B.i;
+    return {
+      r: (A.r * B.r + A.i * B.i) / den,
+      i: (A.i * B.r - A.r * B.i) / den,
+    };
+  },
+  exp: (A) => {
+    const ea = Math.exp(A.r);
+    return { r: ea * Math.cos(A.i), i: ea * Math.sin(A.i) };
+  },
+  abs: (A) => Math.sqrt(A.r * A.r + A.i * A.i),
+  fromReal: (x) => ({ r: x, i: 0 }),
+};
+
+// ========================================================
+// FÓRMULAS APROXIMADAS DE Ycap DO E-BOOK (Páginas 120-123)
+// ========================================================
+
+// 1. Fórmula de Chen (Página 121)
+function calcChen(a, c_patch, l) {
+  let l_a_sq = Math.pow(l / a, 2);
+  if (l_a_sq <= 1) return 1e6; // Frequência acima do limite (Grating Lobes)
+
+  let f1 = Math.sqrt(l_a_sq - 1);
+  let x = c_patch / a;
+  let f2;
+  if (Math.abs(x - 0.5) < 1e-5) {
+    f2 = Math.pow(Math.PI / 4, 2);
+  } else {
+    f2 = Math.pow(Math.cos(Math.PI * x) / (1 - 4 * x * x), 2);
+  }
+  let f3 = x < 1e-5 ? 1 : Math.pow(Math.sin(Math.PI * x) / (Math.PI * x), 2);
+  let f4 = Math.sqrt(Math.max(0, 2 * l_a_sq - 1));
+
+  if (f1 < 1e-5) return 1e6;
+
+  let den = f1 * f2 - (1 / f1) * f3 + (f4 - 1 / f4) * f2 * f3;
+  if (Math.abs(den) < 1e-6) return 1e6;
+  return 0.5 / den; // Retorna magnitude de ycap
+}
+
+// 2. Fórmula de Lee e Zarrillo (Página 123)
+function calcLee(a, c_patch, l) {
+  let d = (a - c_patch) / 2;
+  let b = (1 - 0.41 * (d / a)) / (a / l);
+  if (Math.abs(b * b - 1) < 1e-5) return 1e6;
+  return (
+    (b * Math.log(1 / Math.sin((Math.PI * d) / (2 * a)))) /
+    ((b * b - 1) * (a / c_patch + 0.5 * Math.pow(a / l, 2)))
+  );
+}
+
+// 3. Fórmula de Ulrich (Página 120)
+function calcUlrich(a, c_patch, l) {
+  let d = (a - c_patch) / 2;
+  let b = (1 - 0.27 * (d / a)) / (a / l);
+  if (Math.abs(b * b - 1) < 1e-5) return 1e6;
+  return (b * Math.log(1 / Math.sin((Math.PI * d) / (2 * a)))) / (b * b - 1);
+}
+
+// 4. Fórmula de Arnaud et al. (Página 122)
+function calcArnaud(a, c_patch, l) {
+  let d = (a - c_patch) / 2;
+  return 2 * (a / l) * Math.log(1 / Math.sin((Math.PI * d) / a));
+}
+
+// ========================================================
+// CASCATEAMENTO DIELÉTRICO DE LINHA DE TRANSMISSÃO (Pág. 125)
+// ========================================================
+function cascadeDielectric(ycap_mag, freq, er, h_sub_cm) {
+  if (isNaN(ycap_mag) || !isFinite(ycap_mag)) return -60;
+
+  // Coeficientes do anteparo metálico
+  let t1 = C.div(C.fromReal(1), { r: 1, i: ycap_mag });
+  let r1 = C.sub(t1, C.fromReal(1)); // R1 = T1 - 1
+
+  // Propriedades do meio
+  let l = 30 / freq;
+  let k = (2 * Math.PI) / l;
+  let kl = k * Math.sqrt(er);
+  let r_val = (1 - Math.sqrt(er)) / (1 + Math.sqrt(er));
+
+  // Fatores de fase exponencial
+  let exp1 = C.exp({ r: 0, i: (k - kl) * h_sub_cm });
+  let exp2 = C.exp({ r: 0, i: -2 * kl * h_sub_cm });
+  let exp3 = C.exp({ r: 0, i: k * h_sub_cm });
+
+  // Coeficientes do dielétrico
+  let num_t2 = C.mul(C.fromReal(1 - r_val * r_val), exp1);
+  let den_t2 = C.sub(C.fromReal(1), C.mul(C.fromReal(r_val * r_val), exp2));
+  let t2 = C.div(num_t2, den_t2);
+
+  let num_r2 = C.mul(
+    C.fromReal(r_val),
+    C.mul(C.sub(C.fromReal(1), exp2), exp3),
+  );
+  let r2 = C.div(num_r2, den_t2);
+
+  // Combinação FSS + Dielétrico
+  let num_tf = C.mul(t1, t2);
+  let den_tf = C.sub(C.fromReal(1), C.mul(r1, r2));
+  let tf = C.div(num_tf, den_tf);
+
+  // Potência Final (dB)
+  let ct = C.abs(tf);
+  if (ct === 0) return -60;
+  let pt_dB = 10 * Math.log10(ct * ct);
+  return Math.max(-60, pt_dB);
+}
+
 function updateAll() {
   const id_c = document.getElementById("c_num") ? "c" : "d";
   const id_g = document.getElementById("g_num") ? "g" : "w";
@@ -253,90 +371,50 @@ function updateAll() {
     if (el_c_slider) el_c_slider.value = c.toFixed(3);
   }
 
-  const g = p - c;
-
-  // O confinamento do patch sólido tende para Pi (3.14)
-  const alpha = Math.PI;
-
-  const er_media = (er_real + 1) / 2;
-  const er_nova =
-    1 + ((er_real - 1) / 2) * (1 - Math.exp(-alpha * (h_sub / p)));
-  const er_tentativa = (er_media + 3 * er_nova) / 4;
-  const er_antiga =
-    1 + ((er_real - 1) / 2) * (1 - Math.exp(-1.8 * (h_sub / p)));
-  const er_tanh = 1 + ((er_real - 1) / 2) * Math.tanh((Math.PI * h_sub) / p);
-  const er_puro = er_real;
-
-  const erEffEl = document.getElementById("er_eff_num");
-  if (erEffEl) erEffEl.value = er_nova.toFixed(3);
-
   drawGeometry(p, c);
 
   // Arrays de dados
-  const data_nova = [],
-    data_tentativa = [],
-    data_antiga = [],
-    data_media = [],
-    data_tanh = [],
-    data_puro = [],
+  const data_chen = [],
+    data_lee = [],
+    data_ulrich = [],
+    data_arnaud = [],
     labels = [];
-  
-  const f_limit = 30 / mmToCm(p);
+
+  const pCm = mmToCm(p);
+  const cCm = mmToCm(c);
+  const h_sub_cm = mmToCm(h_sub);
+  const f_limit = 30 / pCm;
   const df = 0.001;
 
-  // ========================================================
-  // CONSTANTES FÍSICAS DA EQUAÇÃO 36 (Luukkonen / Tese Guilherme)
-  // ========================================================
-  const c_0 = 299792458; // Velocidade da luz (m/s)
-  const eta_0 = 376.730313; // Impedância intrínseca do vácuo (Ohms)
-  
-  const p_m = p / 1000; // Período em metros
-  const a_m = c / 1000; // Tamanho do patch (a) em metros
-
-  // Termo da cossecante: csc( pi*(p-a) / 2p )
-  const csc_arg = (Math.PI * (p_m - a_m)) / (2 * p_m);
-  const ln_csc = Math.log(1 / Math.sin(csc_arg));
-
   for (let freq = fStart; freq <= fEnd; freq += df) {
+    let l = 30 / freq;
+    labels.push(freq.toFixed(3));
+
     try {
-      const f_Hz = freq * 1e9;
-      const k_0 = (2 * Math.PI * f_Hz) / c_0;
+      // 1. Chen (A Mais Precisa)
+      let ycap_chen = calcChen(pCm, cCm, l);
+      let pt_chen = cascadeDielectric(ycap_chen, freq, er_real, h_sub_cm);
+      data_chen.push(pt_chen);
 
-      // Função que aplica estritamente a Equação 36 para cada permissividade
-      const calcPt_Eq36 = (er_val) => {
-        // Características Efetivas
-        const eta_eff = eta_0 / Math.sqrt(er_val);
-        const k_eff = k_0 * Math.sqrt(er_val);
+      // 2. Lee e Zarrillo
+      let ycap_lee = calcLee(pCm, cCm, l);
+      let pt_lee = cascadeDielectric(ycap_lee, freq, er_real, h_sub_cm);
+      data_lee.push(pt_lee);
 
-        // Impedância da grade de Patches (Módulo puramente imaginário de Z_patch)
-        const X_patch = (eta_eff * Math.PI) / (2 * k_eff * p_m * ln_csc);
+      // 3. Ulrich
+      let ycap_ulrich = calcUlrich(pCm, cCm, l);
+      let pt_ulrich = cascadeDielectric(ycap_ulrich, freq, er_real, h_sub_cm);
+      data_ulrich.push(pt_ulrich);
 
-        // Susceptância Normalizada (B = eta_0 / X_patch)
-        const B_patch = eta_0 / X_patch;
-
-        // Potência transmitida para um circuito shunt puro: S21 = 4 / (4 + B^2)
-        const pt = 4 / (4 + Math.pow(B_patch, 2));
-        return 10 * Math.log10(pt);
-      };
-
-      labels.push(freq.toFixed(3));
-
-      const val_nova = calcPt_Eq36(er_nova);
-      data_nova.push(isNaN(val_nova) ? -60 : Math.max(-60, val_nova));
-      
-      data_tentativa.push(Math.max(-60, calcPt_Eq36(er_tentativa)));
-      data_antiga.push(Math.max(-60, calcPt_Eq36(er_antiga)));
-      // A Média Clássica é populada perfeitamente na mesma lógica!
-      data_media.push(Math.max(-60, calcPt_Eq36(er_media)));
-      data_tanh.push(Math.max(-60, calcPt_Eq36(er_tanh)));
-      data_puro.push(Math.max(-60, calcPt_Eq36(er_puro)));
+      // 4. Arnaud
+      let ycap_arnaud = calcArnaud(pCm, cCm, l);
+      let pt_arnaud = cascadeDielectric(ycap_arnaud, freq, er_real, h_sub_cm);
+      data_arnaud.push(pt_arnaud);
     } catch (e) {
-      data_nova.push(0);
-      data_tentativa.push(0);
-      data_antiga.push(0);
-      data_media.push(0);
-      data_tanh.push(0);
-      data_puro.push(0);
+      data_chen.push(-60);
+      data_lee.push(-60);
+      data_ulrich.push(-60);
+      data_arnaud.push(-60);
     }
   }
 
@@ -366,81 +444,62 @@ function updateAll() {
 
   updateChart(
     labels,
-    data_nova,
-    data_tentativa,
-    data_antiga,
-    data_media, // Passamos os dados da média
-    data_tanh,
-    data_puro,
+    data_chen,
+    data_lee,
+    data_ulrich,
+    data_arnaud,
     hfssPlotData,
     limitIndex,
     f_limit,
-    alpha,
-    er_tentativa,
   );
 }
 
 function updateChart(
   labels,
-  data_nova,
-  data_tentativa,
-  data_antiga,
-  data_media,
-  data_tanh,
-  data_puro,
+  data_chen,
+  data_lee,
+  data_ulrich,
+  data_arnaud,
   hfssPlotData,
   limitIndex,
   f_limit,
-  alpha,
-  er_tentativa,
 ) {
   const ctx = document.getElementById("fssChart").getContext("2d");
   if (patchChartInstance) patchChartInstance.destroy();
 
   const validData =
-    limitIndex !== -1 ? data_nova.slice(0, limitIndex) : data_nova;
+    limitIndex !== -1 ? data_chen.slice(0, limitIndex) : data_chen;
   const minIndex = validData.indexOf(Math.min(...validData));
   const frFreq = parseFloat(labels[minIndex]);
 
   // ===== DATASETS =====
   const datasets = [
     {
-      label: "ε_eff Fator Forma Fixo (Patch ≈ π)",
-      data: data_nova,
+      label: "Fórmula de Chen (Mais Precisa)",
+      data: data_chen,
       borderColor: "#000000",
       borderWidth: 2.5,
       pointRadius: 0,
       fill: false,
       tension: 0,
     },
-    // Adicionada a Curva da Média Clássica (Ativa para o Patch)
+
+    /* === OUTRAS FÓRMULAS DO LIVRO (PÁG 120-123) OCULTADAS ===
+    ,
     {
-      label: "ε_eff Média Clássica",
-      data: data_media,
+      label: "Fórmula de Lee e Zarrillo",
+      data: data_lee,
       borderColor: "#007bff",
       borderWidth: 2,
       borderDash: [2, 4],
       pointRadius: 0,
       fill: false,
       tension: 0,
-    }
-    
-    /* === OUTRAS CURVAS SECUNDÁRIAS OCULTADAS ===
-    ,
-    {
-      label: "2. ε_eff Heurística Personalizada (Sua Tentativa)",
-      data: data_tentativa,
-      borderColor: "#17a2b8",
-      borderWidth: 2.5,
-      borderDash: [8, 4],
-      pointRadius: 0,
-      fill: false,
-      tension: 0,
     },
     {
-      label: "3. ε_eff Tangente Hiperbólica",
-      data: data_tanh,
-      borderColor: "#fd7e14",
+      label: "Fórmula de Ulrich",
+      data: data_ulrich,
+      borderColor: "#28a745",
       borderWidth: 2,
       borderDash: [5, 5],
       pointRadius: 0,
@@ -448,26 +507,16 @@ function updateChart(
       tension: 0,
     },
     {
-      label: "4. ε_eff Exponencial Fixo 1.8",
-      data: data_antiga,
-      borderColor: "#28a745",
+      label: "Fórmula de Arnaud et al.",
+      data: data_arnaud,
+      borderColor: "#fd7e14",
       borderWidth: 2,
-      borderDash: [3, 6],
-      pointRadius: 0,
-      fill: false,
-      tension: 0,
-    },
-    {
-      label: "6. ε_eff = ε_r (Material Puro)",
-      data: data_puro,
-      borderColor: "#6f42c1",
-      borderWidth: 2,
-      borderDash: [1, 3],
+      borderDash: [8, 4],
       pointRadius: 0,
       fill: false,
       tension: 0,
     }
-    ====================================== */
+    ======================================================== */
   ];
 
   if (patchHfssData && patchHfssData.length > 0) {
@@ -484,7 +533,7 @@ function updateChart(
 
   if (minIndex !== -1 && !isNaN(frFreq)) {
     const frPointData = labels.map((_, idx) =>
-      idx === minIndex ? data_nova[idx] : null,
+      idx === minIndex ? data_chen[idx] : null,
     );
     datasets.push({
       label: `fr = ${frFreq.toFixed(2)} GHz (Corte)`,
@@ -499,7 +548,7 @@ function updateChart(
 
   if (limitIndex !== -1) {
     const limitPointData = labels.map((_, idx) =>
-      idx === limitIndex ? data_nova[idx] : null,
+      idx === limitIndex ? data_chen[idx] : null,
     );
     datasets.push({
       label: `Limite ECM (λ=p) em ${f_limit.toFixed(2)} GHz`,
@@ -538,7 +587,7 @@ function updateChart(
     document.querySelector(".chart-container").after(infoBox);
   }
 
-  let infoHtml = `<strong>Ressonância (Corte):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz | <strong style="color:#0056b3;">Fator (α) Fixo Aplicado: ${alpha.toFixed(3)}</strong>`;
+  let infoHtml = `<strong>Ressonância (Corte):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz | <strong style="color:#0056b3;">Modelo Analítico: Fórmulas Aproximadas (Livro pág. 120-126)</strong>`;
   if (patchHfssData && patchHfssData.length > 0) {
     infoHtml += `<br><span style="color:#dc3545; font-weight:bold;">Comparativo ativo: Avalie qual curva aproxima melhor o corte do Patch no Ansys HFSS.</span>`;
   }
@@ -549,27 +598,23 @@ function updateChart(
 
 function exportToCSV() {
   if (!patchChartInstance) return;
-  
-  // Cabeçalho agora contempla a Média Clássica também
-  let csv =
-    "\uFEFF" +
-    "Frequência (GHz);S21 Modelo Fixo Pi (dB);S21 Média Clássica (dB)\n";
-    
+
+  // Cabeçalho limpo focando apenas na Fórmula de Chen (Curva visível)
+  let csv = "\uFEFF" + "Frequência (GHz);S21 Fórmula de Chen (dB)\n";
+
   patchChartInstance.data.labels.forEach((freq, index) => {
-    // Dataset 0 = Fator Pi (Costa), Dataset 1 = Média Clássica
-    let s21_nova = patchChartInstance.data.datasets[0].data[index];
-    let s21_media = patchChartInstance.data.datasets[1].data[index];
+    // Extrai o valor S21 apenas do primeiro dataset
+    let s21_chen = patchChartInstance.data.datasets[0].data[index];
 
     let fBR = Number(freq).toFixed(3).replace(".", ",");
-    let sN_BR = Number(s21_nova).toFixed(4).replace(".", ",");
-    let sM_BR = Number(s21_media).toFixed(4).replace(".", ",");
+    let sC_BR = Number(s21_chen).toFixed(4).replace(".", ",");
 
-    csv += `${fBR};${sN_BR};${sM_BR}\n`;
+    csv += `${fBR};${sC_BR}\n`;
   });
-  
+
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = "dados_patch_quadrado_modelo.csv";
+  link.download = "dados_patch_quadrado_modelo_chen.csv";
   link.click();
 }
