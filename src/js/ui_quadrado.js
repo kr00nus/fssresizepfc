@@ -3,7 +3,8 @@
 // Interface de usuário e cálculos do gráfico
 // ==========================================
 
-import { mmToCm, FF, calcS21 } from "./math.js";
+// Importamos mmToCm do math.js (calcS21 e FF não são mais usados aqui porque implementamos a Eq 36 direta)
+import { mmToCm } from "./math.js";
 
 let patchChartInstance = null;
 let patchHfssData = null;
@@ -16,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const id_g = document.getElementById("g_num") ? "g" : "w";
 
   // ==========================================
-  // 2. INJEÇÃO DE VALORES INICIAIS (Mata o erro de Null/NaN)
+  // 2. INJEÇÃO DE VALORES INICIAIS
   // ==========================================
   const defaultValues = {
     fStart: "1.0",
@@ -91,31 +92,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
   ["fStart", "fEnd", "p", id_c, id_g, "h_sub", "er"].forEach(bindInputs);
 
+  // ==========================================
+  // LÓGICA DO SELETOR DE SUBSTRATO (MANUAL vs PRESETS)
+  // ==========================================
   const subSelect = document.getElementById("substrate_select");
   if (subSelect) {
     subSelect.addEventListener("change", (e) => {
-      const preset = substratePresets[e.target.value];
-      if (preset) {
-        document.getElementById("er_num").value = preset.er.toFixed(2);
-        document.getElementById("er_slider").value = preset.er.toFixed(2);
-        document.getElementById("h_sub_num").value = preset.h_sub.toFixed(2);
-        document.getElementById("h_sub_slider").value = preset.h_sub.toFixed(2);
+      const val = e.target.value;
+      const isManual = val === "manual" || val === "Manual";
+
+      const erNum = document.getElementById("er_num");
+      const erSlider = document.getElementById("er_slider");
+      const hNum = document.getElementById("h_sub_num");
+      const hSlider = document.getElementById("h_sub_slider");
+
+      // Se for manual, remove o bloqueio ("disabled") para permitir a edição
+      if (isManual) {
+        if (erNum) erNum.removeAttribute("disabled");
+        if (erSlider) erSlider.removeAttribute("disabled");
+        if (hNum) hNum.removeAttribute("disabled");
+        if (hSlider) hSlider.removeAttribute("disabled");
       } else {
-        // Permitir entrada manual
-        document.getElementById("er_num").value = "";
-        document.getElementById("er_slider").value = "";
-        document.getElementById("h_sub_num").value = "";
-        document.getElementById("h_sub_slider").value = "";
+        // Se for um preset, bloqueia os inputs para evitar edição
+        if (erNum) erNum.setAttribute("disabled", "true");
+        if (erSlider) erSlider.setAttribute("disabled", "true");
+        if (hNum) hNum.setAttribute("disabled", "true");
+        if (hSlider) hSlider.setAttribute("disabled", "true");
+
+        if (val === "RO3003") {
+          if (erNum) erNum.value = "3.00";
+          if (erSlider) erSlider.value = "3.00";
+          if (hNum) hNum.value = "1.52";
+          if (hSlider) hSlider.value = "1.52";
+        } else if (val === "RO3006") {
+          if (erNum) erNum.value = "6.50";
+          if (erSlider) erSlider.value = "6.50";
+          if (hNum) hNum.value = "1.28";
+          if (hSlider) hSlider.value = "1.28";
+        }
       }
       updateAll();
     });
-
-    Object.keys(substratePresets).forEach((key) => {
-      const option = document.createElement("option");
-      option.value = key;
-      option.textContent = key === "Custom" ? "Manual" : key;
-      subSelect.appendChild(option);
-    });
+    // Força o disparo do evento na primeira carga para ajustar os bloqueios
+    subSelect.dispatchEvent(new Event("change"));
   }
 
   const exportBtn = document.getElementById("exportBtn");
@@ -138,7 +157,6 @@ document.addEventListener("DOMContentLoaded", () => {
     exportBtn.parentNode.insertBefore(hfssBtn, exportBtn.nextSibling);
   }
 
-  // Aciona o primeiro cálculo com os valores padrão injetados
   updateAll();
 });
 
@@ -209,7 +227,6 @@ function drawGeometry(p, c) {
   ctx.setLineDash([]);
 }
 
-// Função auxiliar segura para buscar valores do HTML
 function getSafeValue(id, fallback) {
   const el = document.getElementById(id);
   if (!el || isNaN(parseFloat(el.value))) return fallback;
@@ -217,26 +234,44 @@ function getSafeValue(id, fallback) {
 }
 
 function updateAll() {
-  const fStart = parseFloat(document.getElementById("fStart_num").value);
-  const fEnd = parseFloat(document.getElementById("fEnd_num").value);
-  const p = parseFloat(document.getElementById("p_num").value);
-  const er_real = parseFloat(document.getElementById("er_num").value);
-  const h_sub = parseFloat(document.getElementById("h_sub_num").value);
+  const id_c = document.getElementById("c_num") ? "c" : "d";
+  const id_g = document.getElementById("g_num") ? "g" : "w";
 
-  if (isNaN(fStart) || isNaN(fEnd) || isNaN(p) || isNaN(er_real) || isNaN(h_sub)) {
-    alert("Por favor, insira valores válidos para todos os campos.");
-    return;
+  const fStart = getSafeValue("fStart_num", 1.0);
+  const fEnd = getSafeValue("fEnd_num", 15.0);
+  const p = getSafeValue("p_num", 15.0);
+  let c = getSafeValue(id_c + "_num", 14.0);
+  const h_sub = getSafeValue("h_sub_num", 1.52);
+  const er_real = getSafeValue("er_num", 4.4);
+
+  if (fStart >= fEnd) return;
+
+  if (c >= p) {
+    c = p - 0.001;
+    const el_c = document.getElementById(id_c + "_num");
+    const el_c_slider = document.getElementById(id_c + "_slider");
+    if (el_c) el_c.value = c.toFixed(3);
+    if (el_c_slider) el_c_slider.value = c.toFixed(3);
   }
 
-  const er_eff = calculateEffectivePermittivity(er_real, h_sub, p);
-  document.getElementById("er_eff_num").value = er_eff.toFixed(3);
+  // O confinamento do patch sólido tende para Pi (3.14)
+  const alpha = Math.PI;
+
+  const er_media = (er_real + 1) / 2;
+  const er_nova =
+    1 + ((er_real - 1) / 2) * (1 - Math.exp(-alpha * (h_sub / p)));
+  const er_tentativa = (er_media + 3 * er_nova) / 4;
+  const er_antiga =
+    1 + ((er_real - 1) / 2) * (1 - Math.exp(-1.8 * (h_sub / p)));
+  const er_tanh = 1 + ((er_real - 1) / 2) * Math.tanh((Math.PI * h_sub) / p);
+  const er_puro = er_real;
+
+  const erEffEl = document.getElementById("er_eff_num");
+  if (erEffEl) erEffEl.value = er_nova.toFixed(3);
 
   drawGeometry(p, c);
 
-  const df = 0.001;
-  const pCm = mmToCm(p);
-  const gCm = mmToCm(g);
-
+  // Arrays de dados
   const data_nova = [],
     data_tentativa = [],
     data_antiga = [],
@@ -244,30 +279,55 @@ function updateAll() {
     data_tanh = [],
     data_puro = [],
     labels = [];
-  const f_limit = 30 / pCm;
+
+  const f_limit = 30 / mmToCm(p);
+  const df = 0.001;
+
+  // ========================================================
+  // CONSTANTES FÍSICAS DA EQUAÇÃO 36 (Luukkonen / Tese Guilherme)
+  // ========================================================
+  const c_0 = 299792458; // Velocidade da luz (m/s)
+  const eta_0 = 376.730313; // Impedância intrínseca do vácuo (Ohms)
+
+  const p_m = p / 1000; // Período em metros
+  const a_m = c / 1000; // Tamanho do patch (a) em metros
+
+  // Termo da cossecante: csc( pi*(p-a) / 2p )
+  const csc_arg = (Math.PI * (p_m - a_m)) / (2 * p_m);
+  const ln_csc = Math.log(1 / Math.sin(csc_arg));
 
   for (let freq = fStart; freq <= fEnd; freq += df) {
-    const lamb = 30 / freq;
-    const ang = 0;
-
     try {
-      // EQUAÇÃO 36 DA TESE (Transformada para B_patch)
-      const B_base = 4 * FF(pCm, gCm, lamb, ang);
+      const f_Hz = freq * 1e9;
+      const k_0 = (2 * Math.PI * f_Hz) / c_0;
 
-      const calcPt = (er_val) => {
-        const B_patch = B_base * er_val;
-        return calcS21(B_patch);
+      // Função que aplica estritamente a Equação 36 para cada permissividade
+      const calcPt_Eq36 = (er_val) => {
+        // Características Efetivas
+        const eta_eff = eta_0 / Math.sqrt(er_val);
+        const k_eff = k_0 * Math.sqrt(er_val);
+
+        // Impedância da grade de Patches (Módulo puramente imaginário de Z_patch)
+        const X_patch = (eta_eff * Math.PI) / (2 * k_eff * p_m * ln_csc);
+
+        // Susceptância Normalizada (B = eta_0 / X_patch)
+        const B_patch = eta_0 / X_patch;
+
+        // Potência transmitida para um circuito shunt puro: S21 = 4 / (4 + B^2)
+        const pt = 4 / (4 + Math.pow(B_patch, 2));
+        return 10 * Math.log10(pt);
       };
 
       labels.push(freq.toFixed(3));
 
-      const val_nova = calcPt(er_nova);
+      const val_nova = calcPt_Eq36(er_nova);
       data_nova.push(isNaN(val_nova) ? -60 : Math.max(-60, val_nova));
-      data_tentativa.push(Math.max(-60, calcPt(er_tentativa)));
-      data_antiga.push(Math.max(-60, calcPt(er_antiga)));
-      data_media.push(Math.max(-60, calcPt(er_media)));
-      data_tanh.push(Math.max(-60, calcPt(er_tanh)));
-      data_puro.push(Math.max(-60, calcPt(er_puro)));
+
+      data_tentativa.push(Math.max(-60, calcPt_Eq36(er_tentativa)));
+      data_antiga.push(Math.max(-60, calcPt_Eq36(er_antiga)));
+      data_media.push(Math.max(-60, calcPt_Eq36(er_media)));
+      data_tanh.push(Math.max(-60, calcPt_Eq36(er_tanh)));
+      data_puro.push(Math.max(-60, calcPt_Eq36(er_puro)));
     } catch (e) {
       data_nova.push(0);
       data_tentativa.push(0);
@@ -340,9 +400,10 @@ function updateChart(
   const minIndex = validData.indexOf(Math.min(...validData));
   const frFreq = parseFloat(labels[minIndex]);
 
+  // ===== DATASETS (Curvas Secundárias Comentadas) =====
   const datasets = [
     {
-      label: "1. ε_eff Fator Forma Fixo (Costa, Patch ≈ π)",
+      label: "ε_eff Fator Forma Fixo (Costa, Patch ≈ π)",
       data: data_nova,
       borderColor: "#000000",
       borderWidth: 2.5,
@@ -350,6 +411,9 @@ function updateChart(
       fill: false,
       tension: 0,
     },
+
+    /* === CURVAS SECUNDÁRIAS OCULTADAS ===
+    ,
     {
       label: "2. ε_eff Heurística Personalizada (Sua Tentativa)",
       data: data_tentativa,
@@ -399,7 +463,8 @@ function updateChart(
       pointRadius: 0,
       fill: false,
       tension: 0,
-    },
+    }
+    ====================================== */
   ];
 
   if (patchHfssData && patchHfssData.length > 0) {
@@ -470,7 +535,7 @@ function updateChart(
     document.querySelector(".chart-container").after(infoBox);
   }
 
-  let infoHtml = `<strong>Ressonância (Corte):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz | <strong style="color:#0056b3;">Fator (α) Fixo Aplicado: ${alpha.toFixed(3)}</strong> | <strong>ε_eff (Sua Tentativa):</strong> ${er_tentativa.toFixed(3)}`;
+  let infoHtml = `<strong>Ressonância (Corte):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz | <strong style="color:#0056b3;">Fator (α) Fixo Aplicado: ${alpha.toFixed(3)}</strong>`;
   if (patchHfssData && patchHfssData.length > 0) {
     infoHtml += `<br><span style="color:#dc3545; font-weight:bold;">Comparativo ativo: Avalie qual curva aproxima melhor o corte do Patch no Ansys HFSS.</span>`;
   }
@@ -481,44 +546,23 @@ function updateChart(
 
 function exportToCSV() {
   if (!patchChartInstance) return;
-  let csv =
-    "\uFEFF" +
-    "Frequência (GHz);S21 Nova (dB);S21 Tentativa (dB);S21 Tanh (dB);S21 Antiga (dB);S21 Media (dB);S21 Sem Correcao (dB)\n";
+
+  // Cabeçalho limpo focando apenas no Modelo Principal de Costa
+  let csv = "\uFEFF" + "Frequência (GHz);S21 Modelo Analítico (dB)\n";
+
   patchChartInstance.data.labels.forEach((freq, index) => {
+    // Extrai o valor S21 apenas do primeiro dataset
     let s21_nova = patchChartInstance.data.datasets[0].data[index];
-    let s21_tentativa = patchChartInstance.data.datasets[1].data[index];
-    let s21_tanh = patchChartInstance.data.datasets[2].data[index];
-    let s21_antiga = patchChartInstance.data.datasets[3].data[index];
-    let s21_media = patchChartInstance.data.datasets[4].data[index];
-    let s21_puro = patchChartInstance.data.datasets[5].data[index];
 
     let fBR = Number(freq).toFixed(3).replace(".", ",");
     let sN_BR = Number(s21_nova).toFixed(4).replace(".", ",");
-    let sTent_BR = Number(s21_tentativa).toFixed(4).replace(".", ",");
-    let sT_BR = Number(s21_tanh).toFixed(4).replace(".", ",");
-    let sA_BR = Number(s21_antiga).toFixed(4).replace(".", ",");
-    let sM_BR = Number(s21_media).toFixed(4).replace(".", ",");
-    let sP_BR = Number(s21_puro).toFixed(4).replace(".", ",");
 
-    csv += `${fBR};${sN_BR};${sTent_BR};${sT_BR};${sA_BR};${sM_BR};${sP_BR}\n`;
+    csv += `${fBR};${sN_BR}\n`;
   });
+
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = "dados_patch_quadrado_comparacao.csv";
+  link.download = "dados_patch_quadrado_modelo.csv";
   link.click();
-}
-
-// Adicionando suporte para substratos manuais e presets
-const substratePresets = {
-  RO3003: { er: 3.00, h_sub: 1.52 },
-  RO3006: { er: 6.50, h_sub: 1.28 },
-  Custom: null, // Entrada manual
-};
-
-function calculateEffectivePermittivity(er_real, h_sub, p) {
-  const alpha = Math.PI;
-  return (
-    1 + ((er_real - 1) / 2) * (1 - Math.exp(-alpha * (h_sub / p)))
-  );
 }
