@@ -94,22 +94,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const subSelect = document.getElementById("substrate_select");
   if (subSelect) {
     subSelect.addEventListener("change", (e) => {
-      if (e.target.value === "RO3003") {
-        document.getElementById("er_num").value = "3.00";
-        if (document.getElementById("er_slider"))
-          document.getElementById("er_slider").value = "3.00";
-        document.getElementById("h_sub_num").value = "1.52";
-        if (document.getElementById("h_sub_slider"))
-          document.getElementById("h_sub_slider").value = "1.52";
-      } else if (e.target.value === "RO3006") {
-        document.getElementById("er_num").value = "6.50";
-        if (document.getElementById("er_slider"))
-          document.getElementById("er_slider").value = "6.50";
-        document.getElementById("h_sub_num").value = "1.28";
-        if (document.getElementById("h_sub_slider"))
-          document.getElementById("h_sub_slider").value = "1.28";
+      const preset = substratePresets[e.target.value];
+      if (preset) {
+        document.getElementById("er_num").value = preset.er.toFixed(2);
+        document.getElementById("er_slider").value = preset.er.toFixed(2);
+        document.getElementById("h_sub_num").value = preset.h_sub.toFixed(2);
+        document.getElementById("h_sub_slider").value = preset.h_sub.toFixed(2);
+      } else {
+        // Permitir entrada manual
+        document.getElementById("er_num").value = "";
+        document.getElementById("er_slider").value = "";
+        document.getElementById("h_sub_num").value = "";
+        document.getElementById("h_sub_slider").value = "";
       }
       updateAll();
+    });
+
+    Object.keys(substratePresets).forEach((key) => {
+      const option = document.createElement("option");
+      option.value = key;
+      option.textContent = key === "Custom" ? "Manual" : key;
+      subSelect.appendChild(option);
     });
   }
 
@@ -212,43 +217,19 @@ function getSafeValue(id, fallback) {
 }
 
 function updateAll() {
-  const id_c = document.getElementById("c_num") ? "c" : "d";
-  const id_g = document.getElementById("g_num") ? "g" : "w";
+  const fStart = parseFloat(document.getElementById("fStart_num").value);
+  const fEnd = parseFloat(document.getElementById("fEnd_num").value);
+  const p = parseFloat(document.getElementById("p_num").value);
+  const er_real = parseFloat(document.getElementById("er_num").value);
+  const h_sub = parseFloat(document.getElementById("h_sub_num").value);
 
-  // Leitura blindada: se o elemento não existir ou falhar, usa um valor padrão
-  const fStart = getSafeValue("fStart_num", 1.0);
-  const fEnd = getSafeValue("fEnd_num", 15.0);
-  const p = getSafeValue("p_num", 15.0);
-  let c = getSafeValue(id_c + "_num", 14.0);
-  const h_sub = getSafeValue("h_sub_num", 1.52);
-  const er_real = getSafeValue("er_num", 4.4);
-
-  if (fStart >= fEnd) return;
-
-  if (c >= p) {
-    c = p - 0.001;
-    const el_c = document.getElementById(id_c + "_num");
-    const el_c_slider = document.getElementById(id_c + "_slider");
-    if (el_c) el_c.value = c.toFixed(3);
-    if (el_c_slider) el_c_slider.value = c.toFixed(3);
+  if (isNaN(fStart) || isNaN(fEnd) || isNaN(p) || isNaN(er_real) || isNaN(h_sub)) {
+    alert("Por favor, insira valores válidos para todos os campos.");
+    return;
   }
 
-  const g = p - c;
-
-  // O confinamento do patch sólido tende para Pi (3.14)
-  const alpha = Math.PI;
-
-  const er_media = (er_real + 1) / 2;
-  const er_nova =
-    1 + ((er_real - 1) / 2) * (1 - Math.exp(-alpha * (h_sub / p)));
-  const er_tentativa = (er_media + 3 * er_nova) / 4;
-  const er_antiga =
-    1 + ((er_real - 1) / 2) * (1 - Math.exp(-1.8 * (h_sub / p)));
-  const er_tanh = 1 + ((er_real - 1) / 2) * Math.tanh((Math.PI * h_sub) / p);
-  const er_puro = er_real;
-
-  const erEffEl = document.getElementById("er_eff_num");
-  if (erEffEl) erEffEl.value = er_nova.toFixed(3);
+  const er_eff = calculateEffectivePermittivity(er_real, h_sub, p);
+  document.getElementById("er_eff_num").value = er_eff.toFixed(3);
 
   drawGeometry(p, c);
 
@@ -526,4 +507,18 @@ function exportToCSV() {
   link.href = URL.createObjectURL(blob);
   link.download = "dados_patch_quadrado_comparacao.csv";
   link.click();
+}
+
+// Adicionando suporte para substratos manuais e presets
+const substratePresets = {
+  RO3003: { er: 3.00, h_sub: 1.52 },
+  RO3006: { er: 6.50, h_sub: 1.28 },
+  Custom: null, // Entrada manual
+};
+
+function calculateEffectivePermittivity(er_real, h_sub, p) {
+  const alpha = Math.PI;
+  return (
+    1 + ((er_real - 1) / 2) * (1 - Math.exp(-alpha * (h_sub / p)))
+  );
 }
