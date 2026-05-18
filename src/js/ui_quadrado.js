@@ -92,29 +92,27 @@ document.addEventListener("DOMContentLoaded", () => {
   ["fStart", "fEnd", "p", id_c, id_g, "h_sub", "er"].forEach(bindInputs);
 
   // ==========================================
-  // LÓGICA DO SELETOR DE SUBSTRATO (À PROVA DE BALAS)
+  // LÓGICA DO SELETOR DE SUBSTRATO (MANUAL vs PRESETS)
   // ==========================================
   const subSelect = document.getElementById("substrate_select");
   if (subSelect) {
     subSelect.addEventListener("change", (e) => {
       const val = e.target.value;
-
-      // Se NÃO for nenhum dos presets conhecidos, assumimos que é o modo Manual
-      const isPreset = val === "RO3003" || val === "RO3006";
+      const isPreset = (val === "RO3003" || val === "RO3006");
 
       const erNum = document.getElementById("er_num");
       const erSlider = document.getElementById("er_slider");
       const hNum = document.getElementById("h_sub_num");
       const hSlider = document.getElementById("h_sub_slider");
 
+      // Se for manual, desbloqueia os campos
       if (!isPreset) {
-        // MODO MANUAL: Desbloqueia todos os campos
         if (erNum) erNum.disabled = false;
         if (erSlider) erSlider.disabled = false;
         if (hNum) hNum.disabled = false;
         if (hSlider) hSlider.disabled = false;
       } else {
-        // MODO PRESET: Bloqueia os campos e injeta os valores
+        // Se for um preset, bloqueia os inputs para evitar edição
         if (erNum) erNum.disabled = true;
         if (erSlider) erSlider.disabled = true;
         if (hNum) hNum.disabled = true;
@@ -134,8 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       updateAll();
     });
-    // Força a execução desta regra 50ms após a página carregar,
-    // garantindo que o navegador já renderizou o HTML
+    // Força o disparo do evento na primeira carga para ajustar os bloqueios
     setTimeout(() => subSelect.dispatchEvent(new Event("change")), 50);
   }
 
@@ -256,6 +253,8 @@ function updateAll() {
     if (el_c_slider) el_c_slider.value = c.toFixed(3);
   }
 
+  const g = p - c;
+
   // O confinamento do patch sólido tende para Pi (3.14)
   const alpha = Math.PI;
 
@@ -281,7 +280,7 @@ function updateAll() {
     data_tanh = [],
     data_puro = [],
     labels = [];
-
+  
   const f_limit = 30 / mmToCm(p);
   const df = 0.001;
 
@@ -290,7 +289,7 @@ function updateAll() {
   // ========================================================
   const c_0 = 299792458; // Velocidade da luz (m/s)
   const eta_0 = 376.730313; // Impedância intrínseca do vácuo (Ohms)
-
+  
   const p_m = p / 1000; // Período em metros
   const a_m = c / 1000; // Tamanho do patch (a) em metros
 
@@ -324,9 +323,10 @@ function updateAll() {
 
       const val_nova = calcPt_Eq36(er_nova);
       data_nova.push(isNaN(val_nova) ? -60 : Math.max(-60, val_nova));
-
+      
       data_tentativa.push(Math.max(-60, calcPt_Eq36(er_tentativa)));
       data_antiga.push(Math.max(-60, calcPt_Eq36(er_antiga)));
+      // A Média Clássica é populada perfeitamente na mesma lógica!
       data_media.push(Math.max(-60, calcPt_Eq36(er_media)));
       data_tanh.push(Math.max(-60, calcPt_Eq36(er_tanh)));
       data_puro.push(Math.max(-60, calcPt_Eq36(er_puro)));
@@ -369,7 +369,7 @@ function updateAll() {
     data_nova,
     data_tentativa,
     data_antiga,
-    data_media,
+    data_media, // Passamos os dados da média
     data_tanh,
     data_puro,
     hfssPlotData,
@@ -402,7 +402,7 @@ function updateChart(
   const minIndex = validData.indexOf(Math.min(...validData));
   const frFreq = parseFloat(labels[minIndex]);
 
-  // ===== DATASETS (Curvas Secundárias Comentadas) =====
+  // ===== DATASETS =====
   const datasets = [
     {
       label: "ε_eff Fator Forma Fixo (Patch ≈ π)",
@@ -413,8 +413,19 @@ function updateChart(
       fill: false,
       tension: 0,
     },
-
-    /* === CURVAS SECUNDÁRIAS OCULTADAS ===
+    // Adicionada a Curva da Média Clássica (Ativa para o Patch)
+    {
+      label: "ε_eff Média Clássica",
+      data: data_media,
+      borderColor: "#007bff",
+      borderWidth: 2,
+      borderDash: [2, 4],
+      pointRadius: 0,
+      fill: false,
+      tension: 0,
+    }
+    
+    /* === OUTRAS CURVAS SECUNDÁRIAS OCULTADAS ===
     ,
     {
       label: "2. ε_eff Heurística Personalizada (Sua Tentativa)",
@@ -442,16 +453,6 @@ function updateChart(
       borderColor: "#28a745",
       borderWidth: 2,
       borderDash: [3, 6],
-      pointRadius: 0,
-      fill: false,
-      tension: 0,
-    },
-    {
-      label: "5. ε_eff Média Clássica",
-      data: data_media,
-      borderColor: "#007bff",
-      borderWidth: 2,
-      borderDash: [2, 4],
       pointRadius: 0,
       fill: false,
       tension: 0,
@@ -548,20 +549,24 @@ function updateChart(
 
 function exportToCSV() {
   if (!patchChartInstance) return;
-
-  // Cabeçalho limpo focando apenas no Modelo Analítico
-  let csv = "\uFEFF" + "Frequência (GHz);S21 Modelo Analítico (dB)\n";
-
+  
+  // Cabeçalho agora contempla a Média Clássica também
+  let csv =
+    "\uFEFF" +
+    "Frequência (GHz);S21 Modelo Fixo Pi (dB);S21 Média Clássica (dB)\n";
+    
   patchChartInstance.data.labels.forEach((freq, index) => {
-    // Extrai o valor S21 apenas do primeiro dataset
+    // Dataset 0 = Fator Pi (Costa), Dataset 1 = Média Clássica
     let s21_nova = patchChartInstance.data.datasets[0].data[index];
+    let s21_media = patchChartInstance.data.datasets[1].data[index];
 
     let fBR = Number(freq).toFixed(3).replace(".", ",");
     let sN_BR = Number(s21_nova).toFixed(4).replace(".", ",");
+    let sM_BR = Number(s21_media).toFixed(4).replace(".", ",");
 
-    csv += `${fBR};${sN_BR}\n`;
+    csv += `${fBR};${sN_BR};${sM_BR}\n`;
   });
-
+  
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
