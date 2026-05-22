@@ -278,36 +278,40 @@ function drawDimensions(
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
-  // ===== DIMENSÃO p (PERÍODO) - Horizontal (Embaixo) - PRIMORDIAL =====
+  // ===== DIMENSÃO p (PERÍODO) - VERTICAL (LADO ESQUERDO) =====
   ctx.strokeStyle = "#d32f2f";
   ctx.fillStyle = "#d32f2f";
 
-  const pStartX = center - pPixel / 2;
-  const pEndX = center + pPixel / 2;
-  const pY = center + pPixel / 2 + offset;
+  const pStartY = center - pPixel / 2;
+  const pEndY = center + pPixel / 2;
+  const pX = center - pPixel / 2 - offset;
 
-  // Desenha linha horizontal da dimensão p
-  drawArrowLine(ctx, pStartX, pY, pEndX, pY, arrowSize);
+  // Desenha linha VERTICAL da dimensão p (lado esquerdo)
+  drawArrowLine(ctx, pX, pStartY, pX, pEndY, arrowSize);
 
-  // Rótulo de p posicionado abaixo
+  // Rótulo de p posicionado à esquerda
   ctx.fillStyle = "#d32f2f";
   ctx.font = `bold ${fontSize * 0.9}px Arial, sans-serif`;
-  ctx.fillText(`p = ${p.toFixed(3)} mm`, center, pY + offset * 0.5);
+  ctx.save();
+  ctx.translate(pX - offset * 0.4, center);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText(`p = ${p.toFixed(3)} mm`, 0, 0);
+  ctx.restore();
 
-  // ===== DIMENSÃO d (DIÂMETRO DA ESPIRA) - Vertical (Lado Direito) =====
+  // ===== DIMENSÃO d (DIÂMETRO DA ESPIRA) - HORIZONTAL (TOPO) =====
   ctx.strokeStyle = "#cc0000";
   ctx.fillStyle = "#cc0000";
 
-  const dStartY = center - dPixel / 2;
-  const dEndY = center + dPixel / 2;
-  const dLabelX = center + pPixel / 2 + offset * 0.3;
+  const dStartX = center - dPixel / 2;
+  const dEndX = center + dPixel / 2;
+  const dY = center - pPixel / 2 - offset;
 
-  // Seta vertical mostrando d
-  drawArrowLine(ctx, dLabelX, dStartY, dLabelX, dEndY, arrowSize);
+  // Seta HORIZONTAL mostrando d no topo
+  drawArrowLine(ctx, dStartX, dY, dEndX, dY, arrowSize);
 
   ctx.font = `bold ${fontSize * 0.85}px Arial, sans-serif`;
-  ctx.textAlign = "left";
-  ctx.fillText(`d = ${d.toFixed(3)} mm`, dLabelX + offset * 0.2, center);
+  ctx.textAlign = "center";
+  ctx.fillText(`d = ${d.toFixed(3)} mm`, center, dY - offset * 0.4);
 
   // ===== DIMENSÃO w (LARGURA DO FIO) - Vertical (Lado Esquerdo do Fio) =====
   if (wPixel > 0) {
@@ -323,7 +327,11 @@ function drawDimensions(
 
     ctx.font = `bold ${fontSize * 0.8}px Arial, sans-serif`;
     ctx.textAlign = "right";
-    ctx.fillText(`w = ${w.toFixed(3)} mm`, wX - offset * 0.15, wStartY + wPixel / 2);
+    ctx.fillText(
+      `w = ${w.toFixed(3)} mm`,
+      wX - offset * 0.15,
+      wStartY + wPixel / 2,
+    );
   }
 
   // ===== DIMENSÃO g (GAP) - Horizontal (Espaço entre espiras) =====
@@ -340,7 +348,11 @@ function drawDimensions(
 
   ctx.font = `bold ${fontSize * 0.8}px Arial, sans-serif`;
   ctx.textAlign = "center";
-  ctx.fillText(`g = ${g.toFixed(3)} mm`, center + dPixel / 2 + gPixel / 2, gY + offset * 0.4);
+  ctx.fillText(
+    `g = ${g.toFixed(3)} mm`,
+    center + dPixel / 2 + gPixel / 2,
+    gY + offset * 0.4,
+  );
 
   // ===== LEGENDA COM CORES =====
   drawLegend(ctx, fontSize);

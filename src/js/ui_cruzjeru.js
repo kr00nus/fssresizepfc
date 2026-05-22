@@ -324,45 +324,43 @@ function drawDimensionsCruz(
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
-  // ===== DIMENSÃO p (PERÍODO) - Horizontal (Embaixo) - PRIMORDIAL =====
+  // ===== DIMENSÃO p (PERÍODO) - VERTICAL (LADO ESQUERDO) =====
   ctx.strokeStyle = "#d32f2f";
   ctx.fillStyle = "#d32f2f";
 
-  const pStartX = center - pPixel / 2;
-  const pEndX = center + pPixel / 2;
-  const pY = center + pPixel / 2 + offset;
+  const pStartY = center - pPixel / 2;
+  const pEndY = center + pPixel / 2;
+  const pX = center - pPixel / 2 - offset;
 
-  // Desenha linha horizontal da dimensão p
-  drawArrowLineCruz(ctx, pStartX, pY, pEndX, pY, arrowSize);
+  // Desenha linha VERTICAL da dimensão p (lado esquerdo)
+  drawArrowLineCruz(ctx, pX, pStartY, pX, pEndY, arrowSize);
 
-  // Rótulo de p posicionado abaixo
+  // Rótulo de p posicionado à esquerda
   ctx.fillStyle = "#d32f2f";
   ctx.font = `bold ${fontSize * 0.9}px Arial, sans-serif`;
-  ctx.fillText(`p = ${p.toFixed(3)} mm`, center, pY + offset * 0.5);
+  ctx.save();
+  ctx.translate(pX - offset * 0.4, center);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText(`p = ${p.toFixed(3)} mm`, 0, 0);
+  ctx.restore();
 
-  // ===== DIMENSÃO d (COMPRIMENTO DO CHAPÉU) - Horizontal (Topo, lado direito) =====
+  // ===== DIMENSÃO d (COMPRIMENTO DO CHAPÉU) - HORIZONTAL (TOPO) =====
   ctx.strokeStyle = "#cc0000";
   ctx.fillStyle = "#cc0000";
 
-  const dTopStartY = center - crossSpan / 2;
-  const dRightX = center + dPixel / 2;
-  const dLabelX = center + pPixel / 2 + offset * 0.3;
+  const dStartX = center - dPixel / 2;
+  const dEndX = center + dPixel / 2;
+  const dY = center - pPixel / 2 - offset;
 
-  // Seta vertical mostrando d no topo
-  drawArrowLineCruz(
-    ctx,
-    dLabelX,
-    dTopStartY - offset * 0.2,
-    dLabelX,
-    dTopStartY + hPixel,
-    arrowSize
-  );
+  // Seta HORIZONTAL mostrando d no topo
+  drawArrowLineCruz(ctx, dStartX, dY, dEndX, dY, arrowSize);
 
   ctx.font = `bold ${fontSize * 0.85}px Arial, sans-serif`;
+  ctx.textAlign = "center";
   ctx.fillText(
     `d = ${d.toFixed(3)} mm`,
-    dLabelX + offset * 0.4,
-    dTopStartY + hPixel / 2
+    center,
+    dY - offset * 0.4
   );
 
   // ===== DIMENSÃO w (ESPESSURA DO BRAÇO) - Vertical (Centro) =====
@@ -390,7 +388,14 @@ function drawDimensionsCruz(
   const hEndY = center - crossSpan / 2 + hPixel;
 
   // Seta mostrando h
-  drawArrowLineCruz(ctx, hLabelX, hStartY - offset * 0.1, hLabelX, hEndY, arrowSize * 0.8);
+  drawArrowLineCruz(
+    ctx,
+    hLabelX,
+    hStartY - offset * 0.1,
+    hLabelX,
+    hEndY,
+    arrowSize * 0.8,
+  );
 
   ctx.fillStyle = "#9c27b0";
   ctx.font = `bold ${fontSize * 0.8}px Arial, sans-serif`;
@@ -411,7 +416,11 @@ function drawDimensionsCruz(
 
   ctx.font = `bold ${fontSize * 0.8}px Arial, sans-serif`;
   ctx.textAlign = "center";
-  ctx.fillText(`g = ${g.toFixed(3)} mm`, center + crossSpan / 2 + gGapPixel / 2, gY + offset * 0.4);
+  ctx.fillText(
+    `g = ${g.toFixed(3)} mm`,
+    center + crossSpan / 2 + gGapPixel / 2,
+    gY + offset * 0.4,
+  );
 
   // ===== LEGENDA COM CORES =====
   drawLegendCruz(ctx, fontSize);
