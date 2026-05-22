@@ -155,7 +155,11 @@ function handleHFSSUpload(event) {
   reader.readAsText(file); // Lê o arquivo como texto
 }
 
-// Função que desenha a Espira Quadrada e suas repetições no canvas
+// ==========================================
+// FUNÇÃO: drawGeometry()
+// Desenha a Espira Quadrada e suas repetições no canvas com dimensões
+// Parâmetros responsivos que se ajustam ao tamanho do canvas
+// ==========================================
 function drawGeometry(p, d, w, g) {
   // Encontra o canvas (elemento onde vamos desenhar)
   const canvas = document.getElementById("shapeCanvas");
@@ -166,6 +170,8 @@ function drawGeometry(p, d, w, g) {
 
   // Limpa o canvas (apaga o que estava antes)
   ctx.clearRect(0, 0, size, size);
+  ctx.fillStyle = "#fafafa";
+  ctx.fillRect(0, 0, size, size);
 
   // Define a área visível e a escala
   const viewSize = p * 2.2; // Um pouco maior que o período
@@ -226,6 +232,158 @@ function drawGeometry(p, d, w, g) {
   // Desenha um quadrado tracejado mostrando a célula unitária
   ctx.strokeRect(center - pPixel / 2, center - pPixel / 2, pPixel, pPixel);
   ctx.setLineDash([]); // Remove o padrão tracejado
+
+  // ===== DESENHA DIMENSÕES COM SETAS E RÓTULOS =====
+  drawDimensions(ctx, center, pPixel, dPixel, wPixel, innerPixel, scale, p, d, w, g);
+}
+
+// ==========================================
+// FUNÇÃO: drawDimensions()
+// Desenha as setas e rótulos das dimensões (p, d, w, g) na geometria
+// Todos os elementos são responsivos e se ajustam ao tamanho
+// ==========================================
+function drawDimensions(ctx, center, pPixel, dPixel, wPixel, innerPixel, scale, p, d, w, g) {
+  // Configurações de tamanho responsivo
+  const fontSize = Math.max(10, pPixel * 0.08); // Fonte se ajusta ao tamanho
+  const arrowSize = Math.max(4, pPixel * 0.04); // Tamanho das setas
+  const lineWidth = Math.max(1, pPixel * 0.01); // Espessura das linhas
+  const offset = Math.max(20, pPixel * 0.12); // Distância dos rótulos
+
+  ctx.strokeStyle = "#d32f2f";
+  ctx.fillStyle = "#d32f2f";
+  ctx.lineWidth = lineWidth;
+  ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  // ===== DIMENSÃO p (PERÍODO) - Horizontal (Embaixo) =====
+  const pY = center + pPixel / 2 + offset + 5;
+  drawArrowLine(ctx, center - pPixel / 2, pY, center + pPixel / 2, pY, arrowSize);
+  ctx.fillText(`p = ${p.toFixed(3)} mm`, center, pY + offset * 0.6);
+
+  // ===== DIMENSÃO d (DIÂMETRO DA ESPIRA) - Vertical (Lado Direito) =====
+  const dX = center + dPixel / 2 + offset;
+  drawArrowLine(ctx, dX, center - dPixel / 2, dX, center + dPixel / 2, arrowSize);
+  ctx.save();
+  ctx.translate(dX + offset * 0.5, center);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText(`d = ${d.toFixed(3)} mm`, 0, 0);
+  ctx.restore();
+
+  // ===== DIMENSÃO w (LARGURA DO FIO) - Diagonal/Canto Superior Esquerdo =====
+  if (wPixel > 0) {
+    const wStartX = center - dPixel / 2;
+    const wStartY = center - dPixel / 2;
+    const wEndX = center - dPixel / 2 + wPixel;
+    const wEndY = center - dPixel / 2 + wPixel;
+    
+    // Desenha linha de dimensão
+    ctx.strokeStyle = "#ff9800";
+    ctx.fillStyle = "#ff9800";
+    drawArrowLine(ctx, wStartX, wStartY, wEndX, wEndY, arrowSize * 0.8);
+    
+    // Rótulo da largura do fio
+    ctx.fillStyle = "#ff9800";
+    ctx.font = `bold ${fontSize * 0.9}px Arial, sans-serif`;
+    const wMidX = (wStartX + wEndX) / 2 - offset * 0.4;
+    const wMidY = (wStartY + wEndY) / 2 - offset * 0.4;
+    ctx.fillText(`w = ${w.toFixed(3)} mm`, wMidX, wMidY);
+  }
+
+  // ===== DIMENSÃO g (GAP) - Horizontal (Dentro do quadrado) =====
+  const gY = center; // Alinha com o centro verticalmente
+  const gStartX = center - dPixel / 2 - wPixel;
+  const gEndX = center - dPixel / 2;
+  
+  ctx.strokeStyle = "#2196f3";
+  ctx.fillStyle = "#2196f3";
+  drawArrowLine(ctx, gStartX - 5, gY + offset * 0.35, gEndX - 5, gY + offset * 0.35, arrowSize * 0.8);
+  ctx.font = `bold ${fontSize * 0.85}px Arial, sans-serif`;
+  ctx.fillText(`g = ${g.toFixed(3)} mm`, center - dPixel / 2 - wPixel / 2 - offset * 0.8, gY + offset * 0.8);
+
+  // ===== LEGENDA COM CORES =====
+  drawLegend(ctx, fontSize);
+}
+
+// ==========================================
+// FUNÇÃO: drawArrowLine()
+// Desenha uma linha com setas nas duas extremidades
+// Utilizado para indicar as dimensões na geometria
+// ==========================================
+function drawArrowLine(ctx, fromX, fromY, toX, toY, arrowSize) {
+  // Calcula o ângulo da linha
+  const headlen = arrowSize;
+  const angle = Math.atan2(toY - fromY, toX - fromX);
+
+  // Desenha a linha principal
+  ctx.beginPath();
+  ctx.moveTo(fromX, fromY);
+  ctx.lineTo(toX, toY);
+  ctx.stroke();
+
+  // Desenha a seta no início
+  ctx.beginPath();
+  ctx.moveTo(fromX, fromY);
+  ctx.lineTo(fromX - headlen * Math.cos(angle - Math.PI / 6), fromY - headlen * Math.sin(angle - Math.PI / 6));
+  ctx.lineTo(fromX - headlen * Math.cos(angle + Math.PI / 6), fromY - headlen * Math.sin(angle + Math.PI / 6));
+  ctx.closePath();
+  ctx.fill();
+
+  // Desenha a seta no final
+  ctx.beginPath();
+  ctx.moveTo(toX, toY);
+  ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+  ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+  ctx.closePath();
+  ctx.fill();
+}
+
+// ==========================================
+// FUNÇÃO: drawLegend()
+// Desenha uma legenda com as cores usadas nas dimensões
+// ==========================================
+function drawLegend(ctx, fontSize) {
+  const canvas = ctx.canvas;
+  const legendX = 10;
+  const legendY = canvas.height - 50;
+  const boxWidth = 200;
+  const boxHeight = 50;
+
+  // Fundo da legenda
+  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+  ctx.fillRect(legendX, legendY, boxWidth, boxHeight);
+  ctx.strokeStyle = "#ccc";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(legendX, legendY, boxWidth, boxHeight);
+
+  // Texto da legenda
+  ctx.font = `${fontSize * 0.75}px Arial`;
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#333";
+  
+  // Cor p (vermelho)
+  ctx.fillStyle = "#d32f2f";
+  ctx.fillRect(legendX + 8, legendY + 8, 12, 12);
+  ctx.fillStyle = "#333";
+  ctx.fillText("p=período", legendX + 25, legendY + 14);
+  
+  // Cor d (vermelho)
+  ctx.fillStyle = "#d32f2f";
+  ctx.fillRect(legendX + 8, legendY + 26, 12, 12);
+  ctx.fillStyle = "#333";
+  ctx.fillText("d=diâmetro", legendX + 25, legendY + 32);
+  
+  // Cor w (laranja)
+  ctx.fillStyle = "#ff9800";
+  ctx.fillRect(legendX + 110, legendY + 8, 12, 12);
+  ctx.fillStyle = "#333";
+  ctx.fillText("w=fio", legendX + 127, legendY + 14);
+  
+  // Cor g (azul)
+  ctx.fillStyle = "#2196f3";
+  ctx.fillRect(legendX + 110, legendY + 26, 12, 12);
+  ctx.fillStyle = "#333";
+  ctx.fillText("g=gap", legendX + 127, legendY + 32);
 }
 
 function updateAll() {
