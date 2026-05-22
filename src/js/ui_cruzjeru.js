@@ -196,6 +196,8 @@ function drawGeometry(p, d, w, h, g) {
 
   // Limpa o canvas, apagando tudo que estava desenhado
   ctx.clearRect(0, 0, size, size);
+  ctx.fillStyle = "#fafafa";
+  ctx.fillRect(0, 0, size, size);
 
   // Define o tamanho da área visível (um pouco maior que o período para visualizar bem)
   const viewSize = p * 2.2;
@@ -272,6 +274,182 @@ function drawGeometry(p, d, w, h, g) {
   ctx.strokeRect(center - pPixel / 2, center - pPixel / 2, pPixel, pPixel);
   // Remove o padrão de traço para desenhos subsequentes
   ctx.setLineDash([]);
+
+  // ===== DESENHA DIMENSÕES COM SETAS E RÓTULOS =====
+  drawDimensionsCruz(ctx, center, pPixel, crossSpan, dPixel, hPixel, wPixel, scale, p, d, w, h, g);
+}
+
+// ==========================================
+// FUNÇÃO: drawDimensionsCruz()
+// Desenha as setas e rótulos das dimensões (p, d, w, h, g) na geometria da Cruz
+// Todos os elementos são responsivos e se ajustam ao tamanho
+// ==========================================
+function drawDimensionsCruz(ctx, center, pPixel, crossSpan, dPixel, hPixel, wPixel, scale, p, d, w, h, g) {
+  // Configurações de tamanho responsivo
+  const fontSize = Math.max(10, pPixel * 0.08); // Fonte se ajusta ao tamanho
+  const arrowSize = Math.max(4, pPixel * 0.04); // Tamanho das setas
+  const lineWidth = Math.max(1, pPixel * 0.01); // Espessura das linhas
+  const offset = Math.max(20, pPixel * 0.12); // Distância dos rótulos
+
+  // ===== DIMENSÃO p (PERÍODO) - Horizontal (Embaixo) =====
+  ctx.strokeStyle = "#d32f2f";
+  ctx.fillStyle = "#d32f2f";
+  ctx.lineWidth = lineWidth;
+  ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  const pY = center + pPixel / 2 + offset + 5;
+  drawArrowLineCruz(ctx, center - pPixel / 2, pY, center + pPixel / 2, pY, arrowSize);
+  ctx.fillText(`p = ${p.toFixed(3)} mm`, center, pY + offset * 0.6);
+
+  // ===== DIMENSÃO d (COMPRIMENTO DO CHAPÉU) - Vertical (Lado Direito) =====
+  const dX = center + pPixel / 2 + offset;
+  drawArrowLineCruz(ctx, dX, center - crossSpan / 2, dX, center - crossSpan / 2 + dPixel, arrowSize);
+  ctx.save();
+  ctx.translate(dX + offset * 0.5, center - crossSpan / 2 + dPixel / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText(`d = ${d.toFixed(3)} mm`, 0, 0);
+  ctx.restore();
+
+  // ===== DIMENSÃO w (ESPESSURA DO BRAÇO INTERNO) - Dentro da cruz (vertical) =====
+  if (wPixel > 0) {
+    const wX = center + offset * 0.5;
+    const wStartY = center - crossSpan / 2 + hPixel;
+    const wEndY = center + crossSpan / 2 - hPixel;
+    
+    ctx.strokeStyle = "#ff9800";
+    ctx.fillStyle = "#ff9800";
+    drawArrowLineCruz(ctx, wX, wStartY, wX, wEndY, arrowSize * 0.8);
+    
+    ctx.fillStyle = "#ff9800";
+    ctx.font = `bold ${fontSize * 0.9}px Arial, sans-serif`;
+    ctx.save();
+    ctx.translate(wX + offset * 0.4, (wStartY + wEndY) / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText(`w = ${w.toFixed(3)} mm`, 0, 0);
+    ctx.restore();
+  }
+
+  // ===== DIMENSÃO h (ESPESSURA DO CHAPÉU) - Horizontal (Topo) =====
+  if (hPixel > 0) {
+    const hStartY = center - crossSpan / 2;
+    const hEndY = center - crossSpan / 2 + hPixel;
+    const hX = center - offset * 0.8;
+    
+    ctx.strokeStyle = "#9c27b0";
+    ctx.fillStyle = "#9c27b0";
+    drawArrowLineCruz(ctx, hX, hStartY, hX, hEndY, arrowSize * 0.8);
+    
+    ctx.fillStyle = "#9c27b0";
+    ctx.font = `bold ${fontSize * 0.85}px Arial, sans-serif`;
+    ctx.save();
+    ctx.translate(hX - offset * 0.6, (hStartY + hEndY) / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText(`h = ${h.toFixed(3)} mm`, 0, 0);
+    ctx.restore();
+  }
+
+  // ===== DIMENSÃO g (GAP) - Horizontal (No espaço vazio) =====
+  const gY = center - offset * 0.3;
+  const gPixel = (pPixel - crossSpan) / 2;
+  
+  ctx.strokeStyle = "#2196f3";
+  ctx.fillStyle = "#2196f3";
+  drawArrowLineCruz(ctx, center + crossSpan / 2, gY, center + pPixel / 2, gY, arrowSize * 0.8);
+  
+  ctx.font = `bold ${fontSize * 0.85}px Arial, sans-serif`;
+  ctx.fillText(`g = ${g.toFixed(3)} mm`, center + crossSpan / 2 + gPixel / 2 + offset * 0.3, gY + offset * 0.6);
+
+  // ===== LEGENDA COM CORES =====
+  drawLegendCruz(ctx, fontSize);
+}
+
+// ==========================================
+// FUNÇÃO: drawArrowLineCruz()
+// Desenha uma linha com setas nas duas extremidades
+// Utilizado para indicar as dimensões na geometria da Cruz
+// ==========================================
+function drawArrowLineCruz(ctx, fromX, fromY, toX, toY, arrowSize) {
+  // Calcula o ângulo da linha
+  const headlen = arrowSize;
+  const angle = Math.atan2(toY - fromY, toX - fromX);
+
+  // Desenha a linha principal
+  ctx.beginPath();
+  ctx.moveTo(fromX, fromY);
+  ctx.lineTo(toX, toY);
+  ctx.stroke();
+
+  // Desenha a seta no início
+  ctx.beginPath();
+  ctx.moveTo(fromX, fromY);
+  ctx.lineTo(fromX - headlen * Math.cos(angle - Math.PI / 6), fromY - headlen * Math.sin(angle - Math.PI / 6));
+  ctx.lineTo(fromX - headlen * Math.cos(angle + Math.PI / 6), fromY - headlen * Math.sin(angle + Math.PI / 6));
+  ctx.closePath();
+  ctx.fill();
+
+  // Desenha a seta no final
+  ctx.beginPath();
+  ctx.moveTo(toX, toY);
+  ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+  ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+  ctx.closePath();
+  ctx.fill();
+}
+
+// ==========================================
+// FUNÇÃO: drawLegendCruz()
+// Desenha uma legenda com as cores usadas nas dimensões da Cruz
+// ==========================================
+function drawLegendCruz(ctx, fontSize) {
+  const canvas = ctx.canvas;
+  const legendX = 10;
+  const legendY = canvas.height - 70;
+  const boxWidth = 280;
+  const boxHeight = 65;
+
+  // Fundo da legenda
+  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+  ctx.fillRect(legendX, legendY, boxWidth, boxHeight);
+  ctx.strokeStyle = "#ccc";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(legendX, legendY, boxWidth, boxHeight);
+
+  // Texto da legenda
+  ctx.font = `${fontSize * 0.75}px Arial`;
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#333";
+  
+  // Cor p (vermelho)
+  ctx.fillStyle = "#d32f2f";
+  ctx.fillRect(legendX + 8, legendY + 8, 12, 12);
+  ctx.fillStyle = "#333";
+  ctx.fillText("p=período", legendX + 25, legendY + 14);
+  
+  // Cor d (vermelho)
+  ctx.fillStyle = "#d32f2f";
+  ctx.fillRect(legendX + 8, legendY + 26, 12, 12);
+  ctx.fillStyle = "#333";
+  ctx.fillText("d=chapéu", legendX + 25, legendY + 32);
+  
+  // Cor d (vermelho)
+  ctx.fillStyle = "#d32f2f";
+  ctx.fillRect(legendX + 8, legendY + 44, 12, 12);
+  ctx.fillStyle = "#333";
+  ctx.fillText("g=gap", legendX + 25, legendY + 50);
+  
+  // Cor w (laranja)
+  ctx.fillStyle = "#ff9800";
+  ctx.fillRect(legendX + 130, legendY + 8, 12, 12);
+  ctx.fillStyle = "#333";
+  ctx.fillText("w=braço", legendX + 147, legendY + 14);
+  
+  // Cor h (roxo)
+  ctx.fillStyle = "#9c27b0";
+  ctx.fillRect(legendX + 130, legendY + 26, 12, 12);
+  ctx.fillStyle = "#333";
+  ctx.fillText("h=chap.esp.", legendX + 147, legendY + 32);
 }
 
 // Função principal que atualiza todos os gráficos e cálculos quando algo muda
