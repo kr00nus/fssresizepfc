@@ -191,6 +191,13 @@ function handleHFSSUpload(event) {
 // ==========================================
 // FUNÇÃO VISUAL: DESENHAR O ANEL CIRCULAR
 // ==========================================
+// ==========================================
+// FUNÇÃO: drawGeometry() - Desenha o Anel Circular no canvas
+// Parâmetros:
+// p = período (tamanho total da célula)
+// r = raio médio do anel
+// w = espessura do fio metálico
+// ==========================================
 function drawGeometry(p, r, w) {
   const canvas = document.getElementById("shapeCanvas");
   if (!canvas) return;
@@ -198,6 +205,8 @@ function drawGeometry(p, r, w) {
   const size = canvas.width;
 
   ctx.clearRect(0, 0, size, size);
+  ctx.fillStyle = "#fafafa";
+  ctx.fillRect(0, 0, size, size);
 
   const viewSize = p * 2.2;
   const scale = size / viewSize;
@@ -206,17 +215,17 @@ function drawGeometry(p, r, w) {
   const pPixel = p * scale;
   const rPixel = r * scale;
   const wPixel = w * scale;
+  const g = p - 2 * r; // Gap calculado
 
   function drawSingleRing(cx, cy, isCenter) {
     ctx.beginPath();
     ctx.arc(cx, cy, rPixel, 0, 2 * Math.PI);
-    // Para anéis, desenhamos um arco com espessura de linha correspondente a 'w'
     ctx.lineWidth = wPixel;
     ctx.strokeStyle = isCenter ? "#003366" : "rgba(0, 51, 102, 0.25)";
     ctx.stroke();
   }
 
-  // Grade 3x3
+  // Grade 3x3 de anéis
   const offsets = [-1, 0, 1];
   offsets.forEach((dx) => {
     offsets.forEach((dy) => {
@@ -230,6 +239,191 @@ function drawGeometry(p, r, w) {
   ctx.lineWidth = 1;
   ctx.strokeRect(center - pPixel / 2, center - pPixel / 2, pPixel, pPixel);
   ctx.setLineDash([]);
+
+  // ===== DESENHA DIMENSÕES COM SETAS E RÓTULOS =====
+  drawDimensionsRing(ctx, center, pPixel, rPixel, wPixel, scale, p, r, w, g);
+}
+
+// ==========================================
+// FUNÇÃO: drawDimensionsRing()
+// Desenha as setas e rótulos das dimensões (p, r, w, g) na geometria do Anel
+// Todos os elementos são responsivos e se ajustam ao tamanho
+// ==========================================
+function drawDimensionsRing(ctx, center, pPixel, rPixel, wPixel, scale, p, r, w, g) {
+  // Configurações de tamanho responsivo
+  const fontSize = Math.max(10, pPixel * 0.06); // Fonte se ajusta ao tamanho
+  const arrowSize = Math.max(3, pPixel * 0.03); // Tamanho das setas
+  const lineWidth = Math.max(1.5, pPixel * 0.008); // Espessura das linhas
+  const offset = Math.max(25, pPixel * 0.15); // Distância dos rótulos
+
+  ctx.lineWidth = lineWidth;
+  ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  // ===== DIMENSÃO p (PERÍODO) - VERTICAL (LADO ESQUERDO) =====
+  ctx.strokeStyle = "#d32f2f";
+  ctx.fillStyle = "#d32f2f";
+
+  const pStartY = center - pPixel / 2;
+  const pEndY = center + pPixel / 2;
+  const pX = center - pPixel / 2 - offset;
+
+  // Desenha linha VERTICAL da dimensão p (lado esquerdo)
+  drawArrowLineRing(ctx, pX, pStartY, pX, pEndY, arrowSize);
+
+  // Rótulo de p posicionado à esquerda
+  ctx.fillStyle = "#d32f2f";
+  ctx.font = `bold ${fontSize * 0.9}px Arial, sans-serif`;
+  ctx.save();
+  ctx.translate(pX - offset * 0.4, center);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText(`p = ${p.toFixed(3)} mm`, 0, 0);
+  ctx.restore();
+
+  // ===== DIMENSÃO r (RAIO MÉDIO) - HORIZONTAL (TOPO) =====
+  ctx.strokeStyle = "#cc0000";
+  ctx.fillStyle = "#cc0000";
+
+  const rStartX = center;
+  const rEndX = center + rPixel;
+  const rY = center - pPixel / 2 - offset;
+
+  // Seta HORIZONTAL mostrando r no topo
+  drawArrowLineRing(ctx, rStartX, rY, rEndX, rY, arrowSize);
+
+  ctx.font = `bold ${fontSize * 0.85}px Arial, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.fillText(`r = ${r.toFixed(3)} mm`, center + rPixel / 2, rY - offset * 0.4);
+
+  // ===== DIMENSÃO w (ESPESSURA DO FIO) - Tangencial (Lado Direito do Anel) =====
+  if (wPixel > 0) {
+    ctx.strokeStyle = "#ff9800";
+    ctx.fillStyle = "#ff9800";
+
+    const wLabelX = center + rPixel + offset * 0.2;
+    const wStartY = center - wPixel / 2;
+    const wEndY = center + wPixel / 2;
+
+    // Seta vertical mostrando w (espessura tangencial)
+    drawArrowLineRing(ctx, wLabelX, wStartY, wLabelX, wEndY, arrowSize * 0.8);
+
+    ctx.font = `bold ${fontSize * 0.8}px Arial, sans-serif`;
+    ctx.textAlign = "left";
+    ctx.fillText(`w = ${w.toFixed(3)} mm`, wLabelX + offset * 0.15, center);
+  }
+
+  // ===== DIMENSÃO g (GAP) - Horizontal (Lado Direito) =====
+  ctx.strokeStyle = "#2196f3";
+  ctx.fillStyle = "#2196f3";
+
+  const gPixel = (pPixel - 2 * rPixel) / 2;
+  const gStartX = center + rPixel;
+  const gEndX = center + pPixel / 2;
+  const gY = center + offset * 0.5;
+
+  // Seta mostrando g
+  drawArrowLineRing(ctx, gStartX, gY, gEndX, gY, arrowSize * 0.8);
+
+  ctx.font = `bold ${fontSize * 0.8}px Arial, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.fillText(`g = ${g.toFixed(3)} mm`, center + rPixel + gPixel / 2, gY + offset * 0.4);
+
+  // ===== LEGENDA COM CORES =====
+  drawLegendRing(ctx, fontSize);
+}
+
+// ==========================================
+// FUNÇÃO: drawArrowLineRing()
+// Desenha uma linha com setas nas duas extremidades
+// Utilizado para indicar as dimensões na geometria do Anel
+// ==========================================
+function drawArrowLineRing(ctx, fromX, fromY, toX, toY, arrowSize) {
+  // Calcula o ângulo da linha
+  const headlen = arrowSize;
+  const angle = Math.atan2(toY - fromY, toX - fromX);
+
+  // Desenha a linha principal
+  ctx.beginPath();
+  ctx.moveTo(fromX, fromY);
+  ctx.lineTo(toX, toY);
+  ctx.stroke();
+
+  // Desenha a seta no início
+  ctx.beginPath();
+  ctx.moveTo(fromX, fromY);
+  ctx.lineTo(
+    fromX - headlen * Math.cos(angle - Math.PI / 6),
+    fromY - headlen * Math.sin(angle - Math.PI / 6),
+  );
+  ctx.lineTo(
+    fromX - headlen * Math.cos(angle + Math.PI / 6),
+    fromY - headlen * Math.sin(angle + Math.PI / 6),
+  );
+  ctx.closePath();
+  ctx.fill();
+
+  // Desenha a seta no final
+  ctx.beginPath();
+  ctx.moveTo(toX, toY);
+  ctx.lineTo(
+    toX - headlen * Math.cos(angle - Math.PI / 6),
+    toY - headlen * Math.sin(angle - Math.PI / 6),
+  );
+  ctx.lineTo(
+    toX - headlen * Math.cos(angle + Math.PI / 6),
+    toY - headlen * Math.sin(angle + Math.PI / 6),
+  );
+  ctx.closePath();
+  ctx.fill();
+}
+
+// ==========================================
+// FUNÇÃO: drawLegendRing()
+// Desenha uma legenda com as cores usadas nas dimensões do Anel
+// ==========================================
+function drawLegendRing(ctx, fontSize) {
+  const canvas = ctx.canvas;
+  const legendX = 10;
+  const legendY = canvas.height - 70;
+  const boxWidth = 280;
+  const boxHeight = 65;
+
+  // Fundo da legenda
+  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+  ctx.fillRect(legendX, legendY, boxWidth, boxHeight);
+  ctx.strokeStyle = "#ccc";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(legendX, legendY, boxWidth, boxHeight);
+
+  // Texto da legenda
+  ctx.font = `${fontSize * 0.75}px Arial`;
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#333";
+
+  // Cor p (vermelho)
+  ctx.fillStyle = "#d32f2f";
+  ctx.fillRect(legendX + 8, legendY + 8, 12, 12);
+  ctx.fillStyle = "#333";
+  ctx.fillText("p=período", legendX + 25, legendY + 14);
+
+  // Cor r (vermelho escuro)
+  ctx.fillStyle = "#cc0000";
+  ctx.fillRect(legendX + 8, legendY + 26, 12, 12);
+  ctx.fillStyle = "#333";
+  ctx.fillText("r=raio", legendX + 25, legendY + 32);
+
+  // Cor r (vermelho escuro)
+  ctx.fillStyle = "#cc0000";
+  ctx.fillRect(legendX + 8, legendY + 44, 12, 12);
+  ctx.fillStyle = "#333";
+  ctx.fillText("g=gap", legendX + 25, legendY + 50);
+
+  // Cor w (laranja)
+  ctx.fillStyle = "#ff9800";
+  ctx.fillRect(legendX + 130, legendY + 8, 12, 12);
+  ctx.fillStyle = "#333";
+  ctx.fillText("w=espessura", legendX + 147, legendY + 14);
 }
 
 function getSafeValue(id, fallback) {

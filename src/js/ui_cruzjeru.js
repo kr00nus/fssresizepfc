@@ -357,11 +357,7 @@ function drawDimensionsCruz(
 
   ctx.font = `bold ${fontSize * 0.85}px Arial, sans-serif`;
   ctx.textAlign = "center";
-  ctx.fillText(
-    `d = ${d.toFixed(3)} mm`,
-    center,
-    dY - offset * 0.4
-  );
+  ctx.fillText(`d = ${d.toFixed(3)} mm`, center, dY - offset * 0.4);
 
   // ===== DIMENSÃO w (ESPESSURA DO BRAÇO) - Vertical (Centro) =====
   ctx.strokeStyle = "#ff9800";
