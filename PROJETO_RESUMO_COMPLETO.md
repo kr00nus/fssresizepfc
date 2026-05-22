@@ -9,6 +9,7 @@
 ## 🏗️ ESTRUTURA DO PROJETO
 
 ### Árvore de Arquivos
+
 ```
 PFC/
 ├── index.html                    # Página inicial com índice de modelos
@@ -38,9 +39,11 @@ PFC/
 ## 📚 MÓDULOS PRINCIPAIS
 
 ### 1️⃣ **src/js/math.js**
+
 **Responsabilidade:** Funções matemáticas reutilizáveis
 
 **Funções principais:**
+
 - `mmToCm(mm)` - Converte milímetros para centímetros
 - `FF(p, w, lambda, ang)` - Função fundamental para cálculos de FSS
 - `GG(p, w, lambda, ang)` - Variante da função FF
@@ -52,9 +55,11 @@ PFC/
 ---
 
 ### 2️⃣ **src/js/visual.js**
+
 **Responsabilidade:** Utilitários visuais compartilhados
 
 **Funções principais:**
+
 - `createLineChart(ctx, labels, datasets, options)` - Cria gráficos Chart.js responsivos
 - `exportChartToCSV(chart, filename)` - Exporta dados para arquivo CSV
 
@@ -63,9 +68,11 @@ PFC/
 ---
 
 ### 3️⃣ **src/css/styles.css**
+
 **Responsabilidade:** Estilos únicos do projeto
 
 **Componentes estilizados:**
+
 - `.dashboard` - Layout principal (grid flexível)
 - `.panel` - Painéis de conteúdo
 - `.params` - Painel de parâmetros (sliders e inputs)
@@ -79,9 +86,11 @@ PFC/
 ## 🔧 MODELOS DE SIMULAÇÃO
 
 ### Modelo 1: **Espira Quadrada (Square Loop FSS)**
+
 **Arquivo:** `ui_espira.js` | `EspiraQuadrada.html`
 
 **Parâmetros de entrada:**
+
 - **p** (Período em mm) - Tamanho da célula unitária
 - **d** (Diâmetro em mm) - Tamanho do loop quadrado
 - **w** (Largura do fio em mm) - Espessura da linha metálica
@@ -91,21 +100,25 @@ PFC/
 - **Frequência** (GHz) - Faixa de operação
 
 **Saídas:**
+
 - Gráfico de transmissão (S21 em dB) vs Frequência
 - Frequência de ressonância (fr)
 - Largura de banda (-3dB)
 - Canvas com visualização 2D da célula com dimensões anotadas
 
 **Modelos de permissividade efetiva:**
+
 - Costa (2020) com fator dinâmico α
 - 6 diferentes fórmulas incluindo média, tanh, puro
 
 ---
 
 ### Modelo 2: **Patch Quadrado (Square Patch FSS)**
+
 **Arquivo:** `ui_quadrado.js` | `Quadrado.html`
 
 **Parâmetros de entrada:**
+
 - **p** (Período em mm)
 - **L** (Lado do quadrado em mm)
 - **h_sub** (Altura do substrato em mm)
@@ -113,6 +126,7 @@ PFC/
 - **Frequência** (GHz)
 
 **Características especiais:**
+
 - Modelo de Chen com capacitância concentrada
 - Comparação com dados HFSS (upload de CSV)
 - Presets de substrato (RO3003, RO3006, manual)
@@ -120,9 +134,11 @@ PFC/
 ---
 
 ### Modelo 3: **Cruz de Jerusalém (Jerusalem Cross FSS)**
+
 **Arquivo:** `ui_cruzjeru.js` | `Cruzjeru.html`
 
 **Parâmetros de entrada:**
+
 - **p** (Período em mm)
 - **d** (Tamanho do chapéu em mm)
 - **w** (Espessura do braço interno em mm)
@@ -133,6 +149,7 @@ PFC/
 - **Frequência** (GHz)
 
 **Características:**
+
 - Geometria complexa com chapéus nas extremidades
 - 5 dimensões mostradas com setas interativas
 - Visualização dinâmica com legendas coloridas
@@ -140,9 +157,11 @@ PFC/
 ---
 
 ### Modelo 4: **Anel Circular (Circular Ring FSS)**
+
 **Arquivo:** `ui_anelcircular.js` | `anelcircular.html`
 
 **Parâmetros de entrada:**
+
 - **p** (Período em mm)
 - **r** (Raio médio do anel em mm)
 - **w** (Espessura do fio em mm)
@@ -152,6 +171,7 @@ PFC/
 - **Frequência** (GHz)
 
 **Características:**
+
 - Geometria circular simétrica
 - Relacionamento automático: g = p - 2r
 - Visualização com anotações de dimensões
@@ -161,6 +181,7 @@ PFC/
 ## 🎨 SISTEMA DE VISUALIZAÇÃO COM DIMENSÕES
 
 ### Características Implementadas:
+
 1. **Setas Dimensionais Responsivas**
    - Todas as dimensões mostradas com setas duplas
    - Tamanho e posição se ajustam automaticamente
@@ -225,6 +246,7 @@ PFC/
 ## 🎛️ INTERFACE PADRÃO DE CADA PÁGINA
 
 ### Lado Esquerdo - Painel de Parâmetros
+
 ```
 ┌─ Parâmetros (Padrão: Valores)
 ├─ Parâmetros Físicos
@@ -245,6 +267,7 @@ PFC/
 ```
 
 ### Lado Direito - Painel de Visualizações
+
 ```
 ┌─ Resposta de Transmissão (S21)
 │  ├─ [GRÁFICO - Chart.js com múltiplas curvas]
@@ -261,22 +284,26 @@ PFC/
 ## 💾 FUNCIONALIDADES AVANÇADAS
 
 ### 1. Presets de Substrato
+
 - **RO3003**: εr=3.00, h=1.52mm
 - **RO3006**: εr=6.50, h=1.28mm
 - **Manual**: Entrada livre
 
 ### 2. Exportação/Importação de Dados
+
 - Exportar gráfico para CSV (formato: "Frequency;S21")
 - Importar dados HFSS para comparação visual
 - Compatível com Excel e ferramentas de análise
 
 ### 3. Cálculo de Especificações
+
 - Frequência de ressonância (fr)
 - Largura de banda (-3dB)
 - Permissividade efetiva
 - Fator de forma dinâmico (α)
 
 ### 4. Múltiplas Fórmulas de Permissividade
+
 - Costa (2020) com α dinâmico
 - Média (er + 1)/2
 - Exponencial-tanh
@@ -287,10 +314,12 @@ PFC/
 ## 🚀 COMO EXECUTAR
 
 ### Pré-requisitos
+
 - Navegador moderno (suporte a ES6 modules)
 - Servidor HTTP (necessário para módulos ES)
 
 ### Rodar localmente
+
 ```bash
 # Opção 1: Node.js + http-server
 npx http-server . -p 8000 -c-1
@@ -303,6 +332,7 @@ python -m SimpleHTTPServer 8000
 ```
 
 ### Acessar
+
 - Índice: http://localhost:8000/index.html
 - Espira: http://localhost:8000/EspiraQuadrada.html
 - Patch: http://localhost:8000/Quadrado.html
@@ -314,6 +344,7 @@ python -m SimpleHTTPServer 8000
 ## 📖 GUIA RÁPIDO PARA DESENVOLVEDORES
 
 ### Adicionar novo modelo
+
 1. Criar `src/js/ui_novomodelo.js` com função `updateAll()`
 2. Implementar `drawGeometry(params)` com canvas + dimensões
 3. Criar `novomodelo.html` que carrega o CSS e o módulo
@@ -321,11 +352,13 @@ python -m SimpleHTTPServer 8000
 5. Adicionar link no `index.html`
 
 ### Modificar fórmulas matemáticas
+
 1. Editar `src/js/math.js`
 2. Todas as mudanças se propagam automaticamente
 3. Testar em múltiplas páginas
 
 ### Personalizar estilos
+
 1. Editar `src/css/styles.css`
 2. Afeta todas as páginas simultaneamente
 3. Use classes como `.panel`, `.param-col`, `.chart-container`
@@ -335,16 +368,19 @@ python -m SimpleHTTPServer 8000
 ## 🎓 CONCEITOS FÍSICOS ENVOLVIDOS
 
 ### FSS (Frequency Selective Surfaces)
+
 - Estruturas periódicas que filtram frequências eletromagnéticas
 - Baseadas em elementos ressonadores (loops, patches, cruzes, anéis)
 - Usadas em: antenas, filtros, blindagem, absorvedores
 
 ### Modelo de Circuito Equivalente de Langley-Munk
+
 - Aproximação analítica para comportamento FSS
 - Elementos RLC equivalentes
 - Válido para comprimentos de onda >> dimensões da célula
 
 ### Parâmetro S21
+
 - Medida de transmissão eletromagnética
 - S21 = 0 dB → transmissão total
 - S21 = -40 dB → bloqueio significativo
@@ -354,12 +390,14 @@ python -m SimpleHTTPServer 8000
 ## 📊 SAÍDAS DO SISTEMA
 
 ### Gráfico de Transmissão
+
 - Eixo X: Frequência (GHz)
 - Eixo Y: S21 (dB)
 - Múltiplas curvas por modelo (até 6 fórmulas)
 - Marca pontos de ressonância e BW
 
 ### Canvas Geométrico
+
 - Desenho 2D escalonado da célula unitária
 - Células vizinhas (com transparência)
 - Célula central (destaque)
@@ -368,6 +406,7 @@ python -m SimpleHTTPServer 8000
 - Legenda colorida interativa
 
 ### Arquivo CSV (Exportação)
+
 ```csv
 Frequency (GHz);S21 (dB)
 1.000;-2.45
@@ -380,6 +419,7 @@ Frequency (GHz);S21 (dB)
 ## 🔍 STATUS ATUAL DO PROJETO
 
 ✅ **Implementado:**
+
 - 4 modelos de FSS (Espira, Patch, Cruz, Anel)
 - Sistema de visualização com dimensões
 - Setas responsivas com cores padronizadas
@@ -390,6 +430,7 @@ Frequency (GHz);S21 (dB)
 - Documentação completa em código
 
 ⏳ **Em desenvolvimento:**
+
 - Otimizações de performance para grandes faixas de frequência
 - Modelos 3D interativos
 - Análise de impedância

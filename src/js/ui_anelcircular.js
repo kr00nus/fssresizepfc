@@ -17,17 +17,21 @@ document.addEventListener("DOMContentLoaded", () => {
     fStart: "1.0",
     fEnd: "15.0",
     p: "15.000",
-    r_num: "6.000",   // Raio médio do anel
-    w_num: "1.000",   // Espessura da fita metálica
-    g_num: "3.000",   // Gap (calculado como p - 2r)
+    r_num: "6.000", // Raio médio do anel
+    w_num: "1.000", // Espessura da fita metálica
+    g_num: "3.000", // Gap (calculado como p - 2r)
     h_sub: "1.52",
-    er: "4.40",       // Padrão FR4
+    er: "4.40", // Padrão FR4
   };
 
   // Injeta valores iniciais
   for (const [key, value] of Object.entries(defaultValues)) {
-    const numEl = document.getElementById(`${key.replace('_num', '')}_num`) || document.getElementById(key);
-    const sliderEl = document.getElementById(`${key.replace('_num', '')}_slider`);
+    const numEl =
+      document.getElementById(`${key.replace("_num", "")}_num`) ||
+      document.getElementById(key);
+    const sliderEl = document.getElementById(
+      `${key.replace("_num", "")}_slider`,
+    );
     if (numEl) numEl.value = value;
     if (sliderEl) sliderEl.value = value;
   }
@@ -60,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       gNum.value = g.toFixed(3);
       if (gSlider) gSlider.value = g.toFixed(3);
-    } 
+    }
     // Se alterou o Gap, atualiza o Raio
     else if (changed === "g") {
       r = (p - g) / 2;
@@ -81,7 +85,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!slider || !num) return;
 
     slider.addEventListener("input", (e) => {
-      const decimals = ["fStart", "fEnd"].includes(idPrefix) ? 1 : ["er", "h_sub"].includes(idPrefix) ? 2 : 3;
+      const decimals = ["fStart", "fEnd"].includes(idPrefix)
+        ? 1
+        : ["er", "h_sub"].includes(idPrefix)
+          ? 2
+          : 3;
       num.value = parseFloat(e.target.value).toFixed(decimals);
       handleGeometry(idPrefix);
       updateAll();
@@ -103,7 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (subSelect) {
     subSelect.addEventListener("change", (e) => {
       const val = e.target.value;
-      const isPreset = (val === "RO3003" || val === "RO3006");
+      const isPreset = val === "RO3003" || val === "RO3006";
 
       const erNum = document.getElementById("er_num");
       const erSlider = document.getElementById("er_slider");
@@ -182,7 +190,9 @@ function handleHFSSUpload(event) {
         }
       }
     }
-    alert(`Dados do HFSS carregados com sucesso! (${ringHfssData.length} pontos encontrados)`);
+    alert(
+      `Dados do HFSS carregados com sucesso! (${ringHfssData.length} pontos encontrados)`,
+    );
     updateAll();
   };
   reader.readAsText(file);
@@ -229,7 +239,11 @@ function drawGeometry(p, r, w) {
   const offsets = [-1, 0, 1];
   offsets.forEach((dx) => {
     offsets.forEach((dy) => {
-      drawSingleRing(center + dx * pPixel, center + dy * pPixel, dx === 0 && dy === 0);
+      drawSingleRing(
+        center + dx * pPixel,
+        center + dy * pPixel,
+        dx === 0 && dy === 0,
+      );
     });
   });
 
@@ -249,7 +263,18 @@ function drawGeometry(p, r, w) {
 // Desenha as setas e rótulos das dimensões (p, r, w, g) na geometria do Anel
 // Todos os elementos são responsivos e se ajustam ao tamanho
 // ==========================================
-function drawDimensionsRing(ctx, center, pPixel, rPixel, wPixel, scale, p, r, w, g) {
+function drawDimensionsRing(
+  ctx,
+  center,
+  pPixel,
+  rPixel,
+  wPixel,
+  scale,
+  p,
+  r,
+  w,
+  g,
+) {
   // Configurações de tamanho responsivo
   const fontSize = Math.max(10, pPixel * 0.06); // Fonte se ajusta ao tamanho
   const arrowSize = Math.max(3, pPixel * 0.03); // Tamanho das setas
@@ -294,23 +319,31 @@ function drawDimensionsRing(ctx, center, pPixel, rPixel, wPixel, scale, p, r, w,
 
   ctx.font = `bold ${fontSize * 0.85}px Arial, sans-serif`;
   ctx.textAlign = "center";
-  ctx.fillText(`r = ${r.toFixed(3)} mm`, center + rPixel / 2, rY - offset * 0.4);
+  ctx.fillText(
+    `r = ${r.toFixed(3)} mm`,
+    center + rPixel / 2,
+    rY - offset * 0.4,
+  );
 
-  // ===== DIMENSÃO w (ESPESSURA DO FIO) - Tangencial (Lado Direito do Anel) =====
+  // ===== DIMENSÃO w (ESPESSURA DO FIO) - Radial (Lado Direito do Anel) =====
   if (wPixel > 0) {
     ctx.strokeStyle = "#ff9800";
     ctx.fillStyle = "#ff9800";
 
-    const wLabelX = center + rPixel + offset * 0.2;
-    const wStartY = center - wPixel / 2;
-    const wEndY = center + wPixel / 2;
+    // Calcula os raios interno e externo do anel
+    const rInnerPixel = rPixel - wPixel / 2;
+    const rOuterPixel = rPixel + wPixel / 2;
 
-    // Seta vertical mostrando w (espessura tangencial)
-    drawArrowLineRing(ctx, wLabelX, wStartY, wLabelX, wEndY, arrowSize * 0.8);
+    // Desenha seta radial mostrando a espessura (lado direito do anel)
+    const wStartX = center + rInnerPixel;
+    const wEndX = center + rOuterPixel;
+    const wY = center;
+
+    drawArrowLineRing(ctx, wStartX, wY, wEndX, wY, arrowSize * 0.9);
 
     ctx.font = `bold ${fontSize * 0.8}px Arial, sans-serif`;
-    ctx.textAlign = "left";
-    ctx.fillText(`w = ${w.toFixed(3)} mm`, wLabelX + offset * 0.15, center);
+    ctx.textAlign = "center";
+    ctx.fillText(`w = ${w.toFixed(3)} mm`, center + rPixel + offset * 0.3, wY - offset * 0.35);
   }
 
   // ===== DIMENSÃO g (GAP) - Horizontal (Lado Direito) =====
@@ -327,7 +360,11 @@ function drawDimensionsRing(ctx, center, pPixel, rPixel, wPixel, scale, p, r, w,
 
   ctx.font = `bold ${fontSize * 0.8}px Arial, sans-serif`;
   ctx.textAlign = "center";
-  ctx.fillText(`g = ${g.toFixed(3)} mm`, center + rPixel + gPixel / 2, gY + offset * 0.4);
+  ctx.fillText(
+    `g = ${g.toFixed(3)} mm`,
+    center + rPixel + gPixel / 2,
+    gY + offset * 0.4,
+  );
 
   // ===== LEGENDA COM CORES =====
   drawLegendRing(ctx, fontSize);
@@ -464,9 +501,11 @@ function updateAll() {
   alpha = Math.max(12.5, Math.min(16, alpha));
 
   const er_media = (er_real + 1) / 2;
-  const er_nova = 1 + ((er_real - 1) / 2) * (1 - Math.exp(-alpha * (h_sub / p)));
+  const er_nova =
+    1 + ((er_real - 1) / 2) * (1 - Math.exp(-alpha * (h_sub / p)));
   const er_tentativa = (er_media + er_nova) / 2; // Heurística simples
-  const er_antiga = 1 + ((er_real - 1) / 2) * (1 - Math.exp(-1.8 * (h_sub / p)));
+  const er_antiga =
+    1 + ((er_real - 1) / 2) * (1 - Math.exp(-1.8 * (h_sub / p)));
   const er_tanh = 1 + ((er_real - 1) / 2) * Math.tanh((Math.PI * h_sub) / p);
   const er_puro = er_real;
 
@@ -476,8 +515,14 @@ function updateAll() {
   drawGeometry(p, r, w);
 
   // Arrays de dados
-  const data_nova = [], data_tentativa = [], data_antiga = [], data_media = [], data_tanh = [], data_puro = [], labels = [];
-  
+  const data_nova = [],
+    data_tentativa = [],
+    data_antiga = [],
+    data_media = [],
+    data_tanh = [],
+    data_puro = [],
+    labels = [];
+
   const pCm = mmToCm(p);
   const wCm = mmToCm(w);
   const gCm = mmToCm(g);
@@ -505,7 +550,7 @@ function updateAll() {
 
       const calcPt = (er_val) => {
         const BC = er_val * C_base;
-        const X_total = XL_base - (1 / BC);
+        const X_total = XL_base - 1 / BC;
         const B_norm = 1 / X_total;
         return calcS21(B_norm); // S21 = 4 / (4 + B_norm^2) em dB
       };
@@ -517,9 +562,13 @@ function updateAll() {
       data_media.push(Math.max(-60, calcPt(er_media)));
       data_tanh.push(Math.max(-60, calcPt(er_tanh)));
       data_puro.push(Math.max(-60, calcPt(er_puro)));
-
     } catch (e) {
-      data_nova.push(0); data_tentativa.push(0); data_antiga.push(0); data_media.push(0); data_tanh.push(0); data_puro.push(0);
+      data_nova.push(0);
+      data_tentativa.push(0);
+      data_antiga.push(0);
+      data_media.push(0);
+      data_tanh.push(0);
+      data_puro.push(0);
     }
   }
 
@@ -528,8 +577,14 @@ function updateAll() {
     let hfssIndex = 0;
     hfssPlotData = labels.map((labelStr) => {
       const f = parseFloat(labelStr);
-      while (hfssIndex < ringHfssData.length - 1 && ringHfssData[hfssIndex].x < f) hfssIndex++;
-      return Math.abs(ringHfssData[hfssIndex].x - f) < 0.005 ? ringHfssData[hfssIndex].y : null;
+      while (
+        hfssIndex < ringHfssData.length - 1 &&
+        ringHfssData[hfssIndex].x < f
+      )
+        hfssIndex++;
+      return Math.abs(ringHfssData[hfssIndex].x - f) < 0.005
+        ? ringHfssData[hfssIndex].y
+        : null;
     });
   }
 
@@ -542,19 +597,38 @@ function updateAll() {
   }
 
   updateChart(
-    labels, data_nova, data_tentativa, data_antiga, data_media, data_tanh, data_puro,
-    hfssPlotData, limitIndex, f_limit, alpha
+    labels,
+    data_nova,
+    data_tentativa,
+    data_antiga,
+    data_media,
+    data_tanh,
+    data_puro,
+    hfssPlotData,
+    limitIndex,
+    f_limit,
+    alpha,
   );
 }
 
 function updateChart(
-  labels, data_nova, data_tentativa, data_antiga, data_media, data_tanh, data_puro,
-  hfssPlotData, limitIndex, f_limit, alpha
+  labels,
+  data_nova,
+  data_tentativa,
+  data_antiga,
+  data_media,
+  data_tanh,
+  data_puro,
+  hfssPlotData,
+  limitIndex,
+  f_limit,
+  alpha,
 ) {
   const ctx = document.getElementById("fssChart").getContext("2d");
   if (ringChartInstance) ringChartInstance.destroy();
 
-  const validData = limitIndex !== -1 ? data_nova.slice(0, limitIndex) : data_nova;
+  const validData =
+    limitIndex !== -1 ? data_nova.slice(0, limitIndex) : data_nova;
   const minIndex = validData.indexOf(Math.min(...validData));
   const frFreq = parseFloat(labels[minIndex]);
 
@@ -568,8 +642,8 @@ function updateChart(
       pointRadius: 0,
       fill: false,
       tension: 0,
-    }
-    
+    },
+
     /* === OUTRAS FÓRMULAS OCULTADAS PARA CLAREZA VISUAL ===
     ,
     {
@@ -608,7 +682,9 @@ function updateChart(
   }
 
   if (minIndex !== -1 && !isNaN(frFreq)) {
-    const frPointData = labels.map((_, idx) => idx === minIndex ? data_nova[idx] : null);
+    const frPointData = labels.map((_, idx) =>
+      idx === minIndex ? data_nova[idx] : null,
+    );
     datasets.push({
       label: `fr = ${frFreq.toFixed(2)} GHz (Ressonância)`,
       data: frPointData,
@@ -621,7 +697,9 @@ function updateChart(
   }
 
   if (limitIndex !== -1) {
-    const limitPointData = labels.map((_, idx) => idx === limitIndex ? data_nova[idx] : null);
+    const limitPointData = labels.map((_, idx) =>
+      idx === limitIndex ? data_nova[idx] : null,
+    );
     datasets.push({
       label: `Limite ECM (λ=p) em ${f_limit.toFixed(2)} GHz`,
       data: limitPointData,
@@ -670,17 +748,17 @@ function updateChart(
 
 function exportToCSV() {
   if (!ringChartInstance) return;
-  
+
   // Cabeçalho limpo focando apenas na Fórmula de Langley/Costa
   let csv = "\uFEFF" + "Frequência (GHz);S21 Modelo Langley (dB)\n";
-    
+
   ringChartInstance.data.labels.forEach((freq, index) => {
     let s21_nova = ringChartInstance.data.datasets[0].data[index];
     let fBR = Number(freq).toFixed(3).replace(".", ",");
     let sN_BR = Number(s21_nova).toFixed(4).replace(".", ",");
     csv += `${fBR};${sN_BR}\n`;
   });
-  
+
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
