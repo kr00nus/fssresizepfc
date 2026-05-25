@@ -343,7 +343,11 @@ function drawDimensionsRing(
 
     ctx.font = `bold ${fontSize * 0.8}px Arial, sans-serif`;
     ctx.textAlign = "center";
-    ctx.fillText(`w = ${w.toFixed(3)} mm`, center + rPixel + offset * 0.3, wY - offset * 0.35);
+    ctx.fillText(
+      `w = ${w.toFixed(3)} mm`,
+      center + rPixel + offset * 0.3,
+      wY - offset * 0.35,
+    );
   }
 
   // ===== DIMENSÃO g (GAP) - Horizontal (Lado Direito) =====

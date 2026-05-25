@@ -3,80 +3,159 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FSS Explorer - Laboratório de Simulação</title>
+    <title>FSS Design Lab - Simulador Interativo</title>
     <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f4f7f9;
+        background: linear-gradient(135deg, #f4f7f9 0%, #e8eef5 100%);
         color: #2c3e50;
-        margin: 0;
-        padding: 40px 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        line-height: 1.6;
       }
 
-      .header {
+      /* ========== HEADER HERO ========== */
+      .hero {
+        background: linear-gradient(135deg, #1a2a3a 0%, #2c3e50 100%);
+        color: white;
+        padding: 80px 20px;
         text-align: center;
-        max-width: 800px;
-        margin-bottom: 50px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       }
 
-      h1 {
+      .hero h1 {
+        font-size: 2.8em;
+        margin-bottom: 15px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
+      .hero .subtitle {
+        font-size: 1.25em;
+        opacity: 0.95;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.8;
+      }
+
+      /* ========== CONTAINER PRINCIPAL ========== */
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 60px 20px;
+      }
+
+      /* ========== SEÇÕES ========== */
+      .section {
+        margin-bottom: 80px;
+      }
+
+      .section h2 {
         font-size: 2.2em;
         color: #1a2a3a;
-        margin-bottom: 10px;
-        font-weight: 300;
-        text-transform: uppercase;
-        letter-spacing: 2px;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #3498db;
+        display: inline-block;
       }
 
-      p.subtitle {
-        font-size: 1.1em;
-        color: #666;
-        margin-top: 0;
+      .section-intro {
+        font-size: 1.05em;
+        color: #555;
+        margin-bottom: 30px;
+        line-height: 1.8;
       }
 
-      .grid-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 30px;
-        width: 100%;
-        max-width: 1100px;
-      }
-
-      .card {
-        background: #ffffff;
+      /* ========== BLOCOS DE INFORMAÇÃO ========== */
+      .info-block {
+        background: white;
         border-radius: 12px;
-        padding: 40px 25px;
+        padding: 35px;
+        margin-bottom: 25px;
+        border-left: 5px solid #3498db;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+      }
+
+      .info-block:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .info-block h3 {
+        font-size: 1.4em;
+        color: #1a2a3a;
+        margin-bottom: 15px;
+      }
+
+      .info-block p {
+        color: #555;
+        line-height: 1.8;
+        margin-bottom: 12px;
+      }
+
+      .info-block ul {
+        margin: 15px 0 15px 25px;
+        color: #555;
+      }
+
+      .info-block li {
+        margin-bottom: 10px;
+        line-height: 1.7;
+      }
+
+      .info-block code {
+        background: #f0f0f0;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9em;
+      }
+
+      /* ========== GRID DE MODELOS ========== */
+      .models-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        margin-bottom: 30px;
+      }
+
+      .model-card {
+        background: white;
+        border-radius: 12px;
+        padding: 35px 25px;
         text-decoration: none;
         color: inherit;
         display: flex;
         flex-direction: column;
         align-items: center;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        border: 1px solid #e0e6ed;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        border: 2px solid #e0e6ed;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
       }
 
-      .card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+      .model-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
         border-color: #3498db;
       }
 
-      /* Ícones Geométricos em CSS */
       .icon {
-        width: 60px;
-        height: 60px;
-        margin-bottom: 25px;
+        width: 70px;
+        height: 70px;
+        margin-bottom: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
         position: relative;
       }
 
-      /* Cruz de Jerusalém CSS */
+      /* Ícones CSS */
       .icon-cruz {
         background: #3498db;
         width: 40px;
@@ -90,106 +169,517 @@
         height: 40px;
       }
 
-      /* Patch Quadrado CSS */
       .icon-quadrado {
         background: #2c3e50;
+        width: 50px;
+        height: 50px;
+      }
+
+      .icon-espira {
+        border: 8px solid #e67e22;
         width: 45px;
         height: 45px;
       }
 
-      /* Espira Quadrada CSS */
-      .icon-espira {
-        border: 8px solid #e67e22;
-        width: 40px;
-        height: 40px;
-      }
-
-      /* Anel Circular CSS */
       .icon-anel {
         border: 8px solid #9b59b6;
-        width: 40px;
-        height: 40px;
+        width: 45px;
+        height: 45px;
         border-radius: 50%;
       }
 
-      .card h2 {
-        font-size: 1.5em;
+      .model-card h3 {
+        font-size: 1.4em;
         margin: 10px 0;
         color: #1a2a3a;
+        text-align: center;
       }
 
-      .card p {
+      .model-card .description {
         text-align: center;
         font-size: 0.95em;
         color: #7f8c8d;
         line-height: 1.6;
         margin-bottom: 20px;
+        flex-grow: 1;
       }
 
-      .btn-simular {
-        padding: 10px 25px;
+      .btn-primary {
+        padding: 12px 30px;
         background: #3498db;
         color: white;
-        border-radius: 20px;
+        border-radius: 25px;
         font-size: 0.85em;
         font-weight: bold;
         text-transform: uppercase;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: inline-block;
+        text-decoration: none;
       }
 
-      .card:hover .btn-simular {
+      .btn-primary:hover {
         background: #2980b9;
+        transform: scale(1.05);
+      }
+
+      .btn-primary:disabled {
+        background: #bdc3c7;
+        cursor: not-allowed;
+        transform: scale(1);
+      }
+
+      /* ========== BLOCOS DE AVISO ========== */
+      .warning-block {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+        border-left: 5px solid #ffc107;
+        border-radius: 12px;
+        padding: 30px;
+        margin: 25px 0;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      }
+
+      .warning-block h3 {
+        color: #856404;
+        margin-bottom: 12px;
+        font-size: 1.3em;
+      }
+
+      .warning-block p {
+        color: #856404;
+        line-height: 1.8;
+      }
+
+      /* ========== GRID 2 COLUNAS ========== */
+      .two-column-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 30px;
+      }
+
+      /* ========== GLOSSÁRIO ========== */
+      .glossary-item {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        border-left: 4px solid #3498db;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+      }
+
+      .glossary-item strong {
+        color: #1a2a3a;
+        font-size: 1.05em;
+      }
+
+      .glossary-item p {
+        margin-top: 8px;
+        color: #555;
+        font-size: 0.95em;
+      }
+
+      /* ========== SEÇÃO GPC ========== */
+      .gpc-container {
+        background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%);
+        border-radius: 12px;
+        padding: 50px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      .gpc-container h3 {
+        font-size: 2em;
+        color: #1a2a3a;
+        margin-bottom: 20px;
+      }
+
+      .gpc-container .coming-soon {
+        font-size: 3em;
+        color: #bdc3c7;
+        margin: 20px 0;
+      }
+
+      .gpc-container p {
+        font-size: 1.1em;
+        color: #666;
+        line-height: 1.8;
+        max-width: 500px;
+        margin: 15px auto;
+      }
+
+      /* ========== FOOTER ========== */
+      footer {
+        background: #2c3e50;
+        color: white;
+        text-align: center;
+        padding: 40px 20px;
+        margin-top: 80px;
+        font-size: 0.95em;
+      }
+
+      footer a {
+        color: #3498db;
+        text-decoration: none;
+        transition: all 0.3s;
+      }
+
+      footer a:hover {
+        text-decoration: underline;
+      }
+
+      /* ========== RESPONSIVO ========== */
+      @media (max-width: 768px) {
+        .hero h1 {
+          font-size: 2em;
+        }
+
+        .hero .subtitle {
+          font-size: 1em;
+        }
+
+        .section h2 {
+          font-size: 1.8em;
+        }
+
+        .models-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .gpc-container {
+          padding: 30px;
+        }
+
+        .gpc-container h3 {
+          font-size: 1.6em;
+        }
+
+        .gpc-container .coming-soon {
+          font-size: 2em;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="header">
-      <h1>FSS Design Lab</h1>
+    <!-- ===== HERO SECTION ===== -->
+    <div class="hero">
+      <h1>🛰️ FSS Design Lab</h1>
       <p class="subtitle">
-        Exploração Interativa de Superfícies Seletivas em Frequência através de
-        Modelos de Circuitos Equivalentes (ECM)
+        Simulador Interativo de Superfícies Seletivas de Frequência
+        <br />
+        Exploração Visual com Modelos de Circuitos Equivalentes
       </p>
     </div>
 
-    <div class="grid-container">
-      <a href="Cruzjeru.html" class="card">
-        <div class="icon"><div class="icon-cruz"></div></div>
-        <h2>Cruz de Jerusalém</h2>
-        <p>
-          Simulação multirressonante baseada na formulação de Langley e Munk
-          para elementos de N-polos conectados.
+    <!-- ===== CONTEÚDO PRINCIPAL ===== -->
+    <div class="container">
+      <!-- ===== SEÇÃO 1: O QUE É FSS ===== -->
+      <section class="section">
+        <h2>💡 O que é FSS?</h2>
+        <p class="section-intro">
+          Superfícies Seletivas de Frequência (Frequency Selective Surfaces)
         </p>
-        <div class="btn-simular">Iniciar Simulação</div>
-      </a>
 
-      <a href="Quadrado.html" class="card">
-        <div class="icon"><div class="icon-quadrado"></div></div>
-        <h2>Patch Quadrado</h2>
-        <p>
-          Análise de filtros passa-baixa utilizando a teoria sub-ressonante de
-          Ulrich para elementos sólidos.
-        </p>
-        <div class="btn-simular">Iniciar Simulação</div>
-      </a>
+        <div class="info-block">
+          <h3>Uma Peneira para Ondas de Rádio</h3>
+          <p>
+            Imagine uma <strong>peneira de cozinha</strong>: partículas grandes
+            não passam, enquanto partículas pequenas atravessam. Uma FSS funciona
+            de forma similar, mas com <strong>ondas eletromagnéticas</strong>:
+          </p>
+          <ul>
+            <li>
+              <strong>Em certas frequências</strong>, as ondas são
+              <strong>bloqueadas</strong>
+            </li>
+            <li>
+              <strong>Em outras frequências</strong>, as ondas
+              <strong>passam livremente</strong>
+            </li>
+          </ul>
+          <p style="margin-top: 15px;">
+            <strong>Aplicações práticas:</strong> antenas inteligentes, escudos
+            eletromagnéticos, filtros ópticos, painéis solares adaptáveis,
+            defesa contra interferências de radiofrequência.
+          </p>
+        </div>
 
-      <a href="EspiraQuadrada.html" class="card">
-        <div class="icon"><div class="icon-espira"></div></div>
-        <h2>Espira Quadrada</h2>
-        <p>
-          Estudo de resposta de banda larga para geometrias do tipo Square Loop
-          e análise de acoplamento capacitivo.
-        </p>
-        <div class="btn-simular">Iniciar Simulação</div>
-      </a>
+        <div class="two-column-grid">
+          <div class="info-block">
+            <h3>Como Funciona</h3>
+            <p>
+              Uma FSS é composta por um <strong>padrão repetido</strong> de
+              estruturas metálicas impressas em um substrato dielétrico.
+            </p>
+            <p>
+              Essas estruturas atuam como <strong>filtros ressonantes</strong>:
+              em determinadas frequências, a impedância equivalente faz com que
+              o sinal seja fortemente <strong>atenuado (bloqueado)</strong>.
+            </p>
+            <p>
+              O simulador usa <strong>modelos matemáticos</strong> baseados em
+              circuitos equivalentes para prever este comportamento.
+            </p>
+          </div>
 
-      <a href="anelcircular.html" class="card">
-        <div class="icon"><div class="icon-anel"></div></div>
-        <h2>Anel Circular</h2>
-        <p>
-          Projeto de filtros rejeita-banda fundamentado no Princípio da
-          Equivalência Geométrica de Langley e Parker.
+          <div class="info-block">
+            <h3>Parâmetros Importantes</h3>
+            <ul>
+              <li>
+                <strong>Período (p)</strong>: tamanho da célula repetida
+              </li>
+              <li>
+                <strong>Geometria do elemento</strong>: dimensão do padrão
+                metálico
+              </li>
+              <li>
+                <strong>Frequência de ressonância</strong>: onde o bloqueio é
+                máximo
+              </li>
+              <li>
+                <strong>Material do substrato</strong>: afeta a resposta final
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SEÇÃO 2: MODELOS FSS ===== -->
+      <section class="section">
+        <h2>🔬 Modelos FSS Disponíveis</h2>
+        <p class="section-intro">
+          Escolha um dos modelos abaixo para explorar interativamente como cada
+          geometria responde a diferentes frequências e parâmetros.
         </p>
-        <div class="btn-simular">Iniciar Simulação</div>
-      </a>
+
+        <div class="models-grid">
+          <a href="Cruzjeru.html" class="model-card">
+            <div class="icon">
+              <div class="icon-cruz"></div>
+            </div>
+            <h3>Cruz de Jerusalém</h3>
+            <p class="description">
+              Elemento multirressonante com 5 parâmetros. Ideal para análises
+              complexas de filtros banda-larga.
+            </p>
+            <button class="btn-primary">Simular</button>
+          </a>
+
+          <a href="Quadrado.html" class="model-card">
+            <div class="icon">
+              <div class="icon-quadrado"></div>
+            </div>
+            <h3>Patch Quadrado</h3>
+            <p class="description">
+              Elemento sólido simplificado. Modelo direto para filtros
+              passa-baixa e estruturas refletoras.
+            </p>
+            <button class="btn-primary">Simular</button>
+          </a>
+
+          <a href="EspiraQuadrada.html" class="model-card">
+            <div class="icon">
+              <div class="icon-espira"></div>
+            </div>
+            <h3>Espira Quadrada</h3>
+            <p class="description">
+              Anel quadrado de fio metálico. Excelente para estudar acoplamento
+              capacitivo e resposta banda-larga.
+            </p>
+            <button class="btn-primary">Simular</button>
+          </a>
+
+          <a href="anelcircular.html" class="model-card">
+            <div class="icon">
+              <div class="icon-anel"></div>
+            </div>
+            <h3>Anel Circular</h3>
+            <p class="description">
+              Geometria circular para filtros rejeita-banda. Baseado no
+              Princípio da Equivalência Geométrica.
+            </p>
+            <button class="btn-primary">Simular</button>
+          </a>
+        </div>
+
+        <div class="info-block">
+          <h3>📊 Como Usar o Simulador</h3>
+          <ol style="margin-left: 25px;">
+            <li style="margin-bottom: 12px;">
+              <strong>Ajuste os parâmetros</strong> usando os sliders ou campos
+              numéricos (período, dimensões, material)
+            </li>
+            <li style="margin-bottom: 12px;">
+              <strong>Veja a geometria</strong> sendo atualizada em tempo real no
+              canvas central
+            </li>
+            <li style="margin-bottom: 12px;">
+              <strong>Observe o gráfico</strong> S21 vs Frequência mostrando como
+              o sinal é transmitido
+            </li>
+            <li style="margin-bottom: 12px;">
+              <strong>Identifique a frequência de ressonância</strong> (ponto
+              mínimo do gráfico)
+            </li>
+            <li>
+              <strong>Exporte os dados</strong> em formato CSV para análise
+              posterior
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ===== SEÇÃO 3: GPC (FUTURO) ===== -->
+      <section class="section">
+        <h2>🚀 Guias de Projeto Customizáveis (GPC)</h2>
+        <p class="section-intro">
+          Ferramentas avançadas para design automático e otimização de FSS
+        </p>
+
+        <div class="gpc-container">
+          <h3>Em Desenvolvimento</h3>
+          <div class="coming-soon">🔧</div>
+
+          <div class="warning-block">
+            <h3>⏰ Disponível em Breve</h3>
+            <p>
+              Os <strong>Guias de Projeto Customizáveis (GPC)</strong> permitirão
+              que você defina especificações desejadas (frequência de
+              ressonância, largura de banda, etc.) e o sistema calculará
+              automaticamente os parâmetros geométricos ideais.
+            </p>
+            <p style="margin-top: 15px;">
+              Esta versão incluirá:<br />
+              ✓ Otimização automática de parâmetros<br />
+              ✓ Síntese de geometrias customizadas<br />
+              ✓ Análise paramétrica avançada<br />
+              ✓ Exportação de designs para fabricação
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SEÇÃO 4: GLOSSÁRIO RÁPIDO ===== -->
+      <section class="section">
+        <h2>📖 Glossário de Termos</h2>
+        <p class="section-intro">Dicionário rápido de conceitos técnicos</p>
+
+        <div class="two-column-grid">
+          <div>
+            <div class="glossary-item">
+              <strong>Frequência (f)</strong>
+              <p>
+                Quantas oscilações por segundo. Medida em GHz (gigahertz). 1
+                GHz = 1 bilhão de oscilações/segundo.
+              </p>
+            </div>
+
+            <div class="glossary-item">
+              <strong>Comprimento de onda (λ)</strong>
+              <p>
+                Distância entre dois picos consecutivos da onda. λ = 30cm/f(GHz)
+              </p>
+            </div>
+
+            <div class="glossary-item">
+              <strong>S21 (Parâmetro de Transmissão)</strong>
+              <p>
+                Quantidade de sinal que passa através. Em dB: 0 = tudo passa,
+                -60 = quase nada passa.
+              </p>
+            </div>
+
+            <div class="glossary-item">
+              <strong>Ressonância</strong>
+              <p>Frequência onde a transmissão é mínima (máximo bloqueio).</p>
+            </div>
+          </div>
+
+          <div>
+            <div class="glossary-item">
+              <strong>Período (p)</strong>
+              <p>
+                Tamanho da célula básica que se repete. Define a escala da FSS.
+              </p>
+            </div>
+
+            <div class="glossary-item">
+              <strong>εᵣ (Constante Dielétrica)</strong>
+              <p>
+                Mede como um material reage a campos elétricos. Ar: εᵣ ≈ 1.0 |
+                RO3003: εᵣ = 3.0 | Água: εᵣ ≈ 80
+              </p>
+            </div>
+
+            <div class="glossary-item">
+              <strong>Substrato</strong>
+              <p>Material dielétrico onde a FSS é impressa. Afeta a resposta.</p>
+            </div>
+
+            <div class="glossary-item">
+              <strong>Decibel (dB)</strong>
+              <p>
+                Escala logarítmica. 0 dB = referência | -3 dB = metade da
+                potência | -10 dB = 1/10 da potência.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SEÇÃO 5: DOCUMENTAÇÃO ===== -->
+      <section class="section">
+        <h2>📚 Documentação e Referências</h2>
+        <p class="section-intro">
+          Acesse documentação técnica completa e guias de referência
+        </p>
+
+        <div class="models-grid">
+          <div class="info-block" style="text-align: center; cursor: pointer;">
+            <h3>📖 Guia Rápido</h3>
+            <p>Dicionário de termos e conceitos fundamentais de FSS.</p>
+            <a href="GUIA_RAPIDO.md" class="btn-primary"
+              >Ler Documentação</a
+            >
+          </div>
+
+          <div class="info-block" style="text-align: center; cursor: pointer;">
+            <h3>🎓 Explicação para Leigos</h3>
+            <p>
+              Guia acessível para quem está começando a aprender sobre FSS.
+            </p>
+            <a href="README_EXPLICACAO.md" class="btn-primary"
+              >Ler Documentação</a
+            >
+          </div>
+
+          <div class="info-block" style="text-align: center; cursor: pointer;">
+            <h3>📋 Resumo Completo</h3>
+            <p>Documentação técnica completa sobre o projeto e arquitetura.</p>
+            <a href="PROJETO_RESUMO_COMPLETO.md" class="btn-primary"
+              >Ler Documentação</a
+            >
+          </div>
+        </div>
+      </section>
     </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+      <p>
+        <strong>FSS Design Lab</strong> — Simulador Educacional de Superfícies
+        Seletivas de Frequência
+      </p>
+      <p style="margin-top: 10px; opacity: 0.9;">
+        Desenvolvido como ferramenta de ensino em Engenharia Eletromagnética
+        <br />
+        <a href="https://github.com/kr00nus/fssresizepfc" target="_blank"
+          >Acesse o repositório</a
+        >
+      </p>
+      <p style="margin-top: 15px; font-size: 0.85em; opacity: 0.75;">
+        © 2026 — Todos os direitos reservados
+      </p>
+    </footer>
   </body>
 </html>
