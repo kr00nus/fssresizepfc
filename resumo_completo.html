@@ -353,9 +353,9 @@
         <div class="info-block">
           <h3>O que é?</h3>
           <p>
-            <strong>FSS Design Lab</strong> é um simulador educacional interativo
-            de Superfícies Seletivas de Frequência (FSS). Permite explorar 4
-            geometrias diferentes com visualização em tempo real.
+            <strong>FSS Design Lab</strong> é um simulador educacional
+            interativo de Superfícies Seletivas de Frequência (FSS). Permite
+            explorar 4 geometrias diferentes com visualização em tempo real.
           </p>
           <div class="table-responsive">
             <table>
@@ -377,9 +377,7 @@
               </tr>
               <tr>
                 <td><strong>Funcionalidades:</strong></td>
-                <td>
-                  Simulação, visualização, análise, exportação CSV
-                </td>
+                <td>Simulação, visualização, análise, exportação CSV</td>
               </tr>
             </table>
           </div>
@@ -389,7 +387,9 @@
           <h3>Objetivos Principais</h3>
           <ul class="feature-list">
             <li>Educar sobre FSS através de simulação interativa</li>
-            <li>Visualizar geometrias e resposta em frequência em tempo real</li>
+            <li>
+              Visualizar geometrias e resposta em frequência em tempo real
+            </li>
             <li>Permitir exploração de parâmetros e seus efeitos</li>
             <li>Oferecer múltiplos modelos para comparação</li>
             <li>Facilitar análise e exportação de dados</li>
@@ -409,25 +409,19 @@
             ├── guia_rapido.html ............ Documentação técnica<br />
             ├── explicacao_leigos.html .... Guia para leigos<br />
             ├── resumo_completo.html ..... Esta página<br />
-            ├── Cruzjeru.html ................. Simulador: Cruz de
-            Jerusalém<br />
-            ├── Quadrado.html ................. Simulador: Patch
-            Quadrado<br />
+            ├── Cruzjeru.html ................. Simulador: Cruz de Jerusalém<br />
+            ├── Quadrado.html ................. Simulador: Patch Quadrado<br />
             ├── EspiraQuadrada.html ....... Simulador: Espira Quadrada<br />
             ├── anelcircular.html ........... Simulador: Anel Circular<br />
             ├── src/<br />
-            │   ├── css/styles.css ......... Estilos centralizados<br />
-            │   └── js/<br />
-            │       ├── math.js ........... Utilitários matemáticos<br />
-            │       ├── visual.js ........ Utilitários de visualização<br />
-            │       ├── ui_cruzjeru.js
-            ........... Controller: Cruz<br />
-            │       ├── ui_quadrado.js
-            ............ Controller: Patch<br />
-            │       ├── ui_espira.js
-            ............. Controller: Espira<br />
-            │       └── ui_anelcircular.js
-            .. Controller: Anel<br />
+            │ ├── css/styles.css ......... Estilos centralizados<br />
+            │ └── js/<br />
+            │ ├── math.js ........... Utilitários matemáticos<br />
+            │ ├── visual.js ........ Utilitários de visualização<br />
+            │ ├── ui_cruzjeru.js ........... Controller: Cruz<br />
+            │ ├── ui_quadrado.js ............ Controller: Patch<br />
+            │ ├── ui_espira.js ............. Controller: Espira<br />
+            │ └── ui_anelcircular.js .. Controller: Anel<br />
             ├── README.md ...................... Documentação básica<br />
             ├── GUIA_RAPIDO.md ............... Dicionário de termos<br />
             ├── README_EXPLICACAO.md .... Guia leigo<br />
@@ -451,8 +445,8 @@
               compartilhadas
             </li>
             <li>
-              <strong>Escalabilidade:</strong> novos modelos podem ser adicionados
-              facilmente
+              <strong>Escalabilidade:</strong> novos modelos podem ser
+              adicionados facilmente
             </li>
           </ul>
         </div>
@@ -500,7 +494,7 @@
             5-polos
           </p>
           <p><strong>Características:</strong></p>
-          <ul style="margin-left: 20px;">
+          <ul style="margin-left: 20px">
             <li>✓ Multirressonante (múltiplos picos)</li>
             <li>✓ Visualização com 5 dimensões anotadas</li>
             <li>✓ Ideal para filtros complexos</li>
@@ -516,11 +510,9 @@
             grade p×p
           </p>
           <p><strong>Parâmetros:</strong> p, c (2 parâmetros simplificados)</p>
-          <p>
-            <strong>Modelo Matemático:</strong> Ulrich (sub-ressonante)
-          </p>
+          <p><strong>Modelo Matemático:</strong> Ulrich (sub-ressonante)</p>
           <p><strong>Características:</strong></p>
-          <ul style="margin-left: 20px;">
+          <ul style="margin-left: 20px">
             <li>✓ Modelo mais simples</li>
             <li>✓ Filtro passa-baixa</li>
             <li>✓ Interface intuitiva</li>
@@ -540,7 +532,7 @@
             <strong>Modelo Matemático:</strong> Langley com adaptações para loop
           </p>
           <p><strong>Características:</strong></p>
-          <ul style="margin-left: 20px;">
+          <ul style="margin-left: 20px">
             <li>✓ Resposta banda-larga</li>
             <li>✓ Acoplamento capacitivo</li>
             <li>✓ Visualização com 4 dimensões</li>
@@ -556,11 +548,9 @@
             e espessura w
           </p>
           <p><strong>Parâmetros:</strong> p, r, w, g (4 parâmetros)</p>
-          <p>
-            <strong>Modelo Matemático:</strong> Equivalência Geométrica
-          </p>
+          <p><strong>Modelo Matemático:</strong> Equivalência Geométrica</p>
           <p><strong>Características:</strong></p>
-          <ul style="margin-left: 20px;">
+          <ul style="margin-left: 20px">
             <li>✓ Simetria circular</li>
             <li>✓ Filtro rejeita-banda</li>
             <li>✓ Dimensões responsivas</li>
@@ -612,8 +602,9 @@
             lineWidth = Math.max(1.5, pPixel * 0.008)<br />
             offset = Math.max(25, pPixel * 0.15)
           </div>
-          <p style="margin-top: 15px;">
-            Onde <code>pPixel</code> é o período em pixels no canvas (p × scale).
+          <p style="margin-top: 15px">
+            Onde <code>pPixel</code> é o período em pixels no canvas (p ×
+            scale).
           </p>
         </div>
 
@@ -638,7 +629,7 @@
 
         <div class="info-block">
           <h3>Quando você abre uma página simuladora:</h3>
-          <ol style="margin: 15px 0 15px 30px;">
+          <ol style="margin: 15px 0 15px 30px">
             <li>HTML carrega Chart.js via CDN</li>
             <li>HTML carrega CSS centralizado (styles.css)</li>
             <li>
@@ -659,15 +650,13 @@
 
         <div class="info-block">
           <h3>Quando você muda um parâmetro:</h3>
-          <ol style="margin: 15px 0 15px 30px;">
+          <ol style="margin: 15px 0 15px 30px">
             <li>
               Evento de mudança dispara (input, change ou DOMManipulation)
             </li>
             <li>Valores dos parâmetros são atualizados</li>
             <li>Validações são aplicadas (limites min/max)</li>
-            <li>
-              Função <code>updateAll()</code> é chamada (orquestrador)
-            </li>
+            <li>Função <code>updateAll()</code> é chamada (orquestrador)</li>
             <li>Geometria é redesenhada no canvas</li>
             <li>
               Simulação matemática é recalculada (loop em frequência com
@@ -683,10 +672,14 @@
 
         <div class="info-block">
           <h3>Quando você clica em "Download CSV":</h3>
-          <ol style="margin: 15px 0 15px 30px;">
-            <li>Função <code>exportChartToCSV(chart, filename)</code> é chamada</li>
+          <ol style="margin: 15px 0 15px 30px">
+            <li>
+              Função <code>exportChartToCSV(chart, filename)</code> é chamada
+            </li>
             <li>Dados do gráfico são extraídos em formato tabular</li>
-            <li>Arquivo CSV é gerado com headers: "Frequency (GHz);S21 (dB)"</li>
+            <li>
+              Arquivo CSV é gerado com headers: "Frequency (GHz);S21 (dB)"
+            </li>
             <li>Download é iniciado no navegador</li>
           </ol>
         </div>
@@ -726,15 +719,9 @@
               <strong>Costa 2020 (com α dinâmico):</strong> Considera efeito de
               borda
             </li>
-            <li>
-              <strong>Exponencial:</strong> Função exponencial suave
-            </li>
-            <li>
-              <strong>Tanh:</strong> Função tangente hiperbólica
-            </li>
-            <li>
-              <strong>Puro:</strong> Apenas o valor nominal (εᵣ)
-            </li>
+            <li><strong>Exponencial:</strong> Função exponencial suave</li>
+            <li><strong>Tanh:</strong> Função tangente hiperbólica</li>
+            <li><strong>Puro:</strong> Apenas o valor nominal (εᵣ)</li>
           </ul>
         </div>
 
@@ -790,9 +777,7 @@
                 <td>
                   <span class="badge status-complete">Completo</span>
                 </td>
-                <td>
-                  Modelo com 4 dimensões, visualização responsiva
-                </td>
+                <td>Modelo com 4 dimensões, visualização responsiva</td>
               </tr>
               <tr>
                 <td><strong>Anel Circular</strong></td>
@@ -815,7 +800,9 @@
                 <td>
                   <span class="badge status-complete">Completo</span>
                 </td>
-                <td>3 páginas: Guia Rápido, Explicação Leigos, Resumo Técnico</td>
+                <td>
+                  3 páginas: Guia Rápido, Explicação Leigos, Resumo Técnico
+                </td>
               </tr>
               <tr>
                 <td><strong>GPC (Guias de Projeto)</strong></td>
@@ -836,7 +823,7 @@
         <div class="info-block">
           <h3>Passos para Adicionar um Novo Modelo FSS:</h3>
 
-          <h4 style="margin: 20px 0 10px 0;">1️⃣ Criar arquivo HTML</h4>
+          <h4 style="margin: 20px 0 10px 0">1️⃣ Criar arquivo HTML</h4>
           <p>
             Exemplo: <code>novo_modelo.html</code> seguindo a estrutura dos
             existentes:
@@ -848,15 +835,14 @@
             &lt;body&gt;<br />
             &nbsp;&nbsp;&lt;div class="dashboard"&gt;...(painel params e
             canvas)...&lt;/div&gt;<br />
-            &nbsp;&nbsp;&lt;script type="module" src="src/js/ui_novo.js"&gt;&lt;/script&gt;<br />
+            &nbsp;&nbsp;&lt;script type="module"
+            src="src/js/ui_novo.js"&gt;&lt;/script&gt;<br />
             &lt;/body&gt;<br />
             &lt;/html&gt;
           </div>
 
-          <h4 style="margin: 20px 0 10px 0;">2️⃣ Criar módulo JavaScript</h4>
-          <p>
-            Exemplo: <code>src/js/ui_novo.js</code> com funções essenciais:
-          </p>
+          <h4 style="margin: 20px 0 10px 0">2️⃣ Criar módulo JavaScript</h4>
+          <p>Exemplo: <code>src/js/ui_novo.js</code> com funções essenciais:</p>
           <div class="info-block code-block">
             import { FF, GG } from './math.js';<br />
             import { createLineChart, exportChartToCSV } from './visual.js';<br />
@@ -868,33 +854,27 @@
             document.addEventListener('DOMContentLoaded', init);
           </div>
 
-          <h4 style="margin: 20px 0 10px 0;">3️⃣ Implementar funções principais</h4>
-          <ul style="margin-left: 30px;">
+          <h4 style="margin: 20px 0 10px 0">
+            3️⃣ Implementar funções principais
+          </h4>
+          <ul style="margin-left: 30px">
             <li>
               <strong>drawGeometry():</strong> desenha a geometria no canvas
             </li>
-            <li>
-              <strong>updateAll():</strong> orquestra atualização de tudo
-            </li>
-            <li>
-              <strong>Simulação:</strong> loop em frequência com cálculos
-            </li>
-            <li>
-              <strong>init():</strong> inicia e liga eventos
-            </li>
+            <li><strong>updateAll():</strong> orquestra atualização de tudo</li>
+            <li><strong>Simulação:</strong> loop em frequência com cálculos</li>
+            <li><strong>init():</strong> inicia e liga eventos</li>
           </ul>
 
-          <h4 style="margin: 20px 0 10px 0;">4️⃣ Reutilizar funções comuns</h4>
-          <ul style="margin-left: 30px;">
+          <h4 style="margin: 20px 0 10px 0">4️⃣ Reutilizar funções comuns</h4>
+          <ul style="margin-left: 30px">
             <li>Cálculos de fórmulas de math.js</li>
-            <li>
-              Criação de gráficos via createLineChart() de visual.js
-            </li>
+            <li>Criação de gráficos via createLineChart() de visual.js</li>
             <li>Exportação CSV via exportChartToCSV()</li>
             <li>Estilos centralizados de styles.css</li>
           </ul>
 
-          <h4 style="margin: 20px 0 10px 0;">5️⃣ Adicionar link no index.html</h4>
+          <h4 style="margin: 20px 0 10px 0">5️⃣ Adicionar link no index.html</h4>
           <p>Incluir card com link na dashboard principal.</p>
         </div>
 
@@ -907,16 +887,14 @@
             <li>Use variáveis descritivas em português</li>
             <li>Documente com comentários explicando cada seção</li>
             <li>Valide parâmetros (mín, máx, tipo)</li>
-            <li>
-              Garanta responsividade com cálculos proporcionais ao canvas
-            </li>
+            <li>Garanta responsividade com cálculos proporcionais ao canvas</li>
             <li>Teste com múltiplos valores de entrada</li>
           </ul>
         </div>
       </section>
 
       <!-- ===== BOTÕES ===== -->
-      <div style="text-align: center; margin-top: 60px; margin-bottom: 40px;">
+      <div style="text-align: center; margin-top: 60px; margin-bottom: 40px">
         <a href="index.html" class="btn">🏠 Voltar ao Início</a>
         <a href="guia_rapido.html" class="btn">📖 Guia Rápido</a>
         <a href="explicacao_leigos.html" class="btn">🎓 Para Leigos</a>
@@ -926,7 +904,7 @@
     <!-- ===== FOOTER ===== -->
     <footer>
       <p><strong>Resumo Completo - FSS Design Lab</strong></p>
-      <p style="margin-top: 10px;">
+      <p style="margin-top: 10px">
         Documentação técnica completa: arquitetura, modelos, e guia de extensões
       </p>
     </footer>

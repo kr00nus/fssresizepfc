@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FSS Design Lab - Simulador Interativo</title>
+    <title>FSS Explorer - Laboratório de Simulação</title>
     <style>
       * {
         margin: 0;
@@ -279,8 +279,8 @@
         font-size: 0.95em;
       }
 
-      /* ========== SEÇÃO GPC ========== */
-      .gpc-container {
+      /* ========== SEÇÃO AMC (Antiga GPC) ========== */
+      .amc-container {
         background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%);
         border-radius: 12px;
         padding: 50px;
@@ -288,23 +288,23 @@
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
       }
 
-      .gpc-container h3 {
+      .amc-container h3 {
         font-size: 2em;
         color: #1a2a3a;
         margin-bottom: 20px;
       }
 
-      .gpc-container .coming-soon {
+      .amc-container .coming-soon {
         font-size: 3em;
         color: #bdc3c7;
         margin: 20px 0;
       }
 
-      .gpc-container p {
+      .amc-container p {
         font-size: 1.1em;
         color: #666;
         line-height: 1.8;
-        max-width: 500px;
+        max-width: 800px;
         margin: 15px auto;
       }
 
@@ -346,22 +346,21 @@
           grid-template-columns: 1fr;
         }
 
-        .gpc-container {
+        .amc-container {
           padding: 30px;
         }
 
-        .gpc-container h3 {
+        .amc-container h3 {
           font-size: 1.6em;
         }
 
-        .gpc-container .coming-soon {
+        .amc-container .coming-soon {
           font-size: 2em;
         }
       }
     </style>
   </head>
   <body>
-    <!-- ===== HERO SECTION ===== -->
     <div class="hero">
       <h1>🛰️ FSS Design Lab</h1>
       <p class="subtitle">
@@ -371,9 +370,7 @@
       </p>
     </div>
 
-    <!-- ===== CONTEÚDO PRINCIPAL ===== -->
     <div class="container">
-      <!-- ===== SEÇÃO 1: O QUE É FSS ===== -->
       <section class="section">
         <h2>💡 O que é FSS?</h2>
         <p class="section-intro">
@@ -384,8 +381,9 @@
           <h3>Uma Peneira para Ondas de Rádio</h3>
           <p>
             Imagine uma <strong>peneira de cozinha</strong>: partículas grandes
-            não passam, enquanto partículas pequenas atravessam. Uma FSS funciona
-            de forma similar, mas com <strong>ondas eletromagnéticas</strong>:
+            não passam, enquanto partículas pequenas atravessam. Uma FSS
+            funciona de forma similar, mas com
+            <strong>ondas eletromagnéticas</strong>:
           </p>
           <ul>
             <li>
@@ -397,7 +395,7 @@
               <strong>passam livremente</strong>
             </li>
           </ul>
-          <p style="margin-top: 15px;">
+          <p style="margin-top: 15px">
             <strong>Aplicações práticas:</strong> antenas inteligentes, escudos
             eletromagnéticos, filtros ópticos, painéis solares adaptáveis,
             defesa contra interferências de radiofrequência.
@@ -425,9 +423,7 @@
           <div class="info-block">
             <h3>Parâmetros Importantes</h3>
             <ul>
-              <li>
-                <strong>Período (p)</strong>: tamanho da célula repetida
-              </li>
+              <li><strong>Período (p)</strong>: tamanho da célula repetida</li>
               <li>
                 <strong>Geometria do elemento</strong>: dimensão do padrão
                 metálico
@@ -444,7 +440,6 @@
         </div>
       </section>
 
-      <!-- ===== SEÇÃO 2: MODELOS FSS ===== -->
       <section class="section">
         <h2>🔬 Modelos FSS Disponíveis</h2>
         <p class="section-intro">
@@ -471,8 +466,8 @@
             </div>
             <h3>Patch Quadrado</h3>
             <p class="description">
-              Elemento sólido simplificado. Modelo direto para filtros
-              passa-baixa e estruturas refletoras.
+              Análise de filtros passa-baixa utilizando a teoria sub-ressonante
+              de Ulrich para elementos sólidos.
             </p>
             <button class="btn-primary">Simular</button>
           </a>
@@ -495,8 +490,8 @@
             </div>
             <h3>Anel Circular</h3>
             <p class="description">
-              Geometria circular para filtros rejeita-banda. Baseado no
-              Princípio da Equivalência Geométrica.
+              Projeto de filtros rejeita-banda fundamentado no Princípio da
+              Equivalência Geométrica de Langley e Parker.
             </p>
             <button class="btn-primary">Simular</button>
           </a>
@@ -504,20 +499,20 @@
 
         <div class="info-block">
           <h3>📊 Como Usar o Simulador</h3>
-          <ol style="margin-left: 25px;">
-            <li style="margin-bottom: 12px;">
+          <ol style="margin-left: 25px">
+            <li style="margin-bottom: 12px">
               <strong>Ajuste os parâmetros</strong> usando os sliders ou campos
               numéricos (período, dimensões, material)
             </li>
-            <li style="margin-bottom: 12px;">
-              <strong>Veja a geometria</strong> sendo atualizada em tempo real no
-              canvas central
+            <li style="margin-bottom: 12px">
+              <strong>Veja a geometria</strong> sendo atualizada em tempo real
+              no canvas central
             </li>
-            <li style="margin-bottom: 12px;">
-              <strong>Observe o gráfico</strong> S21 vs Frequência mostrando como
-              o sinal é transmitido
+            <li style="margin-bottom: 12px">
+              <strong>Observe o gráfico</strong> S21 vs Frequência mostrando
+              como o sinal é transmitido
             </li>
-            <li style="margin-bottom: 12px;">
+            <li style="margin-bottom: 12px">
               <strong>Identifique a frequência de ressonância</strong> (ponto
               mínimo do gráfico)
             </li>
@@ -529,37 +524,53 @@
         </div>
       </section>
 
-      <!-- ===== SEÇÃO 3: GPC (FUTURO) ===== -->
       <section class="section">
-        <h2>🚀 Guias de Projeto Customizáveis (GPC)</h2>
+        <h2>🚀 Condutores Magnéticos Artificiais (AMC)</h2>
         <p class="section-intro">
-          Ferramentas avançadas para design automático e otimização de FSS
+          Análise Avançada de Metasuperfícies e Superfícies de Alta Impedância
+          (HIS)
         </p>
 
-        <div class="gpc-container">
+        <div class="amc-container">
           <h3>Em Desenvolvimento</h3>
-          <div class="coming-soon">🔧</div>
+          <div class="coming-soon">🧲</div>
 
-          <div class="warning-block">
-            <h3>⏰ Disponível em Breve</h3>
+          <div class="warning-block" style="text-align: left">
+            <h3>⏰ Novo Módulo AMC Disponível em Breve</h3>
             <p>
-              Os <strong>Guias de Projeto Customizáveis (GPC)</strong> permitirão
-              que você defina especificações desejadas (frequência de
-              ressonância, largura de banda, etc.) e o sistema calculará
-              automaticamente os parâmetros geométricos ideais.
+              Os
+              <strong
+                >Condutores Magnéticos Artificiais (AMC -
+                <em>Artificial Magnetic Conductors</em>)</strong
+              >
+              representam uma classe especial de metasuperfícies estruturadas.
+              Diferentemente de um condutor elétrico perfeito (como uma placa de
+              cobre comum), que reflete ondas eletromagnéticas com uma defasagem
+              de 180° causando interferência destrutiva, um AMC reflete a onda
+              com uma
+              <strong>fase de 0° na sua frequência de ressonância</strong>.
             </p>
-            <p style="margin-top: 15px;">
-              Esta versão incluirá:<br />
-              ✓ Otimização automática de parâmetros<br />
-              ✓ Síntese de geometrias customizadas<br />
-              ✓ Análise paramétrica avançada<br />
-              ✓ Exportação de designs para fabricação
+            <p style="margin-top: 15px">
+              Conforme fundamentado na literatura acadêmica avançada, estruturas
+              baseadas em Superfícies Seletivas de Frequência (FSS) apoiadas
+              sobre um substrato dielétrico aterrado atuam como AMCs, formando
+              Superfícies de Alta Impedância (HIS).
+            </p>
+            <p style="margin-top: 15px">
+              <strong>Este futuro módulo permitirá:</strong><br />
+              ✓ Simulação de fase de reflexão (Reflection Phase).<br />
+              ✓ Determinação precisa da banda AMC (intervalo de frequências onde
+              a fase varia entre +90° e -90°).<br />
+              ✓ Aplicação em projeto de antenas de baixo perfil (<em
+                >Low-Profile Antennas</em
+              >) para evitar curto-circuito do sinal.<br />
+              ✓ Análise paramétrica de estruturas baseadas nas Condições de
+              Contorno Generalizadas (GCC).
             </p>
           </div>
         </div>
       </section>
 
-      <!-- ===== SEÇÃO 4: GLOSSÁRIO RÁPIDO ===== -->
       <section class="section">
         <h2>📖 Glossário de Termos</h2>
         <p class="section-intro">Dicionário rápido de conceitos técnicos</p>
@@ -569,8 +580,8 @@
             <div class="glossary-item">
               <strong>Frequência (f)</strong>
               <p>
-                Quantas oscilações por segundo. Medida em GHz (gigahertz). 1
-                GHz = 1 bilhão de oscilações/segundo.
+                Quantas oscilações por segundo. Medida em GHz (gigahertz). 1 GHz
+                = 1 bilhão de oscilações/segundo.
               </p>
             </div>
 
@@ -613,7 +624,9 @@
 
             <div class="glossary-item">
               <strong>Substrato</strong>
-              <p>Material dielétrico onde a FSS é impressa. Afeta a resposta.</p>
+              <p>
+                Material dielétrico onde a FSS é impressa. Afeta a resposta.
+              </p>
             </div>
 
             <div class="glossary-item">
@@ -627,7 +640,6 @@
         </div>
       </section>
 
-      <!-- ===== SEÇÃO 5: DOCUMENTAÇÃO ===== -->
       <section class="section">
         <h2>📚 Documentação e Referências</h2>
         <p class="section-intro">
@@ -635,25 +647,21 @@
         </p>
 
         <div class="models-grid">
-          <div class="info-block" style="text-align: center; cursor: pointer;">
+          <div class="info-block" style="text-align: center; cursor: pointer">
             <h3>📖 Guia Rápido</h3>
             <p>Dicionário de termos e conceitos fundamentais de FSS.</p>
-            <a href="guia_rapido.html" class="btn-primary"
-              >Ler Documentação</a
-            >
+            <a href="guia_rapido.html" class="btn-primary">Ler Documentação</a>
           </div>
 
-          <div class="info-block" style="text-align: center; cursor: pointer;">
+          <div class="info-block" style="text-align: center; cursor: pointer">
             <h3>🎓 Explicação para Leigos</h3>
-            <p>
-              Guia acessível para quem está começando a aprender sobre FSS.
-            </p>
+            <p>Guia acessível para quem está começando a aprender sobre FSS.</p>
             <a href="explicacao_leigos.html" class="btn-primary"
               >Ler Documentação</a
             >
           </div>
 
-          <div class="info-block" style="text-align: center; cursor: pointer;">
+          <div class="info-block" style="text-align: center; cursor: pointer">
             <h3>📋 Resumo Completo</h3>
             <p>Documentação técnica completa sobre o projeto e arquitetura.</p>
             <a href="resumo_completo.html" class="btn-primary"
@@ -664,20 +672,19 @@
       </section>
     </div>
 
-    <!-- ===== FOOTER ===== -->
     <footer>
       <p>
         <strong>FSS Design Lab</strong> — Simulador Educacional de Superfícies
         Seletivas de Frequência
       </p>
-      <p style="margin-top: 10px; opacity: 0.9;">
+      <p style="margin-top: 10px; opacity: 0.9">
         Desenvolvido como ferramenta de ensino em Engenharia Eletromagnética
         <br />
         <a href="https://github.com/kr00nus/fssresizepfc" target="_blank"
           >Acesse o repositório</a
         >
       </p>
-      <p style="margin-top: 15px; font-size: 0.85em; opacity: 0.75;">
+      <p style="margin-top: 15px; font-size: 0.85em; opacity: 0.75">
         © 2026 — Todos os direitos reservados
       </p>
     </footer>
