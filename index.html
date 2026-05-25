@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FSS Explorer - Laboratório de Simulação</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
       * {
         margin: 0;
@@ -16,6 +20,14 @@
         background: linear-gradient(135deg, #f4f7f9 0%, #e8eef5 100%);
         color: #2c3e50;
         line-height: 1.6;
+      }
+
+      /* Ajuste para ícones do Font Awesome */
+      h1 i,
+      h2 i,
+      h3 i {
+        margin-right: 12px;
+        opacity: 0.9;
       }
 
       /* ========== HEADER HERO ========== */
@@ -362,7 +374,10 @@
   </head>
   <body>
     <div class="hero">
-      <h1>🛰️ FSS Design Lab</h1>
+      <h1>
+        <i class="fa-solid fa-satellite-dish" style="color: #3498db"></i> FSS
+        Design Lab
+      </h1>
       <p class="subtitle">
         Simulador Interativo de Superfícies Seletivas de Frequência
         <br />
@@ -372,7 +387,7 @@
 
     <div class="container">
       <section class="section">
-        <h2>💡 O que é FSS?</h2>
+        <h2><i class="fa-regular fa-lightbulb"></i> O que é FSS?</h2>
         <p class="section-intro">
           Superfícies Seletivas de Frequência (Frequency Selective Surfaces)
         </p>
@@ -441,7 +456,7 @@
       </section>
 
       <section class="section">
-        <h2>🔬 Modelos FSS Disponíveis</h2>
+        <h2><i class="fa-solid fa-microchip"></i> Modelos FSS Disponíveis</h2>
         <p class="section-intro">
           Escolha um dos modelos abaixo para explorar interativamente como cada
           geometria responde a diferentes frequências e parâmetros.
@@ -498,7 +513,7 @@
         </div>
 
         <div class="info-block">
-          <h3>📊 Como Usar o Simulador</h3>
+          <h3><i class="fa-solid fa-chart-line"></i> Como Usar o Simulador</h3>
           <ol style="margin-left: 25px">
             <li style="margin-bottom: 12px">
               <strong>Ajuste os parâmetros</strong> usando os sliders ou campos
@@ -525,7 +540,10 @@
       </section>
 
       <section class="section">
-        <h2>🚀 Condutores Magnéticos Artificiais (AMC)</h2>
+        <h2>
+          <i class="fa-solid fa-layer-group"></i> Condutores Magnéticos
+          Artificiais (AMC)
+        </h2>
         <p class="section-intro">
           Análise Avançada de Metasuperfícies e Superfícies de Alta Impedância
           (HIS)
@@ -533,10 +551,13 @@
 
         <div class="amc-container">
           <h3>Em Desenvolvimento</h3>
-          <div class="coming-soon">🧲</div>
+          <div class="coming-soon"><i class="fa-solid fa-magnet"></i></div>
 
           <div class="warning-block" style="text-align: left">
-            <h3>⏰ Novo Módulo AMC Disponível em Breve</h3>
+            <h3>
+              <i class="fa-regular fa-clock"></i> Novo Módulo AMC Disponível em
+              Breve
+            </h3>
             <p>
               Os
               <strong
@@ -572,7 +593,7 @@
       </section>
 
       <section class="section">
-        <h2>📖 Glossário de Termos</h2>
+        <h2><i class="fa-solid fa-book-open"></i> Glossário de Termos</h2>
         <p class="section-intro">Dicionário rápido de conceitos técnicos</p>
 
         <div class="two-column-grid">
@@ -641,20 +662,22 @@
       </section>
 
       <section class="section">
-        <h2>📚 Documentação e Referências</h2>
+        <h2><i class="fa-solid fa-book"></i> Documentação e Referências</h2>
         <p class="section-intro">
           Acesse documentação técnica completa e guias de referência
         </p>
 
         <div class="models-grid">
           <div class="info-block" style="text-align: center; cursor: pointer">
-            <h3>📖 Guia Rápido</h3>
+            <h3><i class="fa-regular fa-bookmark"></i> Guia Rápido</h3>
             <p>Dicionário de termos e conceitos fundamentais de FSS.</p>
             <a href="guia_rapido.html" class="btn-primary">Ler Documentação</a>
           </div>
 
           <div class="info-block" style="text-align: center; cursor: pointer">
-            <h3>🎓 Explicação para Leigos</h3>
+            <h3>
+              <i class="fa-solid fa-graduation-cap"></i> Explicação para Leigos
+            </h3>
             <p>Guia acessível para quem está começando a aprender sobre FSS.</p>
             <a href="explicacao_leigos.html" class="btn-primary"
               >Ler Documentação</a
@@ -662,7 +685,7 @@
           </div>
 
           <div class="info-block" style="text-align: center; cursor: pointer">
-            <h3>📋 Resumo Completo</h3>
+            <h3><i class="fa-solid fa-clipboard-list"></i> Resumo Completo</h3>
             <p>Documentação técnica completa sobre o projeto e arquitetura.</p>
             <a href="resumo_completo.html" class="btn-primary"
               >Ler Documentação</a
