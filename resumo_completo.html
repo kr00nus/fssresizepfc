@@ -1,0 +1,934 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resumo Completo - Arquitetura e Documentação</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f4f7f9 0%, #e8eef5 100%);
+        color: #2c3e50;
+        line-height: 1.6;
+      }
+
+      /* ===== HEADER ===== */
+      .header {
+        background: linear-gradient(135deg, #1a2a3a 0%, #2c3e50 100%);
+        color: white;
+        padding: 60px 20px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      .header p {
+        font-size: 1.1em;
+        opacity: 0.95;
+      }
+
+      /* ===== CONTAINER ===== */
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 50px 20px;
+      }
+
+      /* ===== ÍNDICE ===== */
+      .toc {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 50px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+        border-left: 5px solid #3498db;
+      }
+
+      .toc h3 {
+        color: #1a2a3a;
+        margin-bottom: 20px;
+        font-size: 1.3em;
+      }
+
+      .toc ul {
+        list-style: none;
+        column-count: 2;
+        column-gap: 40px;
+      }
+
+      .toc li {
+        margin-bottom: 12px;
+        line-height: 1.8;
+      }
+
+      .toc a {
+        color: #3498db;
+        text-decoration: none;
+        transition: all 0.3s;
+      }
+
+      .toc a:hover {
+        color: #2980b9;
+        text-decoration: underline;
+      }
+
+      /* ===== SEÇÕES ===== */
+      .section {
+        margin-bottom: 60px;
+      }
+
+      .section h2 {
+        font-size: 2em;
+        color: #1a2a3a;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #3498db;
+        display: inline-block;
+      }
+
+      .section h3 {
+        font-size: 1.5em;
+        color: #1a2a3a;
+        margin: 25px 0 15px 0;
+      }
+
+      /* ===== INFO BLOCKS ===== */
+      .info-block {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 25px;
+        border-left: 5px solid #3498db;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+      }
+
+      .info-block.code-block {
+        background: #f5f5f5;
+        border-left-color: #2c3e50;
+        font-family: "Courier New", monospace;
+        font-size: 0.95em;
+        overflow-x: auto;
+        padding: 20px;
+      }
+
+      .info-block p {
+        color: #555;
+        margin-bottom: 12px;
+      }
+
+      .info-block ul {
+        margin: 15px 0 15px 30px;
+        color: #555;
+      }
+
+      .info-block li {
+        margin-bottom: 10px;
+      }
+
+      /* ===== TABELAS ===== */
+      .table-responsive {
+        overflow-x: auto;
+        margin: 20px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+      }
+
+      table thead {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+      }
+
+      table th,
+      table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      table tbody tr:hover {
+        background: #f5f5f5;
+      }
+
+      table tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      /* ===== CARDS ===== */
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        margin: 25px 0;
+      }
+
+      .model-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+        border-top: 5px solid #3498db;
+        transition: all 0.3s;
+      }
+
+      .model-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .model-card h4 {
+        color: #1a2a3a;
+        margin-bottom: 12px;
+        font-size: 1.2em;
+      }
+
+      .model-card p {
+        color: #666;
+        font-size: 0.95em;
+      }
+
+      /* ===== LISTAS ===== */
+      .feature-list {
+        list-style: none;
+        margin: 20px 0;
+      }
+
+      .feature-list li {
+        padding: 10px 0;
+        padding-left: 30px;
+        position: relative;
+        color: #555;
+      }
+
+      .feature-list li::before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: #27ae60;
+        font-weight: bold;
+        font-size: 1.2em;
+      }
+
+      /* ===== BADGES ===== */
+      .badge {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: 600;
+        margin: 5px 5px 5px 0;
+      }
+
+      .badge.tech {
+        background: #e3f2fd;
+        color: #1565c0;
+      }
+
+      .badge.status-complete {
+        background: #c8e6c9;
+        color: #2e7d32;
+      }
+
+      .badge.status-pending {
+        background: #fff3e0;
+        color: #e65100;
+      }
+
+      /* ===== BOTÕES ===== */
+      .btn {
+        display: inline-block;
+        padding: 12px 30px;
+        background: #3498db;
+        color: white;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.85em;
+        transition: all 0.3s;
+        border: none;
+        cursor: pointer;
+        margin: 10px 5px;
+      }
+
+      .btn:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-secondary {
+        background: #95a5a6;
+      }
+
+      .btn-secondary:hover {
+        background: #7f8c8d;
+      }
+
+      /* ===== FOOTER ===== */
+      footer {
+        background: #2c3e50;
+        color: white;
+        text-align: center;
+        padding: 40px 20px;
+        margin-top: 60px;
+      }
+
+      footer a {
+        color: #3498db;
+        text-decoration: none;
+      }
+
+      /* ===== RESPONSIVO ===== */
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 1.8em;
+        }
+
+        .section h2 {
+          font-size: 1.5em;
+        }
+
+        .card-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .toc ul {
+          column-count: 1;
+        }
+
+        table th,
+        table td {
+          padding: 8px 10px;
+          font-size: 0.9em;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ===== HEADER ===== -->
+    <div class="header">
+      <h1>📚 Resumo Completo do Projeto</h1>
+      <p>Documentação técnica, arquitetura e referência completa</p>
+    </div>
+
+    <!-- ===== CONTEÚDO ===== -->
+    <div class="container">
+      <!-- ===== ÍNDICE ===== -->
+      <div class="toc">
+        <h3>📑 Índice de Conteúdos</h3>
+        <ul>
+          <li><a href="#visao-geral">1. Visão Geral do Projeto</a></li>
+          <li><a href="#arquitetura">2. Arquitetura de Software</a></li>
+          <li><a href="#modelos">3. Os 4 Modelos FSS</a></li>
+          <li><a href="#visualizacao">4. Sistema de Visualização</a></li>
+          <li><a href="#execucao">5. Fluxo de Execução</a></li>
+          <li><a href="#tecnicas">6. Técnicas Matemáticas</a></li>
+          <li><a href="#status">7. Status de Completude</a></li>
+          <li><a href="#extensoes">8. Guia para Extensões</a></li>
+        </ul>
+      </div>
+
+      <!-- ===== SEÇÃO 1 ===== -->
+      <section class="section" id="visao-geral">
+        <h2>🎯 1. Visão Geral do Projeto</h2>
+
+        <div class="info-block">
+          <h3>O que é?</h3>
+          <p>
+            <strong>FSS Design Lab</strong> é um simulador educacional interativo
+            de Superfícies Seletivas de Frequência (FSS). Permite explorar 4
+            geometrias diferentes com visualização em tempo real.
+          </p>
+          <div class="table-responsive">
+            <table>
+              <tr>
+                <td><strong>Tipo:</strong></td>
+                <td>Aplicação Web Estática (HTML + JavaScript)</td>
+              </tr>
+              <tr>
+                <td><strong>Framework:</strong></td>
+                <td>HTML5, CSS3, JavaScript ES6 Modules</td>
+              </tr>
+              <tr>
+                <td><strong>Bibliotecas:</strong></td>
+                <td>Chart.js (via CDN) para gráficos</td>
+              </tr>
+              <tr>
+                <td><strong>Modelos Suportados:</strong></td>
+                <td>4 geometrias FSS diferentes</td>
+              </tr>
+              <tr>
+                <td><strong>Funcionalidades:</strong></td>
+                <td>
+                  Simulação, visualização, análise, exportação CSV
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="info-block">
+          <h3>Objetivos Principais</h3>
+          <ul class="feature-list">
+            <li>Educar sobre FSS através de simulação interativa</li>
+            <li>Visualizar geometrias e resposta em frequência em tempo real</li>
+            <li>Permitir exploração de parâmetros e seus efeitos</li>
+            <li>Oferecer múltiplos modelos para comparação</li>
+            <li>Facilitar análise e exportação de dados</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ===== SEÇÃO 2 ===== -->
+      <section class="section" id="arquitetura">
+        <h2>🏗️ 2. Arquitetura de Software</h2>
+
+        <div class="info-block">
+          <h3>Estrutura de Arquivos</h3>
+          <div class="info-block code-block">
+            PFC/<br />
+            ├── index.html ..................... Dashboard principal<br />
+            ├── guia_rapido.html ............ Documentação técnica<br />
+            ├── explicacao_leigos.html .... Guia para leigos<br />
+            ├── resumo_completo.html ..... Esta página<br />
+            ├── Cruzjeru.html ................. Simulador: Cruz de
+            Jerusalém<br />
+            ├── Quadrado.html ................. Simulador: Patch
+            Quadrado<br />
+            ├── EspiraQuadrada.html ....... Simulador: Espira Quadrada<br />
+            ├── anelcircular.html ........... Simulador: Anel Circular<br />
+            ├── src/<br />
+            │   ├── css/styles.css ......... Estilos centralizados<br />
+            │   └── js/<br />
+            │       ├── math.js ........... Utilitários matemáticos<br />
+            │       ├── visual.js ........ Utilitários de visualização<br />
+            │       ├── ui_cruzjeru.js
+            ........... Controller: Cruz<br />
+            │       ├── ui_quadrado.js
+            ............ Controller: Patch<br />
+            │       ├── ui_espira.js
+            ............. Controller: Espira<br />
+            │       └── ui_anelcircular.js
+            .. Controller: Anel<br />
+            ├── README.md ...................... Documentação básica<br />
+            ├── GUIA_RAPIDO.md ............... Dicionário de termos<br />
+            ├── README_EXPLICACAO.md .... Guia leigo<br />
+            └── PROJETO_RESUMO_COMPLETO.md ... Resumo técnico
+          </div>
+        </div>
+
+        <div class="info-block">
+          <h3>Padrão de Arquitetura: Modular</h3>
+          <p>
+            Cada página HTML corresponde a um modelo diferente, com seu próprio
+            controlador (módulo ES6).
+          </p>
+          <ul>
+            <li>
+              <strong>Separação de Responsabilidades:</strong> cada módulo cuida
+              de uma tarefa específica
+            </li>
+            <li>
+              <strong>Reutilização:</strong> funções matemáticas e visuais são
+              compartilhadas
+            </li>
+            <li>
+              <strong>Escalabilidade:</strong> novos modelos podem ser adicionados
+              facilmente
+            </li>
+          </ul>
+        </div>
+
+        <div class="card-grid">
+          <div class="model-card">
+            <h4>📐 src/js/math.js</h4>
+            <p>
+              Utilitários matemáticos compartilhados: conversões, funções
+              trigonométricas, cálculos de impedância.
+            </p>
+          </div>
+
+          <div class="model-card">
+            <h4>📊 src/js/visual.js</h4>
+            <p>
+              Utilitários de visualização: criação de gráficos Chart.js,
+              exportação de dados em CSV.
+            </p>
+          </div>
+
+          <div class="model-card">
+            <h4>🎨 src/css/styles.css</h4>
+            <p>
+              Estilos centralizados aplicados a todas as páginas simuladoras.
+              Layout responsivo com CSS Grid.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SEÇÃO 3 ===== -->
+      <section class="section" id="modelos">
+        <h2>🔬 3. Os 4 Modelos FSS Implementados</h2>
+
+        <div class="model-card">
+          <h4>1️⃣ Cruz de Jerusalém (Cruzjeru.html)</h4>
+          <p>
+            <strong>Geometria:</strong> Padrão em forma de cruz com braços de
+            comprimento d e espessura w
+          </p>
+          <p><strong>Parâmetros:</strong> p, d, w, h, g (5 parâmetros)</p>
+          <p>
+            <strong>Modelo Matemático:</strong> Langley-Munk com ajustes para
+            5-polos
+          </p>
+          <p><strong>Características:</strong></p>
+          <ul style="margin-left: 20px;">
+            <li>✓ Multirressonante (múltiplos picos)</li>
+            <li>✓ Visualização com 5 dimensões anotadas</li>
+            <li>✓ Ideal para filtros complexos</li>
+          </ul>
+          <span class="badge tech">Langley-Munk</span>
+          <span class="badge status-complete">Completo</span>
+        </div>
+
+        <div class="model-card">
+          <h4>2️⃣ Patch Quadrado (Quadrado.html)</h4>
+          <p>
+            <strong>Geometria:</strong> Quadrado sólido de lado c repetido em
+            grade p×p
+          </p>
+          <p><strong>Parâmetros:</strong> p, c (2 parâmetros simplificados)</p>
+          <p>
+            <strong>Modelo Matemático:</strong> Ulrich (sub-ressonante)
+          </p>
+          <p><strong>Características:</strong></p>
+          <ul style="margin-left: 20px;">
+            <li>✓ Modelo mais simples</li>
+            <li>✓ Filtro passa-baixa</li>
+            <li>✓ Interface intuitiva</li>
+          </ul>
+          <span class="badge tech">Ulrich</span>
+          <span class="badge status-complete">Completo</span>
+        </div>
+
+        <div class="model-card">
+          <h4>3️⃣ Espira Quadrada (EspiraQuadrada.html)</h4>
+          <p>
+            <strong>Geometria:</strong> Anel quadrado de fio metálico com
+            diâmetro d e espessura w
+          </p>
+          <p><strong>Parâmetros:</strong> p, d, w, g (4 parâmetros)</p>
+          <p>
+            <strong>Modelo Matemático:</strong> Langley com adaptações para loop
+          </p>
+          <p><strong>Características:</strong></p>
+          <ul style="margin-left: 20px;">
+            <li>✓ Resposta banda-larga</li>
+            <li>✓ Acoplamento capacitivo</li>
+            <li>✓ Visualização com 4 dimensões</li>
+          </ul>
+          <span class="badge tech">Langley-Loop</span>
+          <span class="badge status-complete">Completo</span>
+        </div>
+
+        <div class="model-card">
+          <h4>4️⃣ Anel Circular (anelcircular.html)</h4>
+          <p>
+            <strong>Geometria:</strong> Anel circular de fio metálico com raio r
+            e espessura w
+          </p>
+          <p><strong>Parâmetros:</strong> p, r, w, g (4 parâmetros)</p>
+          <p>
+            <strong>Modelo Matemático:</strong> Equivalência Geométrica
+          </p>
+          <p><strong>Características:</strong></p>
+          <ul style="margin-left: 20px;">
+            <li>✓ Simetria circular</li>
+            <li>✓ Filtro rejeita-banda</li>
+            <li>✓ Dimensões responsivas</li>
+          </ul>
+          <span class="badge tech">Geométrico</span>
+          <span class="badge status-complete">Completo</span>
+        </div>
+      </section>
+
+      <!-- ===== SEÇÃO 4 ===== -->
+      <section class="section" id="visualizacao">
+        <h2>🎨 4. Sistema de Visualização</h2>
+
+        <div class="info-block">
+          <h3>Canvas 2D - Geometria</h3>
+          <p>
+            Cada página exibe uma área 400×400 px onde a geometria FSS é
+            desenhada em tempo real.
+          </p>
+          <ul class="feature-list">
+            <li>Grade 3×3 de células (central + 8 vizinhas)</li>
+            <li>Célula central em azul escuro destaque</li>
+            <li>Vizinhas em azul claro/transparente</li>
+            <li>Linha tracejada mostrando período</li>
+            <li>Dimensões com setas coloridas e anotações</li>
+          </ul>
+        </div>
+
+        <div class="info-block">
+          <h3>Gráficos - Chart.js</h3>
+          <p>Gráfico de linha mostrando S21 vs Frequência.</p>
+          <ul class="feature-list">
+            <li>Eixo X: Frequência em GHz</li>
+            <li>Eixo Y: S21 em dB</li>
+            <li>Pontos principais marcados: fr (frequência de ressonância)</li>
+            <li>Múltiplos datasets para comparação de fórmulas</li>
+          </ul>
+        </div>
+
+        <div class="info-block">
+          <h3>Sistema de Dimensões Responsivo</h3>
+          <p>
+            As setas, textos e rótulos se ajustam automaticamente ao tamanho do
+            canvas.
+          </p>
+          <div class="info-block code-block">
+            fontSize = Math.max(10, pPixel * 0.06)<br />
+            arrowSize = Math.max(3, pPixel * 0.03)<br />
+            lineWidth = Math.max(1.5, pPixel * 0.008)<br />
+            offset = Math.max(25, pPixel * 0.15)
+          </div>
+          <p style="margin-top: 15px;">
+            Onde <code>pPixel</code> é o período em pixels no canvas (p × scale).
+          </p>
+        </div>
+
+        <div class="info-block">
+          <h3>Legenda Colorida</h3>
+          <p>
+            Cada modelo exibe uma legenda mostrando o significado das cores
+            usadas nas dimensões:
+          </p>
+          <ul>
+            <li>🔴 <strong>Vermelho:</strong> Período (p)</li>
+            <li>🟠 <strong>Laranja:</strong> Largura do fio (w)</li>
+            <li>🔵 <strong>Azul:</strong> Gap/espaçamento (g)</li>
+            <li>🟣 <strong>Roxo:</strong> Dimensões específicas (h, etc)</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ===== SEÇÃO 5 ===== -->
+      <section class="section" id="execucao">
+        <h2>▶️ 5. Fluxo de Execução</h2>
+
+        <div class="info-block">
+          <h3>Quando você abre uma página simuladora:</h3>
+          <ol style="margin: 15px 0 15px 30px;">
+            <li>HTML carrega Chart.js via CDN</li>
+            <li>HTML carrega CSS centralizado (styles.css)</li>
+            <li>
+              Módulo ES6 correspondente (ui_*.js) é injetado com
+              <code>type="module"</code>
+            </li>
+            <li>
+              Função <code>init()</code> executa quando DOM está pronto
+              (<code>DOMContentLoaded</code>)
+            </li>
+            <li>
+              Controles (sliders, inputs) são ligados aos eventos de mudança
+            </li>
+            <li>Parâmetros iniciais são aplicados</li>
+            <li>Simulação é executada pela primeira vez</li>
+          </ol>
+        </div>
+
+        <div class="info-block">
+          <h3>Quando você muda um parâmetro:</h3>
+          <ol style="margin: 15px 0 15px 30px;">
+            <li>
+              Evento de mudança dispara (input, change ou DOMManipulation)
+            </li>
+            <li>Valores dos parâmetros são atualizados</li>
+            <li>Validações são aplicadas (limites min/max)</li>
+            <li>
+              Função <code>updateAll()</code> é chamada (orquestrador)
+            </li>
+            <li>Geometria é redesenhada no canvas</li>
+            <li>
+              Simulação matemática é recalculada (loop em frequência com
+              <code>df=0.001</code> GHz)
+            </li>
+            <li>Gráfico é atualizado com novos dados</li>
+            <li>
+              Frequência de ressonância (fr) e largura de banda (BW) são
+              exibidas
+            </li>
+          </ol>
+        </div>
+
+        <div class="info-block">
+          <h3>Quando você clica em "Download CSV":</h3>
+          <ol style="margin: 15px 0 15px 30px;">
+            <li>Função <code>exportChartToCSV(chart, filename)</code> é chamada</li>
+            <li>Dados do gráfico são extraídos em formato tabular</li>
+            <li>Arquivo CSV é gerado com headers: "Frequency (GHz);S21 (dB)"</li>
+            <li>Download é iniciado no navegador</li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ===== SEÇÃO 6 ===== -->
+      <section class="section" id="tecnicas">
+        <h2>📐 6. Técnicas Matemáticas Utilizadas</h2>
+
+        <div class="info-block">
+          <h3>Modelo de Circuito Equivalente (ECM)</h3>
+          <p>
+            FSS é modelada como um circuito RLC equivalente. A impedância é
+            calculada através de fórmulas especializadas para cada geometria.
+          </p>
+        </div>
+
+        <div class="info-block">
+          <h3>Fórmula de Transmissão - S21</h3>
+          <p>
+            Baseada na impedância equivalente Z e na impedância do espaço livre:
+          </p>
+          <div class="info-block code-block">
+            S21 = 20 * log10(2 / |1 + Z/Z0|)<br />
+            onde Z0 = 377 Ω (impedância do espaço livre)
+          </div>
+        </div>
+
+        <div class="info-block">
+          <h3>Cálculo da Permissividade Efetiva</h3>
+          <p>
+            Quando um substrato está presente, a permissividade efetiva é
+            calculada usando diferentes fórmulas:
+          </p>
+          <ul>
+            <li>
+              <strong>Costa 2020 (com α dinâmico):</strong> Considera efeito de
+              borda
+            </li>
+            <li>
+              <strong>Exponencial:</strong> Função exponencial suave
+            </li>
+            <li>
+              <strong>Tanh:</strong> Função tangente hiperbólica
+            </li>
+            <li>
+              <strong>Puro:</strong> Apenas o valor nominal (εᵣ)
+            </li>
+          </ul>
+        </div>
+
+        <div class="info-block">
+          <h3>Cálculo de fr (Frequência de Ressonância)</h3>
+          <p>
+            É a frequência onde S21 é mínimo. Detectada varredurando o array
+            completo de frequências e encontrando o índice do valor mínimo.
+          </p>
+        </div>
+
+        <div class="info-block">
+          <h3>Cálculo de BW (Largura de Banda)</h3>
+          <p>
+            Definida como a faixa entre os pontos de -3dB em relação ao máximo
+            (em geral 0 dB). É a largura da "janela" de bloqueio.
+          </p>
+        </div>
+      </section>
+
+      <!-- ===== SEÇÃO 7 ===== -->
+      <section class="section" id="status">
+        <h2>✅ 7. Status de Completude do Projeto</h2>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Componente</th>
+                <th>Status</th>
+                <th>Descrição</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Cruz de Jerusalém</strong></td>
+                <td>
+                  <span class="badge status-complete">Completo</span>
+                </td>
+                <td>
+                  Modelo, visualização com 5 dimensões, simulação funcional
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Patch Quadrado</strong></td>
+                <td>
+                  <span class="badge status-complete">Completo</span>
+                </td>
+                <td>Modelo simplificado, interface limpa, exportação CSV</td>
+              </tr>
+              <tr>
+                <td><strong>Espira Quadrada</strong></td>
+                <td>
+                  <span class="badge status-complete">Completo</span>
+                </td>
+                <td>
+                  Modelo com 4 dimensões, visualização responsiva
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Anel Circular</strong></td>
+                <td>
+                  <span class="badge status-complete">Completo</span>
+                </td>
+                <td>Novo modelo com simetria circular, dimensões radiais</td>
+              </tr>
+              <tr>
+                <td><strong>Dashboard (index.html)</strong></td>
+                <td>
+                  <span class="badge status-complete">Completo</span>
+                </td>
+                <td>
+                  Portal com seções educacionais, blocos informativos, links
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Documentação HTML</strong></td>
+                <td>
+                  <span class="badge status-complete">Completo</span>
+                </td>
+                <td>3 páginas: Guia Rápido, Explicação Leigos, Resumo Técnico</td>
+              </tr>
+              <tr>
+                <td><strong>GPC (Guias de Projeto)</strong></td>
+                <td>
+                  <span class="badge status-pending">Planejado</span>
+                </td>
+                <td>Síntese automática de parâmetros (futuro)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===== SEÇÃO 8 ===== -->
+      <section class="section" id="extensoes">
+        <h2>🚀 8. Guia para Adicionar Novos Modelos</h2>
+
+        <div class="info-block">
+          <h3>Passos para Adicionar um Novo Modelo FSS:</h3>
+
+          <h4 style="margin: 20px 0 10px 0;">1️⃣ Criar arquivo HTML</h4>
+          <p>
+            Exemplo: <code>novo_modelo.html</code> seguindo a estrutura dos
+            existentes:
+          </p>
+          <div class="info-block code-block">
+            &lt;!DOCTYPE html&gt;<br />
+            &lt;html&gt;<br />
+            &lt;head&gt;...&lt;/head&gt;<br />
+            &lt;body&gt;<br />
+            &nbsp;&nbsp;&lt;div class="dashboard"&gt;...(painel params e
+            canvas)...&lt;/div&gt;<br />
+            &nbsp;&nbsp;&lt;script type="module" src="src/js/ui_novo.js"&gt;&lt;/script&gt;<br />
+            &lt;/body&gt;<br />
+            &lt;/html&gt;
+          </div>
+
+          <h4 style="margin: 20px 0 10px 0;">2️⃣ Criar módulo JavaScript</h4>
+          <p>
+            Exemplo: <code>src/js/ui_novo.js</code> com funções essenciais:
+          </p>
+          <div class="info-block code-block">
+            import { FF, GG } from './math.js';<br />
+            import { createLineChart, exportChartToCSV } from './visual.js';<br />
+            <br />
+            function drawGeometry(p, param1, param2) { ... }<br />
+            function updateAll() { ... }<br />
+            function init() { ... }<br />
+            <br />
+            document.addEventListener('DOMContentLoaded', init);
+          </div>
+
+          <h4 style="margin: 20px 0 10px 0;">3️⃣ Implementar funções principais</h4>
+          <ul style="margin-left: 30px;">
+            <li>
+              <strong>drawGeometry():</strong> desenha a geometria no canvas
+            </li>
+            <li>
+              <strong>updateAll():</strong> orquestra atualização de tudo
+            </li>
+            <li>
+              <strong>Simulação:</strong> loop em frequência com cálculos
+            </li>
+            <li>
+              <strong>init():</strong> inicia e liga eventos
+            </li>
+          </ul>
+
+          <h4 style="margin: 20px 0 10px 0;">4️⃣ Reutilizar funções comuns</h4>
+          <ul style="margin-left: 30px;">
+            <li>Cálculos de fórmulas de math.js</li>
+            <li>
+              Criação de gráficos via createLineChart() de visual.js
+            </li>
+            <li>Exportação CSV via exportChartToCSV()</li>
+            <li>Estilos centralizados de styles.css</li>
+          </ul>
+
+          <h4 style="margin: 20px 0 10px 0;">5️⃣ Adicionar link no index.html</h4>
+          <p>Incluir card com link na dashboard principal.</p>
+        </div>
+
+        <div class="info-block">
+          <h3>Boas Práticas</h3>
+          <ul class="feature-list">
+            <li>
+              Mantenha separação entre lógica (math.js) e apresentação (ui_*.js)
+            </li>
+            <li>Use variáveis descritivas em português</li>
+            <li>Documente com comentários explicando cada seção</li>
+            <li>Valide parâmetros (mín, máx, tipo)</li>
+            <li>
+              Garanta responsividade com cálculos proporcionais ao canvas
+            </li>
+            <li>Teste com múltiplos valores de entrada</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ===== BOTÕES ===== -->
+      <div style="text-align: center; margin-top: 60px; margin-bottom: 40px;">
+        <a href="index.html" class="btn">🏠 Voltar ao Início</a>
+        <a href="guia_rapido.html" class="btn">📖 Guia Rápido</a>
+        <a href="explicacao_leigos.html" class="btn">🎓 Para Leigos</a>
+      </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+      <p><strong>Resumo Completo - FSS Design Lab</strong></p>
+      <p style="margin-top: 10px;">
+        Documentação técnica completa: arquitetura, modelos, e guia de extensões
+      </p>
+    </footer>
+  </body>
+</html>

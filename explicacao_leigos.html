@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Explicação para Leigos - O que é FSS?</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f4f7f9 0%, #e8eef5 100%);
+        color: #2c3e50;
+        line-height: 1.7;
+      }
+
+      /* ===== HEADER ===== */
+      .header {
+        background: linear-gradient(135deg, #1a2a3a 0%, #2c3e50 100%);
+        color: white;
+        padding: 60px 20px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      .header p {
+        font-size: 1.1em;
+        opacity: 0.95;
+      }
+
+      /* ===== CONTAINER ===== */
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 50px 20px;
+      }
+
+      /* ===== SEÇÕES ===== */
+      .section {
+        margin-bottom: 60px;
+      }
+
+      .section h2 {
+        font-size: 2em;
+        color: #1a2a3a;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #3498db;
+        display: inline-block;
+      }
+
+      /* ===== INFO BLOCKS ===== */
+      .info-block {
+        background: white;
+        border-radius: 12px;
+        padding: 35px;
+        margin-bottom: 25px;
+        border-left: 5px solid #3498db;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+      }
+
+      .info-block.highlight {
+        border-left-color: #e74c3c;
+        background: linear-gradient(135deg, #fdeaea 0%, #ffffff 100%);
+      }
+
+      .info-block.success {
+        border-left-color: #27ae60;
+      }
+
+      .info-block.warning {
+        border-left-color: #f39c12;
+      }
+
+      .info-block h3 {
+        font-size: 1.5em;
+        color: #1a2a3a;
+        margin-bottom: 15px;
+      }
+
+      .info-block p {
+        color: #555;
+        margin-bottom: 12px;
+        font-size: 1.05em;
+      }
+
+      .info-block ul {
+        margin: 15px 0 15px 30px;
+        color: #555;
+      }
+
+      .info-block li {
+        margin-bottom: 12px;
+        font-size: 1.05em;
+      }
+
+      /* ===== CARDS COM ÍCONES ===== */
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        margin: 30px 0;
+      }
+
+      .feature-card {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        text-align: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .feature-card .icon {
+        font-size: 3em;
+        margin-bottom: 15px;
+      }
+
+      .feature-card h4 {
+        font-size: 1.3em;
+        color: #1a2a3a;
+        margin-bottom: 12px;
+      }
+
+      .feature-card p {
+        color: #666;
+        font-size: 0.95em;
+      }
+
+      /* ===== ANALOGIA BOX ===== */
+      .analogy-box {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        border-left: 5px solid #2196f3;
+        border-radius: 12px;
+        padding: 30px;
+        margin: 25px 0;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+      }
+
+      .analogy-box h4 {
+        color: #1565c0;
+        margin-bottom: 15px;
+        font-size: 1.3em;
+      }
+
+      .analogy-box p {
+        color: #1565c0;
+        font-size: 1.05em;
+        line-height: 1.8;
+      }
+
+      .analogy-box .comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .analogy-box .comparison div {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+      }
+
+      .analogy-box .comparison strong {
+        display: block;
+        color: #0d47a1;
+        margin-bottom: 8px;
+      }
+
+      /* ===== TABELA SIMPLES ===== */
+      .simple-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+        margin: 25px 0;
+      }
+
+      .simple-table th {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+      }
+
+      .simple-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .simple-table tbody tr:hover {
+        background: #f5f5f5;
+      }
+
+      .simple-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      /* ===== LISTA COM NÚMEROS ===== */
+      .numbered-list {
+        list-style: none;
+        counter-reset: item;
+        margin: 25px 0;
+      }
+
+      .numbered-list li {
+        counter-increment: item;
+        margin-bottom: 20px;
+        padding-left: 50px;
+        position: relative;
+        font-size: 1.05em;
+      }
+
+      .numbered-list li::before {
+        content: counter(item);
+        position: absolute;
+        left: 0;
+        top: 0;
+        background: #3498db;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.2em;
+      }
+
+      /* ===== DESTAQUE ===== */
+      .highlight-text {
+        background: #fff9e6;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #ffc107;
+        margin: 20px 0;
+        font-size: 1.05em;
+        color: #333;
+      }
+
+      /* ===== BOTÕES ===== */
+      .btn {
+        display: inline-block;
+        padding: 12px 30px;
+        background: #3498db;
+        color: white;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.85em;
+        transition: all 0.3s;
+        border: none;
+        cursor: pointer;
+        margin: 10px 5px;
+      }
+
+      .btn:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-secondary {
+        background: #95a5a6;
+      }
+
+      .btn-secondary:hover {
+        background: #7f8c8d;
+      }
+
+      /* ===== FOOTER ===== */
+      footer {
+        background: #2c3e50;
+        color: white;
+        text-align: center;
+        padding: 40px 20px;
+        margin-top: 60px;
+      }
+
+      footer a {
+        color: #3498db;
+        text-decoration: none;
+      }
+
+      footer a:hover {
+        text-decoration: underline;
+      }
+
+      /* ===== RESPONSIVO ===== */
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 1.8em;
+        }
+
+        .section h2 {
+          font-size: 1.5em;
+        }
+
+        .card-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .analogy-box .comparison {
+          grid-template-columns: 1fr;
+        }
+
+        .numbered-list li {
+          padding-left: 55px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ===== HEADER ===== -->
+    <div class="header">
+      <h1>🎓 Explicação para Leigos</h1>
+      <p>Entender FSS sem precisar ser engenheiro eletromagnético</p>
+    </div>
+
+    <!-- ===== CONTEÚDO ===== -->
+    <div class="container">
+      <!-- ===== SEÇÃO 1: O QUE É? ===== -->
+      <section class="section">
+        <h2>❓ O que é uma FSS?</h2>
+
+        <div class="info-block highlight">
+          <h3>Uma "Peneira Mágica" para Ondas de Rádio</h3>
+          <p>
+            Imagine uma <strong>peneira de cozinha</strong>. Quando você coloca
+            partículas de diferentes tamanhos:
+          </p>
+          <ul>
+            <li>Partículas <strong>grandes</strong> não passam (ficam de fora)</li>
+            <li>Partículas <strong>pequenas</strong> passam através</li>
+          </ul>
+          <p style="margin-top: 20px;">
+            Uma <strong>FSS (Superfície Seletiva de Frequência)</strong> funciona
+            de forma muito similar, mas em vez de peneirar partículas, ela
+            <strong>peneira ondas de rádio por frequência</strong>:
+          </p>
+          <ul>
+            <li>
+              Em <strong>certas frequências</strong>, as ondas são
+              <strong>bloqueadas</strong> (não passam)
+            </li>
+            <li>
+              Em <strong>outras frequências</strong>, as ondas
+              <strong>passam livremente</strong>
+            </li>
+          </ul>
+        </div>
+
+        <div class="analogy-box">
+          <h4>🔔 Analogia do Sino</h4>
+          <p>
+            Pense em um <strong>sino que ressoa</strong>. Quando você bate em um
+            sino de verdade, ele vibra em uma <strong>frequência específica</strong>
+            (um tom musical específico).
+          </p>
+          <p style="margin-top: 15px;">
+            Uma FSS é similar: cada geometria "toca" em uma frequência
+            específica. Quando você acerta essa frequência, a FSS "ressoa" e
+            bloqueia fortemente o sinal.
+          </p>
+        </div>
+      </section>
+
+      <!-- ===== SEÇÃO 2: APLICAÇÕES ===== -->
+      <section class="section">
+        <h2>🚀 Onde Isso é Usado?</h2>
+
+        <div class="card-grid">
+          <div class="feature-card">
+            <div class="icon">📡</div>
+            <h4>Antenas Inteligentes</h4>
+            <p>Filtram interferências e deixam passar apenas a frequência desejada</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="icon">🛡️</div>
+            <h4>Escudos Eletromagnéticos</h4>
+            <p>Protegem equipamentos de radiação eletromagnética indesejada</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="icon">☀️</div>
+            <h4>Painéis Solares Inteligentes</h4>
+            <p>Deixam passar luz visível mas bloqueiam calor infravermelha</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="icon">🔬</div>
+            <h4>Filtros Ópticos</h4>
+            <p>Separam cores específicas em sistemas de comunicação óptica</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="icon">📱</div>
+            <h4>Tecnologia 5G</h4>
+            <p>Otimizam transmissão e recepção em frequências muito altas</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="icon">🎮</div>
+            <h4>Blindagem de Equipamentos</h4>
+            <p>Protegem laboratórios e áreas sensíveis de interferências</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SEÇÃO 3: OS TRÊS TIPOS ===== -->
+      <section class="section">
+        <h2>🔬 Os Três Tipos de Estruturas FSS</h2>
+
+        <p style="font-size: 1.1em; margin-bottom: 30px;">
+          Este simulador oferece <strong>3 geometrias diferentes</strong> de FSS.
+          Cada uma tem características únicas:
+        </p>
+
+        <div class="info-block success">
+          <h3>1️⃣ Cruz de Jerusalém</h3>
+          <p>
+            É um <strong>padrão em forma de cruz</strong> repetido em grade, como
+            um símbolo medieval de cruz.
+          </p>
+          <ul>
+            <li>✓ Multirressonante (múltiplos picos)</li>
+            <li>✓ Ideal para filtros mais complexos</li>
+            <li>✓ Muito usado em defesa eletromagnética</li>
+          </ul>
+          <div class="highlight-text">
+            📊 Nesta geometria você controla 5 parâmetros diferentes
+          </div>
+        </div>
+
+        <div class="info-block success">
+          <h3>2️⃣ Espira Quadrada</h3>
+          <p>
+            É um <strong>anel quadrado de fio metálico</strong> repetido em
+            grade, como um fio dobrado em forma de quadrado oco.
+          </p>
+          <ul>
+            <li>✓ Resposta de banda larga</li>
+            <li>✓ Acoplamento capacitivo</li>
+            <li>✓ Usado em antenas ressonantes</li>
+          </ul>
+          <div class="highlight-text">
+            📊 Você controla período, diâmetro, largura do fio e gap
+          </div>
+        </div>
+
+        <div class="info-block success">
+          <h3>3️⃣ Patch Quadrado</h3>
+          <p>
+            É um <strong>pequeno quadrado sólido de metal</strong> repetido em
+            grade, como pequenos "selos" de metal dispostos regularmente.
+          </p>
+          <ul>
+            <li>✓ Modelo mais simples</li>
+            <li>✓ Filtro passa-baixa</li>
+            <li>✓ Fácil de fabricar</li>
+          </ul>
+          <div class="highlight-text">
+            📊 Interface simplificada com menos parâmetros
+          </div>
+        </div>
+
+        <div class="info-block success">
+          <h3>4️⃣ Anel Circular</h3>
+          <p>
+            É um <strong>anel circular de fio metálico</strong>, formando um
+            padrão circular repetido em grade.
+          </p>
+          <ul>
+            <li>✓ Simetria circular</li>
+            <li>✓ Filtro rejeita-banda</li>
+            <li>✓ Equivalência geométrica</li>
+          </ul>
+          <div class="highlight-text">
+            📊 Você controla período, raio, largura do fio e gap
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SEÇÃO 4: COMO FUNCIONA ===== -->
+      <section class="section">
+        <h2>⚙️ Como o Simulador Funciona?</h2>
+
+        <ol class="numbered-list">
+          <li>
+            <strong>Você define os parâmetros</strong> — periodo, tamanho do
+            padrão, material, etc., usando os sliders
+          </li>
+          <li>
+            <strong>A geometria é desenhada</strong> em tempo real mostrando
+            como ficaria fisicamente
+          </li>
+          <li>
+            <strong>Cálculos matemáticos</strong> simulam como ondas se comportam
+            naquela estrutura
+          </li>
+          <li>
+            <strong>Um gráfico mostra o resultado</strong> — em quais frequências
+            o sinal é bloqueado
+          </li>
+          <li>
+            <strong>Você pode exportar os dados</strong> em arquivo CSV para
+            análise posterior
+          </li>
+        </ol>
+      </section>
+
+      <!-- ===== SEÇÃO 5: PARÂMETROS ===== -->
+      <section class="section">
+        <h2>🎛️ Entendendo os Parâmetros</h2>
+
+        <div class="info-block">
+          <h3>Frequência (Frequency)</h3>
+          <p>
+            Define o <strong>intervalo de frequências a simular</strong>. Medido
+            em <strong>GHz</strong> (gigahertz).
+          </p>
+          <ul>
+            <li><strong>fStart:</strong> frequência mínima (ex: 5 GHz)</li>
+            <li><strong>fEnd:</strong> frequência máxima (ex: 15 GHz)</li>
+          </ul>
+          <div class="analogy-box" style="margin-top: 15px;">
+            <h4>💡 Entenda assim</h4>
+            <p>
+              É como varrer um rádio de um lado para o outro. Começamos em 5
+              GHz e vamos até 15 GHz, observando o que acontece em cada ponto.
+            </p>
+          </div>
+        </div>
+
+        <div class="info-block">
+          <h3>Geometria (Dimensions)</h3>
+          <p>
+            Define as <strong>dimensões físicas</strong> da estrutura. Medido em
+            <strong>mm</strong> (milímetros).
+          </p>
+          <ul>
+            <li>
+              <strong>p (período):</strong> tamanho da célula que se repete
+            </li>
+            <li>
+              <strong>d/r (diâmetro/raio):</strong> tamanho do padrão metálico
+            </li>
+            <li>
+              <strong>w (wire/largura):</strong> espessura do fio ou padrão
+            </li>
+            <li><strong>g (gap):</strong> espaço entre elementos</li>
+          </ul>
+        </div>
+
+        <div class="info-block">
+          <h3>Substrato (Substrate)</h3>
+          <p>
+            É o <strong>material dielétrico onde a FSS é impressa</strong>
+            (como PCB de rádio).
+          </p>
+          <table class="simple-table">
+            <tr>
+              <th>Parâmetro</th>
+              <th>Significado</th>
+            </tr>
+            <tr>
+              <td><strong>εᵣ (er)</strong></td>
+              <td>
+                Constante dielétrica relativa (mede como o material reage a
+                campos elétricos)
+              </td>
+            </tr>
+            <tr>
+              <td><strong>h_sub</strong></td>
+              <td>Altura do substrato em mm</td>
+            </tr>
+            <tr>
+              <td><strong>Presets</strong></td>
+              <td>
+                RO3003 e RO3006 são materiais reais de PCB prontos para usar
+              </td>
+            </tr>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===== SEÇÃO 6: LEITURA DO GRÁFICO ===== -->
+      <section class="section">
+        <h2>📊 Entendendo o Gráfico</h2>
+
+        <div class="info-block">
+          <h3>O que significa o gráfico "S21 vs Frequência"?</h3>
+          <p>
+            Este gráfico mostra <strong>quanto sinal passa</strong> em cada
+            frequência:
+          </p>
+
+          <div class="analogy-box" style="margin-top: 20px;">
+            <h4>📈 Interpretação Visual</h4>
+            <div class="comparison">
+              <div>
+                <strong>Linha NO TOPO (perto de 0 dB)</strong>
+                <p>
+                  Nessa frequência, o sinal passa quase tudo → FSS está
+                  "transparente"
+                </p>
+              </div>
+              <div>
+                <strong>Linha NO FUNDO (muito negativo)</strong>
+                <p>
+                  Nessa frequência, o sinal é bloqueado → FSS está "opaca"
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <p style="margin-top: 20px;">
+            O <strong>ponto mais baixo</strong> da curva é chamado de
+            <strong>frequência de ressonância (fr)</strong> — é onde a FSS
+            bloqueia mais fortemente.
+          </p>
+        </div>
+
+        <div class="highlight-text">
+          💡 <strong>Dica de ouro:</strong> Mudando o período (p) para valores
+          maiores, o pico se move para frequências mais baixas. Períodos maiores
+          = frequências de ressonância mais baixas.
+        </div>
+      </section>
+
+      <!-- ===== SEÇÃO 7: PRÓXIMOS PASSOS ===== -->
+      <section class="section">
+        <h2>🎯 Próximos Passos</h2>
+
+        <div class="card-grid">
+          <div class="feature-card">
+            <div class="icon">🔬</div>
+            <h4>Explore o Simulador</h4>
+            <p>Teste os 4 modelos diferentes e veja como os parâmetros afetam o resultado</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="icon">📖</div>
+            <h4>Leia o Glossário</h4>
+            <p>Confira a página de "Guia Rápido" para entender termos técnicos</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="icon">🚀</div>
+            <h4>Aprofunde-se</h4>
+            <p>Leia o "Resumo Completo" para detalhes técnicos e matemática</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== BOTÕES ===== -->
+      <div style="text-align: center; margin-top: 60px; margin-bottom: 40px;">
+        <a href="index.html" class="btn">🏠 Voltar ao Início</a>
+        <a href="guia_rapido.html" class="btn">📖 Ver Guia Técnico</a>
+      </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+      <p><strong>Explicação para Leigos - FSS Design Lab</strong></p>
+      <p style="margin-top: 10px;">
+        Guia acessível para entender conceitos de Superfícies Seletivas de
+        Frequência
+      </p>
+    </footer>
+  </body>
+</html>
