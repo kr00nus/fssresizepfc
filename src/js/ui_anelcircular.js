@@ -1,6 +1,6 @@
 // ==========================================
 // SIMULADOR FSS - ANEL CIRCULAR (CIRCULAR RING)
-// Baseado no Modelo de Circuito Equivalente de Langley e Parker (1985)
+// Baseado no Modelo de Circuito Equivalente (ECM) - Formulação Ana Luiza (2023)
 // ==========================================
 
 import { mmToCm, FF, calcS21 } from "./math.js";
@@ -12,14 +12,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
   // 1. AUTO-DETETOR DE IDs E INJEÇÃO INICIAL
   // ==========================================
-  // Para o anel, a variável principal é o Raio (r) e a espessura (w)
   const defaultValues = {
     fStart: "1.0",
     fEnd: "15.0",
     p: "15.000",
     r_num: "6.000", // Raio médio do anel
     w_num: "1.000", // Espessura da fita metálica
-    g_num: "3.000", // Gap (calculado como p - 2r)
+    g_num: "3.000", // Gap físico (calculado automaticamente)
     h_sub: "1.52",
     er: "4.40", // Padrão FR4
   };
@@ -38,7 +37,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ==========================================
   // 2. MOTOR DE CÁLCULO AUTOMÁTICO (Two-Way Binding)
-  // Geometria do Anel: p = 2r + g  =>  g = p - 2r
   // ==========================================
   function handleGeometry(changed) {
     const pNum = document.getElementById("p_num");
@@ -53,7 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let r = parseFloat(rNum.value) || 6;
     let g = parseFloat(gNum.value) || 3;
 
-    // Se alterou o Período ou o Raio, atualiza o Gap
     if (changed === "p" || changed === "r") {
       g = p - 2 * r;
       if (g <= 0) {
@@ -64,9 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       gNum.value = g.toFixed(3);
       if (gSlider) gSlider.value = g.toFixed(3);
-    }
-    // Se alterou o Gap, atualiza o Raio
-    else if (changed === "g") {
+    } else if (changed === "g") {
       r = (p - g) / 2;
       if (r <= 0) {
         r = 0.001;
@@ -201,13 +196,6 @@ function handleHFSSUpload(event) {
 // ==========================================
 // FUNÇÃO VISUAL: DESENHAR O ANEL CIRCULAR
 // ==========================================
-// ==========================================
-// FUNÇÃO: drawGeometry() - Desenha o Anel Circular no canvas
-// Parâmetros:
-// p = período (tamanho total da célula)
-// r = raio médio do anel
-// w = espessura do fio metálico
-// ==========================================
 function drawGeometry(p, r, w) {
   const canvas = document.getElementById("shapeCanvas");
   if (!canvas) return;
@@ -225,7 +213,7 @@ function drawGeometry(p, r, w) {
   const pPixel = p * scale;
   const rPixel = r * scale;
   const wPixel = w * scale;
-  const g = p - 2 * r; // Gap calculado
+  const g = p - 2 * r; // Gap calculado físico para visualização
 
   function drawSingleRing(cx, cy, isCenter) {
     ctx.beginPath();
@@ -260,8 +248,6 @@ function drawGeometry(p, r, w) {
 
 // ==========================================
 // FUNÇÃO: drawDimensionsRing()
-// Desenha as setas e rótulos das dimensões (p, r, w, g) na geometria do Anel
-// Todos os elementos são responsivos e se ajustam ao tamanho
 // ==========================================
 function drawDimensionsRing(
   ctx,
@@ -275,18 +261,17 @@ function drawDimensionsRing(
   w,
   g,
 ) {
-  // Configurações de tamanho responsivo
-  const fontSize = Math.max(10, pPixel * 0.06); // Fonte se ajusta ao tamanho
-  const arrowSize = Math.max(3, pPixel * 0.03); // Tamanho das setas
-  const lineWidth = Math.max(1.5, pPixel * 0.008); // Espessura das linhas
-  const offset = Math.max(25, pPixel * 0.15); // Distância dos rótulos
+  const fontSize = Math.max(10, pPixel * 0.06);
+  const arrowSize = Math.max(3, pPixel * 0.03);
+  const lineWidth = Math.max(1.5, pPixel * 0.008);
+  const offset = Math.max(25, pPixel * 0.15);
 
   ctx.lineWidth = lineWidth;
   ctx.font = `bold ${fontSize}px Arial, sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
-  // ===== DIMENSÃO p (PERÍODO) - VERTICAL (LADO ESQUERDO) =====
+  // ===== DIMENSÃO p (PERÍODO) =====
   ctx.strokeStyle = "#d32f2f";
   ctx.fillStyle = "#d32f2f";
 
@@ -294,10 +279,8 @@ function drawDimensionsRing(
   const pEndY = center + pPixel / 2;
   const pX = center - pPixel / 2 - offset;
 
-  // Desenha linha VERTICAL da dimensão p (lado esquerdo)
   drawArrowLineRing(ctx, pX, pStartY, pX, pEndY, arrowSize);
 
-  // Rótulo de p posicionado à esquerda
   ctx.fillStyle = "#d32f2f";
   ctx.font = `bold ${fontSize * 0.9}px Arial, sans-serif`;
   ctx.save();
@@ -306,7 +289,7 @@ function drawDimensionsRing(
   ctx.fillText(`p = ${p.toFixed(3)} mm`, 0, 0);
   ctx.restore();
 
-  // ===== DIMENSÃO r (RAIO MÉDIO) - HORIZONTAL (TOPO) =====
+  // ===== DIMENSÃO r (RAIO MÉDIO) =====
   ctx.strokeStyle = "#cc0000";
   ctx.fillStyle = "#cc0000";
 
@@ -314,7 +297,6 @@ function drawDimensionsRing(
   const rEndX = center + rPixel;
   const rY = center - pPixel / 2 - offset;
 
-  // Seta HORIZONTAL mostrando r no topo
   drawArrowLineRing(ctx, rStartX, rY, rEndX, rY, arrowSize);
 
   ctx.font = `bold ${fontSize * 0.85}px Arial, sans-serif`;
@@ -325,16 +307,14 @@ function drawDimensionsRing(
     rY - offset * 0.4,
   );
 
-  // ===== DIMENSÃO w (ESPESSURA DO FIO) - Radial (Lado Direito do Anel) =====
+  // ===== DIMENSÃO w (ESPESSURA DO FIO) =====
   if (wPixel > 0) {
     ctx.strokeStyle = "#ff9800";
     ctx.fillStyle = "#ff9800";
 
-    // Calcula os raios interno e externo do anel
     const rInnerPixel = rPixel - wPixel / 2;
     const rOuterPixel = rPixel + wPixel / 2;
 
-    // Desenha seta radial mostrando a espessura (lado direito do anel)
     const wStartX = center + rInnerPixel;
     const wEndX = center + rOuterPixel;
     const wY = center;
@@ -350,7 +330,7 @@ function drawDimensionsRing(
     );
   }
 
-  // ===== DIMENSÃO g (GAP) - Horizontal (Lado Direito) =====
+  // ===== DIMENSÃO g (GAP FÍSICO) =====
   ctx.strokeStyle = "#2196f3";
   ctx.fillStyle = "#2196f3";
 
@@ -359,7 +339,6 @@ function drawDimensionsRing(
   const gEndX = center + pPixel / 2;
   const gY = center + offset * 0.5;
 
-  // Seta mostrando g
   drawArrowLineRing(ctx, gStartX, gY, gEndX, gY, arrowSize * 0.8);
 
   ctx.font = `bold ${fontSize * 0.8}px Arial, sans-serif`;
@@ -370,27 +349,21 @@ function drawDimensionsRing(
     gY + offset * 0.4,
   );
 
-  // ===== LEGENDA COM CORES =====
   drawLegendRing(ctx, fontSize);
 }
 
 // ==========================================
 // FUNÇÃO: drawArrowLineRing()
-// Desenha uma linha com setas nas duas extremidades
-// Utilizado para indicar as dimensões na geometria do Anel
 // ==========================================
 function drawArrowLineRing(ctx, fromX, fromY, toX, toY, arrowSize) {
-  // Calcula o ângulo da linha
   const headlen = arrowSize;
   const angle = Math.atan2(toY - fromY, toX - fromX);
 
-  // Desenha a linha principal
   ctx.beginPath();
   ctx.moveTo(fromX, fromY);
   ctx.lineTo(toX, toY);
   ctx.stroke();
 
-  // Desenha a seta no início
   ctx.beginPath();
   ctx.moveTo(fromX, fromY);
   ctx.lineTo(
@@ -404,7 +377,6 @@ function drawArrowLineRing(ctx, fromX, fromY, toX, toY, arrowSize) {
   ctx.closePath();
   ctx.fill();
 
-  // Desenha a seta no final
   ctx.beginPath();
   ctx.moveTo(toX, toY);
   ctx.lineTo(
@@ -421,7 +393,6 @@ function drawArrowLineRing(ctx, fromX, fromY, toX, toY, arrowSize) {
 
 // ==========================================
 // FUNÇÃO: drawLegendRing()
-// Desenha uma legenda com as cores usadas nas dimensões do Anel
 // ==========================================
 function drawLegendRing(ctx, fontSize) {
   const canvas = ctx.canvas;
@@ -430,37 +401,31 @@ function drawLegendRing(ctx, fontSize) {
   const boxWidth = 280;
   const boxHeight = 65;
 
-  // Fundo da legenda
   ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
   ctx.fillRect(legendX, legendY, boxWidth, boxHeight);
   ctx.strokeStyle = "#ccc";
   ctx.lineWidth = 1;
   ctx.strokeRect(legendX, legendY, boxWidth, boxHeight);
 
-  // Texto da legenda
   ctx.font = `${fontSize * 0.75}px Arial`;
   ctx.textAlign = "left";
   ctx.fillStyle = "#333";
 
-  // Cor p (vermelho)
   ctx.fillStyle = "#d32f2f";
   ctx.fillRect(legendX + 8, legendY + 8, 12, 12);
   ctx.fillStyle = "#333";
   ctx.fillText("p=período", legendX + 25, legendY + 14);
 
-  // Cor r (vermelho escuro)
   ctx.fillStyle = "#cc0000";
   ctx.fillRect(legendX + 8, legendY + 26, 12, 12);
   ctx.fillStyle = "#333";
   ctx.fillText("r=raio", legendX + 25, legendY + 32);
 
-  // Cor r (vermelho escuro)
   ctx.fillStyle = "#cc0000";
   ctx.fillRect(legendX + 8, legendY + 44, 12, 12);
   ctx.fillStyle = "#333";
   ctx.fillText("g=gap", legendX + 25, legendY + 50);
 
-  // Cor w (laranja)
   ctx.fillStyle = "#ff9800";
   ctx.fillRect(legendX + 130, legendY + 8, 12, 12);
   ctx.fillStyle = "#333";
@@ -474,7 +439,7 @@ function getSafeValue(id, fallback) {
 }
 
 // ==========================================
-// CÁLCULO PRINCIPAL
+// CÁLCULO PRINCIPAL - FORMULAÇÃO TCC ANA LUIZA (2023)
 // ==========================================
 function updateAll() {
   const fStart = getSafeValue("fStart_num", 1.0);
@@ -496,83 +461,50 @@ function updateAll() {
     if (el_r_slider) el_r_slider.value = r.toFixed(3);
   }
 
-  // O Gap efetivo entre os centros de gravidade das fitas metálicas adjacentes
-  const g = p - 2 * r;
-
-  // FATOR DE FORMA (ALPHA) - O Anel atua como uma Espira, aplicamos o Alpha Dinâmico de Costa
-  const ratio = w / p;
-  let alpha = 16 - (ratio - 0.05) * ((16 - 12.5) / (0.25 - 0.05));
-  alpha = Math.max(12.5, Math.min(16, alpha));
-
-  const er_media = (er_real + 1) / 2;
-  const er_nova =
-    1 + ((er_real - 1) / 2) * (1 - Math.exp(-alpha * (h_sub / p)));
-  const er_tentativa = (er_media + er_nova) / 2; // Heurística simples
-  const er_antiga =
-    1 + ((er_real - 1) / 2) * (1 - Math.exp(-1.8 * (h_sub / p)));
-  const er_tanh = 1 + ((er_real - 1) / 2) * Math.tanh((Math.PI * h_sub) / p);
-  const er_puro = er_real;
+  // 1. EQUAÇÃO DO THICKNESS E PERMISSIVIDADE EFETIVA (Ana Luiza, 2023)
+  const N_ajuste = 1.8;
+  const c_factor = (10 * h_sub) / p;
+  const z_factor = Math.exp(c_factor);
+  const er_eff = er_real + (er_real - 1) * (-1 / Math.pow(z_factor, N_ajuste));
 
   const erEffEl = document.getElementById("er_eff_num");
-  if (erEffEl) erEffEl.value = er_nova.toFixed(3);
+  if (erEffEl) erEffEl.value = er_eff.toFixed(3);
 
   drawGeometry(p, r, w);
 
-  // Arrays de dados
-  const data_nova = [],
-    data_tentativa = [],
-    data_antiga = [],
-    data_media = [],
-    data_tanh = [],
-    data_puro = [],
+  const data_modelo = [],
     labels = [];
-
   const pCm = mmToCm(p);
   const wCm = mmToCm(w);
-  const gCm = mmToCm(g);
   const df = 0.001;
   const f_limit = 30 / pCm;
 
-  // ========================================================
-  // PRINCÍPIO DA EQUIVALÊNCIA DE LANGLEY E PARKER (1985)
-  // O Anel comporta-se como uma espira de lado "d_eq"
-  // ========================================================
-  const rCm = mmToCm(r);
-  const d_eq = (Math.PI * rCm) / 2;
+  // 2. EQUAÇÃO DO GAP CIRCULAR EQUIVALENTE (Ana Luiza, 2023)
+  const d_ext = 2 * r + w;
+  const d_ext_cm = mmToCm(d_ext);
+  const g1_cm = pCm - (Math.PI * d_ext_cm) / 4;
 
   for (let freq = fStart; freq <= fEnd; freq += df) {
     const lamb = 30 / freq;
-    const ang = 0;
+    const teta_rad = 0;
 
     try {
-      // Fórmulas de Macfarlane usando d_equivalente
-      const F_L = FF(pCm, 2 * wCm, lamb, ang);
-      const F_C = FF(pCm, gCm, lamb, ang);
+      // 3. EQUAÇÕES DOS COMPONENTES LC E ADMITÂNCIA (Marcuvitz/Ana Luiza)
+      const F_L = FF(pCm, 2 * wCm, lamb, teta_rad);
+      const F_C = FF(pCm, g1_cm, lamb, teta_rad);
 
-      const XL_base = (d_eq / pCm) * F_L;
-      const C_base = 4 * (d_eq / pCm) * F_C;
+      const XL_norm = F_L * Math.cos(teta_rad);
+      const BC_norm = 4 * F_C * er_eff * (1 / Math.cos(teta_rad));
 
-      const calcPt = (er_val) => {
-        const BC = er_val * C_base;
-        const X_total = XL_base - 1 / BC;
-        const B_norm = 1 / X_total;
-        return calcS21(B_norm); // S21 = 4 / (4 + B_norm^2) em dB
-      };
+      const X_total = XL_norm - 1 / BC_norm;
+      const B_norm = 1 / X_total;
+
+      const pt_dB = calcS21(B_norm);
 
       labels.push(freq.toFixed(3));
-      data_nova.push(Math.max(-60, calcPt(er_nova)));
-      data_tentativa.push(Math.max(-60, calcPt(er_tentativa)));
-      data_antiga.push(Math.max(-60, calcPt(er_antiga)));
-      data_media.push(Math.max(-60, calcPt(er_media)));
-      data_tanh.push(Math.max(-60, calcPt(er_tanh)));
-      data_puro.push(Math.max(-60, calcPt(er_puro)));
+      data_modelo.push(Math.max(-60, pt_dB));
     } catch (e) {
-      data_nova.push(0);
-      data_tentativa.push(0);
-      data_antiga.push(0);
-      data_media.push(0);
-      data_tanh.push(0);
-      data_puro.push(0);
+      data_modelo.push(0);
     }
   }
 
@@ -600,77 +532,35 @@ function updateAll() {
     }
   }
 
-  updateChart(
-    labels,
-    data_nova,
-    data_tentativa,
-    data_antiga,
-    data_media,
-    data_tanh,
-    data_puro,
-    hfssPlotData,
-    limitIndex,
-    f_limit,
-    alpha,
-  );
+  updateChart(labels, data_modelo, hfssPlotData, limitIndex, f_limit, N_ajuste);
 }
 
 function updateChart(
   labels,
-  data_nova,
-  data_tentativa,
-  data_antiga,
-  data_media,
-  data_tanh,
-  data_puro,
+  data_modelo,
   hfssPlotData,
   limitIndex,
   f_limit,
-  alpha,
+  N_ajuste,
 ) {
   const ctx = document.getElementById("fssChart").getContext("2d");
   if (ringChartInstance) ringChartInstance.destroy();
 
   const validData =
-    limitIndex !== -1 ? data_nova.slice(0, limitIndex) : data_nova;
+    limitIndex !== -1 ? data_modelo.slice(0, limitIndex) : data_modelo;
   const minIndex = validData.indexOf(Math.min(...validData));
   const frFreq = parseFloat(labels[minIndex]);
 
-  // ===== DATASETS =====
   const datasets = [
     {
-      label: "ε_eff Fator Forma Dinâmico (Modelo Langley/Costa)",
-      data: data_nova,
+      label: "Modelo Circuital Equivalente (TCC Ana Luiza, 2023)",
+      data: data_modelo,
       borderColor: "#000000",
       borderWidth: 2.5,
       pointRadius: 0,
       fill: false,
       tension: 0,
     },
-
-    /* === OUTRAS FÓRMULAS OCULTADAS PARA CLAREZA VISUAL ===
-    ,
-    {
-      label: "ε_eff Média Clássica",
-      data: data_media,
-      borderColor: "#007bff",
-      borderWidth: 2,
-      borderDash: [2, 4],
-      pointRadius: 0,
-      fill: false,
-      tension: 0,
-    },
-    {
-      label: "ε_eff Heurística Personalizada",
-      data: data_tentativa,
-      borderColor: "#17a2b8",
-      borderWidth: 2.5,
-      borderDash: [8, 4],
-      pointRadius: 0,
-      fill: false,
-      tension: 0,
-    }
-    ======================================================== */
   ];
 
   if (ringHfssData && ringHfssData.length > 0) {
@@ -687,7 +577,7 @@ function updateChart(
 
   if (minIndex !== -1 && !isNaN(frFreq)) {
     const frPointData = labels.map((_, idx) =>
-      idx === minIndex ? data_nova[idx] : null,
+      idx === minIndex ? data_modelo[idx] : null,
     );
     datasets.push({
       label: `fr = ${frFreq.toFixed(2)} GHz (Ressonância)`,
@@ -702,7 +592,7 @@ function updateChart(
 
   if (limitIndex !== -1) {
     const limitPointData = labels.map((_, idx) =>
-      idx === limitIndex ? data_nova[idx] : null,
+      idx === limitIndex ? data_modelo[idx] : null,
     );
     datasets.push({
       label: `Limite ECM (λ=p) em ${f_limit.toFixed(2)} GHz`,
@@ -741,31 +631,30 @@ function updateChart(
     document.querySelector(".chart-container").after(infoBox);
   }
 
-  let infoHtml = `<strong>Ressonância (Bloqueio):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz | <strong style="color:#0056b3;">Fator (α) Dinâmico Aplicado: ${alpha.toFixed(3)}</strong>`;
+  let infoHtml = `<strong>Mínimo de Transmissão (f0):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz | <strong style="color:#28a745;">Formulação: Ajuste Espessura N=${N_ajuste} Ativo</strong>`;
   if (ringHfssData && ringHfssData.length > 0) {
-    infoHtml += `<br><span style="color:#dc3545; font-weight:bold;">Comparativo ativo: Avalie qual curva aproxima melhor a ressonância do Anel no Ansys HFSS.</span>`;
+    infoHtml += `<br><span style="color:#dc3545; font-weight:bold;">Comparativo HFSS vs Analítico: Avalie a precisão da aproximação por fresta equivalente circular.</span>`;
   }
   if (limitIndex !== -1)
-    infoHtml += `<br><small style="color:#d35400">⚠️ Aviso: Acima de ${f_limit.toFixed(2)} GHz o modelo Analítico perde precisão.</small>`;
+    infoHtml += `<br><small style="color:#d35400">⚠️ Aviso: Acima de ${f_limit.toFixed(2)} GHz a hipótese macroscópica do ECM quebra.</small>`;
   infoBox.innerHTML = infoHtml;
 }
 
 function exportToCSV() {
   if (!ringChartInstance) return;
 
-  // Cabeçalho limpo focando apenas na Fórmula de Langley/Costa
-  let csv = "\uFEFF" + "Frequência (GHz);S21 Modelo Langley (dB)\n";
+  let csv = "\uFEFF" + "Frequência (GHz);S21 Modelo Analitico Ana Luiza (dB)\n";
 
   ringChartInstance.data.labels.forEach((freq, index) => {
-    let s21_nova = ringChartInstance.data.datasets[0].data[index];
+    let s21_val = ringChartInstance.data.datasets[0].data[index];
     let fBR = Number(freq).toFixed(3).replace(".", ",");
-    let sN_BR = Number(s21_nova).toFixed(4).replace(".", ",");
-    csv += `${fBR};${sN_BR}\n`;
+    let sBR = Number(s21_val).toFixed(4).replace(".", ",");
+    csv += `${fBR};${sBR}\n`;
   });
 
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = "dados_anel_circular_modelo.csv";
+  link.download = "dados_fss_anel_circular_tcc_analuiza.csv";
   link.click();
 }
