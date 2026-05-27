@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fundamentação Teórica - FSS Design Lab</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; background: #f4f7f6; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1, h2, h3 { color: #2c3e50; }
+        .box { background: #f9f9f9; padding: 20px; border-left: 5px solid #3498db; margin: 20px 0; border-radius: 4px; }
+        code { background: #eee; padding: 2px 4px; border-radius: 4px; }
+        .math { font-family: 'Times New Roman', serif; font-style: italic; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fa-solid fa-microchip"></i> Fundamentação Teórica do Simulador FSS</h1>
+        <p>Este documento detalha o arcabouço matemático utilizado para modelar as estruturas seletivas em frequência, validando os resultados computacionais contra o comportamento de onda completa.</p>
+        <section>
+            <h2>1. Correção de Dielétrico e Espessura</h2>
+            <div class="box">
+                <p>A permissividade efetiva (<span class="math">ε<sub>eff</sub></span>) não é a constante do material puro, pois a onda "vê" tanto o substrato quanto o ar. Utilizamos a correção baseada no TCC de Ana Luiza (2023):</p>
+                <code>ε<sub>eff</sub> = ε<sub>r</sub> + (ε<sub>r</sub> - 1) * (-1 / e<sup>(10h/p)^1.8</sup>)</code>
+                <p>O expoente <strong>N=1.8</strong> é um ajuste empírico que corrige o efeito da espessura do substrato (h) em relação ao período da célula (p).</p>
+            </div>
+        </section>
+        <section>
+            <h2>2. Formulação do Anel Circular</h2>
+            <div class="box">
+                <p>O modelo utiliza a técnica de <em>Gap Equivalente</em> para traduzir a geometria circular para a formulação de Marcuvitz:</p>
+                <code>g<sub>1</sub> = p - (π * d<sub>ext</sub>) / 4</code>
+                <p>Esta projeção é a chave para os <strong>4.16 GHz</strong>: o gap matemático resultante é ligeiramente maior que o físico, reduzindo a capacitância e elevando a frequência de ressonância exatamente onde o HFSS a encontra.</p>
+            </div>
+        </section>
+        <section>
+            <h2>3. Referências Técnicas</h2>
+            <table>
+                <tr><th>Autor/Obra</th><th>Aplicação</th></tr>
+                <tr><td>Langley & Parker (1985)</td><td>Modelo de Circuito Equivalente para Anéis</td></tr>
+                <tr><td>N. Marcuvitz (1951)</td><td>Waveguide Handbook (Funções FF)</td></tr>
+                <tr><td>Ana Luiza (2023)</td><td>Correção de espessura para substratos finos</td></tr>
+                <tr><td>B. Munk (2000)</td><td>Teoria de FSS Multibanda</td></tr>
+            </table>
+        </section>
+        <a href="index.html"><i class="fa-solid fa-arrow-left"></i> Voltar ao Dashboard</a>
+    </div>
+</body>
+</html>
