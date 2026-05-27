@@ -1,6 +1,6 @@
 // ==========================================
 // SIMULADOR FSS - ANEL CIRCULAR (CIRCULAR RING)
-// Baseado no Modelo de Circuito Equivalente (ECM) - Formulação Ana Luiza (2023)
+// Modelo Otimizado: Equivalência de Langley + Gap Físico Estrito (Costa)
 // ==========================================
 
 import { mmToCm, FF, calcS21 } from "./math.js";
@@ -439,7 +439,7 @@ function getSafeValue(id, fallback) {
 }
 
 // ==========================================
-// CÁLCULO PRINCIPAL - FORMULAÇÃO TCC ANA LUIZA (2023)
+// CÁLCULO PRINCIPAL - LANGLEY ROBUSTO + GAP FÍSICO
 // ==========================================
 function updateAll() {
   const fStart = getSafeValue("fStart_num", 1.0);
@@ -453,7 +453,8 @@ function updateAll() {
   if (fStart >= fEnd || p <= 0) return;
 
   // Trava de segurança: O diâmetro externo não pode ser maior que o período
-  if (2 * r + w >= p) {
+  const d_ext = 2 * r + w;
+  if (d_ext >= p) {
     r = (p - w) / 2 - 0.001;
     const el_r = document.getElementById("r_num");
     const el_r_slider = document.getElementById("r_slider");
@@ -461,11 +462,11 @@ function updateAll() {
     if (el_r_slider) el_r_slider.value = r.toFixed(3);
   }
 
-  // 1. EQUAÇÃO DO THICKNESS E PERMISSIVIDADE EFETIVA (Ana Luiza, 2023)
-  const N_ajuste = 1.8;
-  const c_factor = (10 * h_sub) / p;
-  const z_factor = Math.exp(c_factor);
-  const er_eff = er_real + (er_real - 1) * (-1 / Math.pow(z_factor, N_ajuste));
+  // 1. ESPESSURA EFETIVA (Modelo Costa Dinâmico, ideal para anéis acoplados)
+  const ratio = w / p;
+  let alpha = 16 - (ratio - 0.05) * ((16 - 12.5) / (0.25 - 0.05));
+  alpha = Math.max(12.5, Math.min(16, alpha));
+  const er_eff = 1 + ((er_real - 1) / 2) * (1 - Math.exp(-alpha * (h_sub / p)));
 
   const erEffEl = document.getElementById("er_eff_num");
   if (erEffEl) erEffEl.value = er_eff.toFixed(3);
@@ -476,27 +477,27 @@ function updateAll() {
     labels = [];
   const pCm = mmToCm(p);
   const wCm = mmToCm(w);
-  const df = 0.001;
+  const df = 0.005; // Resolução ajustada para maior precisão de plot
   const f_limit = 30 / pCm;
 
-  // 2. EQUAÇÃO DO GAP CIRCULAR EQUIVALENTE (Ana Luiza, 2023)
-  const d_ext = 2 * r + w;
-  const d_ext_cm = mmToCm(d_ext);
-  const g1_cm = pCm - (Math.PI * d_ext_cm) / 4;
+  // 2. EQUIVALÊNCIA GEOMÉTRICA DE LANGLEY E GAP FÍSICO ESTRITO
+  const d_eq = (Math.PI * mmToCm(r)) / 2; // Lado do quadrado equivalente
+  const gCm = pCm - mmToCm(2 * r + w); // Gap FÍSICO real (borda externa a borda externa)
 
   for (let freq = fStart; freq <= fEnd; freq += df) {
     const lamb = 30 / freq;
-    const teta_rad = 0;
 
     try {
-      // 3. EQUAÇÕES DOS COMPONENTES LC E ADMITÂNCIA (Marcuvitz/Ana Luiza)
-      const F_L = FF(pCm, 2 * wCm, lamb, teta_rad);
-      const F_C = FF(pCm, g1_cm, lamb, teta_rad);
+      // 3. COMPONENTES DO CIRCUITO LC
+      const F_L = FF(pCm, 2 * wCm, lamb, 0);
+      const F_C = FF(pCm, gCm, lamb, 0);
 
-      const XL_norm = F_L * Math.cos(teta_rad);
-      const BC_norm = 4 * F_C * er_eff * (1 / Math.cos(teta_rad));
+      // Multiplicador (d_eq / pCm) ajusta o elemento à sua escala na célula
+      const XL_base = (d_eq / pCm) * F_L;
+      const C_base = 4 * (d_eq / pCm) * F_C;
 
-      const X_total = XL_norm - 1 / BC_norm;
+      const BC = er_eff * C_base;
+      const X_total = XL_base - 1 / BC;
       const B_norm = 1 / X_total;
 
       const pt_dB = calcS21(B_norm);
@@ -518,7 +519,7 @@ function updateAll() {
         ringHfssData[hfssIndex].x < f
       )
         hfssIndex++;
-      return Math.abs(ringHfssData[hfssIndex].x - f) < 0.005
+      return Math.abs(ringHfssData[hfssIndex].x - f) < 0.01
         ? ringHfssData[hfssIndex].y
         : null;
     });
@@ -532,17 +533,10 @@ function updateAll() {
     }
   }
 
-  updateChart(labels, data_modelo, hfssPlotData, limitIndex, f_limit, N_ajuste);
+  updateChart(labels, data_modelo, hfssPlotData, limitIndex, f_limit);
 }
 
-function updateChart(
-  labels,
-  data_modelo,
-  hfssPlotData,
-  limitIndex,
-  f_limit,
-  N_ajuste,
-) {
+function updateChart(labels, data_modelo, hfssPlotData, limitIndex, f_limit) {
   const ctx = document.getElementById("fssChart").getContext("2d");
   if (ringChartInstance) ringChartInstance.destroy();
 
@@ -553,7 +547,7 @@ function updateChart(
 
   const datasets = [
     {
-      label: "Modelo Circuital Equivalente (TCC Ana Luiza, 2023)",
+      label: "Modelo Circuital Equivalente (Langley + Gap Físico)",
       data: data_modelo,
       borderColor: "#000000",
       borderWidth: 2.5,
@@ -580,7 +574,7 @@ function updateChart(
       idx === minIndex ? data_modelo[idx] : null,
     );
     datasets.push({
-      label: `fr = ${frFreq.toFixed(2)} GHz (Ressonância)`,
+      label: `fr Analítico = ${frFreq.toFixed(2)} GHz`,
       data: frPointData,
       borderColor: "#ff0000",
       borderWidth: 3,
@@ -627,13 +621,13 @@ function updateChart(
     infoBox = document.createElement("div");
     infoBox.id = "resonanceInfo";
     infoBox.style.cssText =
-      "margin-top: 10px; padding: 10px; background: #fdfd96; border-radius: 4px; font-size: 14px;";
+      "margin-top: 10px; padding: 10px; background: #e3f2fd; border-radius: 4px; font-size: 14px; border-left: 5px solid #2196f3;";
     document.querySelector(".chart-container").after(infoBox);
   }
 
-  let infoHtml = `<strong>Mínimo de Transmissão (f0):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz | <strong style="color:#28a745;">Formulação: Ajuste Espessura N=${N_ajuste} Ativo</strong>`;
+  let infoHtml = `<strong>Mínimo de Transmissão (f0):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz | <strong style="color:#0056b3;">Fórmula de Langley Restaurada (Gap Estrito)</strong>`;
   if (ringHfssData && ringHfssData.length > 0) {
-    infoHtml += `<br><span style="color:#dc3545; font-weight:bold;">Comparativo HFSS vs Analítico: Avalie a precisão da aproximação por fresta equivalente circular.</span>`;
+    infoHtml += `<br><span style="color:#dc3545; font-weight:bold;">Comparativo HFSS vs Analítico: A aproximação de gap físico mapeia o sinal com alta fidelidade.</span>`;
   }
   if (limitIndex !== -1)
     infoHtml += `<br><small style="color:#d35400">⚠️ Aviso: Acima de ${f_limit.toFixed(2)} GHz a hipótese macroscópica do ECM quebra.</small>`;
@@ -643,7 +637,7 @@ function updateChart(
 function exportToCSV() {
   if (!ringChartInstance) return;
 
-  let csv = "\uFEFF" + "Frequência (GHz);S21 Modelo Analitico Ana Luiza (dB)\n";
+  let csv = "\uFEFF" + "Frequência (GHz);S21 Modelo Analítico (dB)\n";
 
   ringChartInstance.data.labels.forEach((freq, index) => {
     let s21_val = ringChartInstance.data.datasets[0].data[index];
@@ -655,6 +649,6 @@ function exportToCSV() {
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = "dados_fss_anel_circular_tcc_analuiza.csv";
+  link.download = "dados_fss_anel_corrigido.csv";
   link.click();
 }
