@@ -192,9 +192,6 @@ function handleHFSSUpload(event) {
         }
       }
     }
-    alert(
-      `Dados do HFSS carregados com sucesso! (${ringHfssData.length} pontos encontrados)`,
-    );
     updateAll();
   };
   reader.readAsText(file);
