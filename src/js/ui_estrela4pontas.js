@@ -1,6 +1,7 @@
 // ==========================================
 // SIMULADOR FSS - ESTRELA DE 4 PONTAS (FOUR-ARMS STAR)
 // Formulação: Mamedes, Deisy (2024) - Eq. 4.6 a 4.12
+// Geometria: Polígono Estrelado Afilado (Tapered Arms)
 // ==========================================
 
 import { mmToCm, FF, calcS21 } from "./math.js";
@@ -45,17 +46,27 @@ document.addEventListener("DOMContentLoaded", () => {
     let b = parseFloat(bNum.value) || 0.6;
     let s = parseFloat(sNum.value) || 1.0;
 
-    // Travas físicas: A estrela não pode ser maior que a célula
+    // Travas físicas rigorosas da Geometria (Four-Arms Star)
+    // 1. O comprimento total (a) não pode exceder o período (p)
     if (a >= p) {
-      a = p - 0.01;
+      a = p - 0.001;
       aNum.value = a.toFixed(3);
-      document.getElementById("a_slider").value = a.toFixed(3);
+      if (document.getElementById("a_slider"))
+        document.getElementById("a_slider").value = a.toFixed(3);
     }
-    // A largura do braço (b) não pode exceder o quadrado central (s)
+    // 2. O quadrado central (s) não pode ser maior que o comprimento total (a)
+    if (s >= a) {
+      s = a - 0.001;
+      sNum.value = s.toFixed(3);
+      if (document.getElementById("s_slider"))
+        document.getElementById("s_slider").value = s.toFixed(3);
+    }
+    // 3. A largura da ponta (b) não pode ser maior que o quadrado central (s)
     if (b > s) {
-      b = s - 0.01;
+      b = s - 0.001;
       bNum.value = b.toFixed(3);
-      document.getElementById("b_slider").value = b.toFixed(3);
+      if (document.getElementById("b_slider"))
+        document.getElementById("b_slider").value = b.toFixed(3);
     }
   }
 
@@ -183,7 +194,7 @@ function getSafeValue(id, fallback) {
 }
 
 // ==========================================
-// DESENHO GEOMÉTRICO (CANVAS)
+// DESENHO GEOMÉTRICO (CANVAS) - ESTRELA 4 PONTAS
 // ==========================================
 function drawGeometry(p, a, b, s) {
   const canvas = document.getElementById("shapeCanvas");
@@ -204,15 +215,45 @@ function drawGeometry(p, a, b, s) {
   const bPix = b * scale;
   const sPix = s * scale;
 
+  // Função para traçar exatamente o polígono da Estrela de 4 Pontas
   function drawStar(cx, cy, isCenter) {
     ctx.fillStyle = isCenter ? "#1a365d" : "rgba(26, 54, 93, 0.15)";
 
-    // Braço horizontal
-    ctx.fillRect(cx - aPix / 2, cy - bPix / 2, aPix, bPix);
-    // Braço vertical
-    ctx.fillRect(cx - bPix / 2, cy - aPix / 2, bPix, aPix);
-    // Quadrado central
-    ctx.fillRect(cx - sPix / 2, cy - sPix / 2, sPix, sPix);
+    ctx.beginPath();
+    // Inicia na ponta direita, lado superior
+    ctx.moveTo(cx + aPix / 2, cy - bPix / 2);
+    // Ponta direita, lado inferior
+    ctx.lineTo(cx + aPix / 2, cy + bPix / 2);
+    // Fresta interna (diagonal) até o quadrado central inferior-direito
+    ctx.lineTo(cx + sPix / 2, cy + sPix / 2);
+    // Ponta inferior, lado direito
+    ctx.lineTo(cx + bPix / 2, cy + aPix / 2);
+    // Ponta inferior, lado esquerdo
+    ctx.lineTo(cx - bPix / 2, cy + aPix / 2);
+    // Fresta interna (diagonal) até o quadrado central inferior-esquerdo
+    ctx.lineTo(cx - sPix / 2, cy + sPix / 2);
+    // Ponta esquerda, lado inferior
+    ctx.lineTo(cx - aPix / 2, cy + bPix / 2);
+    // Ponta esquerda, lado superior
+    ctx.lineTo(cx - aPix / 2, cy - bPix / 2);
+    // Fresta interna (diagonal) até o quadrado central superior-esquerdo
+    ctx.lineTo(cx - sPix / 2, cy - sPix / 2);
+    // Ponta superior, lado esquerdo
+    ctx.lineTo(cx - bPix / 2, cy - aPix / 2);
+    // Ponta superior, lado direito
+    ctx.lineTo(cx + bPix / 2, cy - aPix / 2);
+    // Fresta interna (diagonal) até o quadrado central superior-direito
+    ctx.lineTo(cx + sPix / 2, cy - sPix / 2);
+
+    ctx.closePath();
+    ctx.fill();
+
+    // Desenha uma borda leve para realçar as quinas
+    if (isCenter) {
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "#000";
+      ctx.stroke();
+    }
   }
 
   // Desenha a rede 3x3 para ilustrar a periodicidade
@@ -223,7 +264,7 @@ function drawGeometry(p, a, b, s) {
     });
   });
 
-  // Linhas da célula unitária
+  // Linhas da célula unitária (Tracejado)
   ctx.setLineDash([5, 5]);
   ctx.strokeStyle = "rgba(0, 0, 0, 0.3)";
   ctx.lineWidth = 1;
@@ -248,21 +289,33 @@ function drawDimensionsStar(
 ) {
   const fontSize = Math.max(10, pPix * 0.05);
   const arrowSize = Math.max(3, pPix * 0.025);
-  const offset = pPix * 0.1;
+  const offset = pPix * 0.15;
 
   ctx.lineWidth = 1.5;
   ctx.font = `bold ${fontSize}px Arial`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
-  // Dimensão a (Comprimento horizontal)
+  // ===== a (Comprimento total horizontal) =====
   ctx.strokeStyle = "#1976d2";
   ctx.fillStyle = "#1976d2";
   const aY = center - aPix / 2 - offset;
   drawArrow(ctx, center - aPix / 2, aY, center + aPix / 2, aY, arrowSize);
+
+  // Linhas guias para "a"
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(center - aPix / 2, center - bPix / 2);
+  ctx.lineTo(center - aPix / 2, aY);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(center + aPix / 2, center - bPix / 2);
+  ctx.lineTo(center + aPix / 2, aY);
+  ctx.stroke();
+  ctx.setLineDash([]);
   ctx.fillText(`a = ${a.toFixed(2)}`, center, aY - offset * 0.3);
 
-  // Dimensão p (Período)
+  // ===== p (Período) =====
   ctx.strokeStyle = "#d32f2f";
   ctx.fillStyle = "#d32f2f";
   const pX = center - pPix / 2 - offset;
@@ -273,18 +326,42 @@ function drawDimensionsStar(
   ctx.fillText(`p = ${p.toFixed(2)}`, 0, 0);
   ctx.restore();
 
-  // Dimensão b (Largura do Braço)
+  // ===== b (Largura da ponta do Braço) =====
   ctx.strokeStyle = "#f57c00";
   ctx.fillStyle = "#f57c00";
-  const bX = center + aPix / 2 + offset * 0.5;
+  const bX = center + aPix / 2 + offset * 0.6;
   drawArrow(ctx, bX, center - bPix / 2, bX, center + bPix / 2, arrowSize);
-  ctx.fillText(`b`, bX + offset * 0.3, center);
 
-  // Dimensão s (Quadrado central)
+  // Linhas guias para "b"
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(center + aPix / 2, center - bPix / 2);
+  ctx.lineTo(bX, center - bPix / 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(center + aPix / 2, center + bPix / 2);
+  ctx.lineTo(bX, center + bPix / 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillText(`b = ${b.toFixed(2)}`, bX + offset * 0.5, center);
+
+  // ===== s (Quadrado central) =====
   ctx.strokeStyle = "#388e3c";
   ctx.fillStyle = "#388e3c";
-  const sY = center + sPix / 2 + offset * 0.5;
+  const sY = center + sPix / 2 + offset * 0.8;
   drawArrow(ctx, center - sPix / 2, sY, center + sPix / 2, sY, arrowSize);
+
+  // Linhas guias para "s"
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(center - sPix / 2, center + sPix / 2);
+  ctx.lineTo(center - sPix / 2, sY);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(center + sPix / 2, center + sPix / 2);
+  ctx.lineTo(center + sPix / 2, sY);
+  ctx.stroke();
+  ctx.setLineDash([]);
   ctx.fillText(`s = ${s.toFixed(2)}`, center, sY + offset * 0.3);
 }
 
