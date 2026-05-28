@@ -14,9 +14,7 @@
   <body>
     <div class="dashboard">
       <div class="panel params">
-        <h2>
-          <i class="fa-solid fa-star"></i> Parâmetros (Estrela de 4 Pontas)
-        </h2>
+        <h2><i class="fa-solid fa-star"></i> Parâmetros (Tapered Star)</h2>
         <div class="params-grid">
           <div class="param-col">
             <h3>
@@ -46,7 +44,7 @@
               style="border-left: 4px solid #1976d2; padding-left: 5px"
             >
               <div class="header-row">
-                <label>Comprimento Total a (mm)</label>
+                <label>Comp. Total a (mm)</label>
                 <input type="number" id="a_num" value="3.250" step="0.001" />
               </div>
               <input
@@ -56,6 +54,24 @@
                 max="25.0"
                 step="0.001"
                 value="3.250"
+              />
+            </div>
+
+            <div
+              class="control-group"
+              style="border-left: 4px solid #9c27b0; padding-left: 5px"
+            >
+              <div class="header-row">
+                <label>Início da Ponta c (mm)</label>
+                <input type="number" id="c_num" value="2.000" step="0.001" />
+              </div>
+              <input
+                type="range"
+                id="c_slider"
+                min="0.1"
+                max="25.0"
+                step="0.001"
+                value="2.000"
               />
             </div>
 
@@ -137,9 +153,9 @@
                 <select id="substrate_select">
                   <option value="manual">Manual</option>
                   <option value="RO3003" selected>
-                    RO3003 (εr=2.94, h=0.508mm)
+                    RO3003 (εr=2.94, h=0.508)
                   </option>
-                  <option value="FR4">FR-4 (εr=4.40, h=1.60mm)</option>
+                  <option value="FR4">FR-4 (εr=4.40, h=1.60)</option>
                 </select>
               </div>
             </div>
@@ -166,7 +182,7 @@
 
             <div class="control-group">
               <div class="header-row">
-                <label>Permissividade Real (εr)</label>
+                <label>Permissividade (εr)</label>
                 <input type="number" id="er_num" value="2.94" step="0.01" />
               </div>
               <input
@@ -184,7 +200,7 @@
               style="background: #f8f9fa; padding: 5px; border-radius: 4px"
             >
               <div class="header-row">
-                <label>ε_eff (Modelo Mamedes, N=1.8)</label>
+                <label>ε_eff (Modelo M=1.9)</label>
                 <input
                   type="number"
                   id="er_eff_num"
@@ -193,7 +209,6 @@
                   style="
                     background: #e9ecef;
                     border: 1px solid #ced4da;
-                    color: #2c3e50;
                     font-weight: bold;
                   "
                 />
@@ -230,25 +245,19 @@
 
         <div class="panel">
           <h2>
-            <i class="fa-solid fa-draw-polygon"></i> Célula Unitária - Estrela
-            de 4 Pontas
+            <i class="fa-solid fa-draw-polygon"></i> Geometria Tapered Star
           </h2>
           <div class="geometry-container">
             <canvas id="shapeCanvas" width="400" height="400"></canvas>
             <div class="geo-legend">
-              <strong>Formulação:</strong> Mamedes, D. F. (2024).
-              <em
-                >Design of Frequency-Selective Surfaces for Advanced
-                Applications</em
-              >.<br />
-              O circuito equivalente atua como um filtro Rejeita-Banda (Série
-              LC).
+              <strong>Formulação:</strong> Mamedes, D. F. (2024). Parâmetro
+              adicional <strong>c</strong> inserido para fidelidade CAD (ponta
+              espetada).
             </div>
           </div>
         </div>
       </div>
     </div>
-
     <script type="module" src="src/js/ui_estrela4pontas.js"></script>
   </body>
 </html>
