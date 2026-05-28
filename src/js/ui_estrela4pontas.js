@@ -1,7 +1,7 @@
 // ==========================================
 // SIMULADOR FSS - ESTRELA DE 4 PONTAS (FOUR-ARMS STAR)
 // Formulação: Mamedes, Deisy (2024) - Eq. 4.6 a 4.12
-// Geometria e e_eff validadas conforme a literatura
+// Geometria: Polígono Estrelado Afilado de 12 vértices (Tapered Star)
 // ==========================================
 
 import { mmToCm, FF, calcS21 } from "./math.js";
@@ -47,21 +47,21 @@ document.addEventListener("DOMContentLoaded", () => {
     let s = parseFloat(sNum.value) || 1.0;
 
     // Regras físicas da topologia Four-Arms Star:
-    // 1. O braço (a) não toca a célula (a < p)
+    // 1. O braço (a) não toca a borda da célula (a < p)
     if (a >= p) {
       a = p - 0.001;
       aNum.value = a.toFixed(3);
       if (document.getElementById("a_slider"))
         document.getElementById("a_slider").value = a.toFixed(3);
     }
-    // 2. O quadrado central (s) é menor que a extensão total (a)
+    // 2. O quadrado central (s) tem que ser menor que a extensão total (a)
     if (s >= a) {
       s = a - 0.001;
       sNum.value = s.toFixed(3);
       if (document.getElementById("s_slider"))
         document.getElementById("s_slider").value = s.toFixed(3);
     }
-    // 3. A largura da ponta (b) é igual ou menor que o quadrado central (s)
+    // 3. A largura da ponta (b) não pode ser maior que o núcleo (s) para manter o aspecto "espetado"
     if (b > s) {
       b = s - 0.001;
       bNum.value = b.toFixed(3);
@@ -215,23 +215,52 @@ function drawGeometry(p, a, b, s) {
   const bPix = b * scale;
   const sPix = s * scale;
 
-  // Função para traçar exatamente o polígono da Estrela de 4 Pontas
-  function drawStar(cx, cy, isCenter) {
+  // Função Poligonal Exata para a Estrela de Mamedes
+  function drawMamedesStar(cx, cy, isCenter) {
     ctx.fillStyle = isCenter ? "#1a365d" : "rgba(26, 54, 93, 0.10)";
 
     ctx.beginPath();
-    ctx.moveTo(cx + aPix / 2, cy - bPix / 2); // Top right of right arm
-    ctx.lineTo(cx + aPix / 2, cy + bPix / 2); // Bottom right of right arm
-    ctx.lineTo(cx + sPix / 2, cy + sPix / 2); // Inner corner bottom-right
-    ctx.lineTo(cx + bPix / 2, cy + aPix / 2); // Right bottom of bottom arm
-    ctx.lineTo(cx - bPix / 2, cy + aPix / 2); // Left bottom of bottom arm
-    ctx.lineTo(cx - sPix / 2, cy + sPix / 2); // Inner corner bottom-left
-    ctx.lineTo(cx - aPix / 2, cy + bPix / 2); // Bottom left of left arm
-    ctx.lineTo(cx - aPix / 2, cy - bPix / 2); // Top left of left arm
-    ctx.lineTo(cx - sPix / 2, cy - sPix / 2); // Inner corner top-left
-    ctx.lineTo(cx - bPix / 2, cy - aPix / 2); // Left top of top arm
-    ctx.lineTo(cx + bPix / 2, cy - aPix / 2); // Right top of top arm
-    ctx.lineTo(cx + sPix / 2, cy - sPix / 2); // Inner corner top-right
+
+    // ================= BRAÇO DIREITO =================
+    // Ponto 1: Topo da ponta direita
+    ctx.moveTo(cx + aPix / 2, cy - bPix / 2);
+    // Ponto 2: Base da ponta direita
+    ctx.lineTo(cx + aPix / 2, cy + bPix / 2);
+
+    // ================= DIAGONAL 1 =================
+    // Ponto 3: Quina interna inferior-direita
+    ctx.lineTo(cx + sPix / 2, cy + sPix / 2);
+
+    // ================= BRAÇO INFERIOR =================
+    // Ponto 4: Lado direito da ponta inferior
+    ctx.lineTo(cx + bPix / 2, cy + aPix / 2);
+    // Ponto 5: Lado esquerdo da ponta inferior
+    ctx.lineTo(cx - bPix / 2, cy + aPix / 2);
+
+    // ================= DIAGONAL 2 =================
+    // Ponto 6: Quina interna inferior-esquerda
+    ctx.lineTo(cx - sPix / 2, cy + sPix / 2);
+
+    // ================= BRAÇO ESQUERDO =================
+    // Ponto 7: Base da ponta esquerda
+    ctx.lineTo(cx - aPix / 2, cy + bPix / 2);
+    // Ponto 8: Topo da ponta esquerda
+    ctx.lineTo(cx - aPix / 2, cy - bPix / 2);
+
+    // ================= DIAGONAL 3 =================
+    // Ponto 9: Quina interna superior-esquerda
+    ctx.lineTo(cx - sPix / 2, cy - sPix / 2);
+
+    // ================= BRAÇO SUPERIOR =================
+    // Ponto 10: Lado esquerdo da ponta superior
+    ctx.lineTo(cx - bPix / 2, cy - aPix / 2);
+    // Ponto 11: Lado direito da ponta superior
+    ctx.lineTo(cx + bPix / 2, cy - aPix / 2);
+
+    // ================= DIAGONAL 4 =================
+    // Ponto 12: Quina interna superior-direita
+    ctx.lineTo(cx + sPix / 2, cy - sPix / 2);
+
     ctx.closePath();
     ctx.fill();
 
@@ -240,23 +269,27 @@ function drawGeometry(p, a, b, s) {
       ctx.strokeStyle = "#0d1f38";
       ctx.stroke();
 
-      // Linhas guias formando o quadrado central (opcional, para visualização teórica)
+      // Linhas guias formando o quadrado central tracejado (referencial do núcleo)
       ctx.setLineDash([2, 2]);
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
       ctx.strokeRect(cx - sPix / 2, cy - sPix / 2, sPix, sPix);
       ctx.setLineDash([]);
     }
   }
 
-  // Desenha a rede 3x3 para ilustrar a periodicidade
+  // Desenha a grade 3x3 de periodicidade
   const offsets = [-1, 0, 1];
   offsets.forEach((dx) => {
     offsets.forEach((dy) => {
-      drawStar(center + dx * pPix, center + dy * pPix, dx === 0 && dy === 0);
+      drawMamedesStar(
+        center + dx * pPix,
+        center + dy * pPix,
+        dx === 0 && dy === 0,
+      );
     });
   });
 
-  // Linhas da célula unitária (Tracejado principal)
+  // Demarcação Tracejada da Célula Unitária (Período p)
   ctx.setLineDash([5, 5]);
   ctx.strokeStyle = "rgba(0, 0, 0, 0.3)";
   ctx.lineWidth = 1;
@@ -288,10 +321,7 @@ function drawDimensionsAndGaps(
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
-  // ==========================================
-  // PARÂMETROS ESTRUTURAIS
-  // ==========================================
-  // a (Comprimento total horizontal)
+  // ===== a (Comprimento total horizontal) =====
   ctx.strokeStyle = "#1976d2";
   ctx.fillStyle = "#1976d2";
   const aY = center - aPix / 2 - offset;
@@ -308,7 +338,7 @@ function drawDimensionsAndGaps(
   ctx.setLineDash([]);
   ctx.fillText(`a`, center, aY - offset * 0.3);
 
-  // p (Período)
+  // ===== p (Período) =====
   ctx.strokeStyle = "#d32f2f";
   ctx.fillStyle = "#d32f2f";
   const pX = center - pPix / 2 - offset;
@@ -319,7 +349,7 @@ function drawDimensionsAndGaps(
   ctx.fillText(`p`, 0, 0);
   ctx.restore();
 
-  // b (Largura da ponta do Braço)
+  // ===== b (Largura da ponta do Braço) =====
   ctx.strokeStyle = "#f57c00";
   ctx.fillStyle = "#f57c00";
   const bX = center - aPix / 2 - offset * 0.6;
@@ -336,7 +366,7 @@ function drawDimensionsAndGaps(
   ctx.setLineDash([]);
   ctx.fillText(`b`, bX - offset * 0.4, center);
 
-  // s (Quadrado central)
+  // ===== s (Quadrado central) =====
   ctx.strokeStyle = "#388e3c";
   ctx.fillStyle = "#388e3c";
   const sY = center + sPix / 2 + offset * 0.5;
@@ -344,26 +374,26 @@ function drawDimensionsAndGaps(
   ctx.fillText(`s`, center, sY + offset * 0.3);
 
   // ==========================================
-  // ILUSTRAÇÃO DOS GAPS CAPACITIVOS (Mamedes 2024)
+  // ILUSTRAÇÃO DOS GAPS CAPACITIVOS
   // ==========================================
-  ctx.font = `bold ${fontSize * 0.9}px Arial`;
+  ctx.font = `bold ${fontSize * 0.8}px Arial`;
 
-  // gf1 (Gap entre as pontas adjacentes: p - a)
+  // gf1 (Gap ponta a ponta: p - a)
   ctx.strokeStyle = "#8e44ad";
   ctx.fillStyle = "#8e44ad";
-  const gf1_x1 = center + aPix / 2;
-  const gf1_x2 = center + pPix - aPix / 2; // Ponta da célula vizinha à direita
-  drawArrow(ctx, gf1_x1, center, gf1_x2, center, arrowSize * 0.8);
+  drawArrow(
+    ctx,
+    center + aPix / 2,
+    center,
+    center + pPix - aPix / 2,
+    center,
+    arrowSize * 0.8,
+  );
   ctx.fillText(`gf1`, center + pPix / 2, center - offset * 0.2);
 
   // gf2 (Gap referencial da largura do braço: p - b)
-  // Desenhado verticalmente do final do braço b superior até a célula acima
   ctx.strokeStyle = "#e84393";
   ctx.fillStyle = "#e84393";
-  const gf2_y1 = center - aPix / 2;
-  const gf2_y2 = center - pPix + aPix / 2;
-  const gf2_X = center + bPix / 2 + offset * 0.3;
-  // Como p-b é um valor representativo na equação, mostramos a sua proporção na área de acoplamento
   drawArrow(
     ctx,
     center + bPix / 2,
@@ -374,10 +404,9 @@ function drawDimensionsAndGaps(
   );
   ctx.fillText(`gf2`, center + pPix / 4, center - pPix / 2 - offset * 0.3);
 
-  // gf3 (Gap entre as proporções do quadrado central: p - s)
+  // gf3 (Gap entre quadrados centrais: p - s)
   ctx.strokeStyle = "#16a085";
   ctx.fillStyle = "#16a085";
-  // Representado da borda do quadrado s até a borda s da próxima célula
   drawArrow(
     ctx,
     center + sPix / 2,
@@ -395,7 +424,6 @@ function drawArrow(ctx, fromX, fromY, toX, toY, arrowSize) {
   ctx.moveTo(fromX, fromY);
   ctx.lineTo(toX, toY);
   ctx.stroke();
-
   ctx.beginPath();
   ctx.moveTo(fromX, fromY);
   ctx.lineTo(
@@ -407,7 +435,6 @@ function drawArrow(ctx, fromX, fromY, toX, toY, arrowSize) {
     fromY - arrowSize * Math.sin(angle + Math.PI / 6),
   );
   ctx.fill();
-
   ctx.beginPath();
   ctx.moveTo(toX, toY);
   ctx.lineTo(
@@ -436,12 +463,10 @@ function updateAll() {
 
   if (fStart >= fEnd || p <= 0) return;
 
-  // 1. Ajuste Dielétrico Efetivo Rigoroso (Mamedes 2024 - Eq. 3.2)
-  // e_eff = e_r - (e_r - 1) * (1 / e^((10h/p)^M))
-  const M_factor = 1.9; // Constante M da tese (pag 67)
+  // 1. Ajuste Dielétrico Efetivo Rigoroso (Mamedes 2024)
+  const M_factor = 1.9; // Constante empírica
   const c_val = (10 * h_sub) / p;
-  const power_term = Math.pow(c_val, M_factor);
-  const z_factor = Math.exp(power_term);
+  const z_factor = Math.exp(Math.pow(c_val, M_factor));
   const er_eff = er_real - (er_real - 1) / z_factor;
 
   const erEffEl = document.getElementById("er_eff_num");
@@ -454,7 +479,7 @@ function updateAll() {
   const pCm = mmToCm(p);
   const df = 0.05;
 
-  // 2. Definição matemática dos Gaps Capacitivos Efetivos
+  // 2. Definição matemática dos Gaps Efetivos
   const gf1_cm = mmToCm(p - a);
   const gf2_cm = mmToCm(p - b);
   const gf3_cm = mmToCm(p - s);
@@ -463,23 +488,23 @@ function updateAll() {
     const lamb = 30 / freq;
 
     try {
-      // 3. Funções de Dispersão Indutiva e Capacitiva (Marcuvitz)
+      // 3. Funções de Dispersão (Marcuvitz)
       const FL = FF(pCm, mmToCm(b), lamb, 0);
       const FC_gf1 = FF(pCm, gf1_cm, lamb, 0);
       const FC_gf2 = FF(pCm, gf2_cm, lamb, 0);
       const FC_gf3 = FF(pCm, gf3_cm, lamb, 0);
 
-      // 4. Reatâncias Normalizadas e Fatores de Forma (Eq. 4.6 a 4.9)
+      // 4. Reatâncias Normalizadas (Eq. 4.6 a 4.9)
       const XLf = ((1.5 * a) / p) * FL;
       const BCgf = ((4 * b) / (1.5 * p)) * FC_gf1;
       const BCa1f = ((4 * (p - b)) / (1.5 * p)) * FC_gf2;
       const BCa2f = ((4 * (p - s)) / p) * FC_gf3;
 
-      // 5. Capacitâncias Efetivas c/ Permissividade (Eq. 4.10 e 4.11)
+      // 5. Capacitâncias com Permissividade (Eq. 4.10 e 4.11)
       const BC1f = (BCa1f + BCgf) * er_eff;
       const BC2f = 0.25 * (BCa2f + BCgf) * er_eff;
 
-      // 6. Admitância em Série do Circuito Equivalente (Eq. 4.12)
+      // 6. Admitância em Série do Circuito
       const B1 = Math.max(1e-12, BC1f);
       const B2 = Math.max(1e-12, BC2f);
 
@@ -596,7 +621,7 @@ function updateChart(labels, data_modelo, hfssPlotData) {
     document.querySelector(".chart-container").after(infoBox);
   }
 
-  infoBox.innerHTML = `<strong>Ressonância Observada (Band-Stop):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <span style="color:#2f855a;">Validação Completa: Permissividade efetiva calculada com M=1.9.</span>`;
+  infoBox.innerHTML = `<strong>Ressonância Observada (Band-Stop):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <span style="color:#2f855a;">Validação Completa: Geometria poligonal de 12 vértices. Permissividade calculada com M=1.9.</span>`;
 }
 
 function exportToCSV() {
