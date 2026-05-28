@@ -1,4 +1,4 @@
-<!doctype html>
+def generate_html(): html_content = r"""<!doctype html>
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
@@ -298,10 +298,10 @@
           Quadrado
         </h2>
         <p>
-          O Anel Quadrado foi consolidado por Langley e Parker (1982). O modelo
-          assume que o anel atua como uma associação de indutores (as fitas
-          paralelas à polarização do campo elétrico) e capacitores (as frestas
-          entre anéis adjacentes).
+          O Anel Quadrado foi consolidado por Langley e Parker. O modelo assume
+          que o anel atua como uma associação de indutores (as fitas paralelas à
+          polarização do campo elétrico) e capacitores (as frestas entre anéis
+          adjacentes).
         </p>
 
         <div class="math-box">
@@ -359,9 +359,8 @@
           matemático maior que o físico. Isso simula a redução real de
           capacitância causada pela curvatura das fitas. Foi exatamente esta
           formulação (aliada ao \(\epsilon_{eff}\) de N=1.8) que permitiu ao
-          simulador alinhar a predição analítica com os
-          <strong>4.16 GHz</strong> obtidos na simulação de onda completa (Ansys
-          HFSS) para os parâmetros \(p=20\), \(r=9.1\) e \(w=0.5\).
+          simulador alinhar a predição analítica com a ressonância exata obtida
+          na simulação de onda completa (Ansys HFSS) para a banda n78 do 5G.
         </div>
       </section>
 
@@ -371,11 +370,10 @@
           Jerusalém
         </h2>
         <p>
-          A Cruz de Jerusalém é uma estrutura complexa e multirressonante,
-          modelada pelas equações de B. Munk (2000). A estrutura é dividida em
-          dois blocos: a cruz central interna (que fornece a indutância
-          principal) e as hastes nas extremidades (End-Caps, que atuam como
-          pesados blocos capacitivos).
+          A Cruz de Jerusalém é uma estrutura complexa e multirressonante. A
+          estrutura é dividida em dois blocos: a cruz central interna (que
+          fornece a indutância principal) e as hastes nas extremidades
+          (End-Caps, que atuam como blocos capacitivos).
         </p>
 
         <p>
@@ -392,9 +390,7 @@
         <p>
           Devido à alta densidade capacitiva dos <em>End-Caps</em> (\(g\)), a
           Cruz de Jerusalém atinge frequências de ressonância extremamente
-          baixas em células unitárias compactas (alto grau de miniaturização),
-          tornando-se ideal para shielding de baixas frequências (ex: bloqueio
-          de GSM/LTE sem afetar o Wi-Fi).
+          baixas em células unitárias compactas (alto grau de miniaturização).
         </p>
       </section>
 
@@ -406,17 +402,21 @@
         <table>
           <tr>
             <th>Autor(es) / Ano</th>
-            <th>Título da Obra / Link de Referência</th>
+            <th>Título da Obra / Link do Arquivo</th>
             <th>Aplicação Matemática no Simulador</th>
           </tr>
           <tr>
-            <td>R. J. Langley, E. A. Parker (1982)</td>
+            <td>R. J. Langley, E. A. Parker (1983)</td>
             <td>
               <a
-                href="https://ieeexplore.ieee.org/document/1163955"
+                href="https://ui.adsabs.harvard.edu/abs/1983ElL....19..675L/abstract"
                 target="_blank"
                 style="color: var(--secondary-color); font-weight: bold"
-                >Equivalent circuit model for arrays of square loops</a
+                ><i
+                  class="fa-solid fa-arrow-up-right-from-square icon-margin"
+                ></i
+                >Double-square frequency-selective surfaces and their equivalent
+                circuit</a
               >
             </td>
             <td>
@@ -428,10 +428,11 @@
             <td>N. Marcuvitz (1951)</td>
             <td>
               <a
-                href="https://digital.library.unt.edu/ark:/67531/metadc163155/"
+                href="referencias/Waveguide Handbook.pdf"
                 target="_blank"
                 style="color: var(--secondary-color); font-weight: bold"
-                >Waveguide Handbook (MIT Radiation Lab Series)</a
+                ><i class="fa-solid fa-file-pdf icon-margin"></i>Waveguide
+                Handbook</a
               >
             </td>
             <td>
@@ -442,8 +443,13 @@
           <tr>
             <td>A. L. M. Oliveira (2023)</td>
             <td>
-              Superfícies Seletivas em Frequências Multibanda e/ou Banda Larga
-              (UFOP)
+              <a
+                href="referencias/[2023] TCC Ana Luiza.pdf"
+                target="_blank"
+                style="color: var(--secondary-color); font-weight: bold"
+                ><i class="fa-solid fa-file-pdf icon-margin"></i>[2023] TCC Ana
+                Luiza</a
+              >
             </td>
             <td>
               Dedução do Gap Equivalente Projetado e fator exponencial empírico
@@ -451,18 +457,35 @@
             </td>
           </tr>
           <tr>
-            <td>B. A. Munk (2000)</td>
+            <td>Vários Autores</td>
             <td>
               <a
-                href="https://onlinelibrary.wiley.com/doi/book/10.1002/0471723770"
+                href="referencias/Superficies Seletivas em Fraquencia - Ebook.pdf"
                 target="_blank"
                 style="color: var(--secondary-color); font-weight: bold"
-                >Frequency Selective Surfaces: Theory and Design</a
+                ><i class="fa-solid fa-file-pdf icon-margin"></i>Superfícies
+                Seletivas em Frequência - Ebook</a
               >
             </td>
             <td>
-              Arquitetura de modelagem multibanda e matriz de transferência da
-              Cruz de Jerusalém.
+              Fundamentação teórica geral e arquitetura de modelagem multibanda.
+            </td>
+          </tr>
+          <tr>
+            <td>J. R. Costa et al.</td>
+            <td>
+              <a
+                href="referencias/A Simple Effective Permittivity Model for Metasurfaces within Multilayer.pdf"
+                target="_blank"
+                style="color: var(--secondary-color); font-weight: bold"
+                ><i class="fa-solid fa-file-pdf icon-margin"></i>A Simple
+                Effective Permittivity Model for Metasurfaces within
+                Multilayer</a
+              >
+            </td>
+            <td>
+              Modelo clássico calibrado com fator de forma dinâmico (\(\alpha\))
+              para permissividade efetiva.
             </td>
           </tr>
         </table>
@@ -489,3 +512,6 @@
     </div>
   </body>
 </html>
+""" with open("fundamentacao_teorica.html", "w", encoding="utf-8") as f:
+f.write(html_content) generate_html() print("HTML atualizado com sucesso com os
+caminhos corretos.")
