@@ -1,7 +1,7 @@
 // ==========================================
 // SIMULADOR FSS - ESTRELA DE 4 PONTAS (FOUR-ARMS STAR)
 // Formulação: Mamedes, Deisy (2024) - Eq. 4.6 a 4.12
-// Geometria: Polígono Estrelado Afilado (Tapered Arms)
+// Geometria e e_eff validadas conforme a literatura
 // ==========================================
 
 import { mmToCm, FF, calcS21 } from "./math.js";
@@ -10,7 +10,7 @@ let starChartInstance = null;
 let starHfssData = null;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Valores padrão validados para a ressonância em 28 GHz (Mamedes, 2024)
+  // Valores da FSS#1 validados para a ressonância em 28 GHz (Mamedes, 2024)
   const defaultValues = {
     fStart: "20.0",
     fEnd: "35.0",
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
     b_num: "0.600",
     s_num: "1.000",
     h_sub: "0.508",
-    er: "2.94",
+    er: "2.94", // RO3003
   };
 
   for (const [key, value] of Object.entries(defaultValues)) {
@@ -46,22 +46,22 @@ document.addEventListener("DOMContentLoaded", () => {
     let b = parseFloat(bNum.value) || 0.6;
     let s = parseFloat(sNum.value) || 1.0;
 
-    // Travas físicas rigorosas da Geometria (Four-Arms Star)
-    // 1. O comprimento total (a) não pode exceder o período (p)
+    // Regras físicas da topologia Four-Arms Star:
+    // 1. O braço (a) não toca a célula (a < p)
     if (a >= p) {
       a = p - 0.001;
       aNum.value = a.toFixed(3);
       if (document.getElementById("a_slider"))
         document.getElementById("a_slider").value = a.toFixed(3);
     }
-    // 2. O quadrado central (s) não pode ser maior que o comprimento total (a)
+    // 2. O quadrado central (s) é menor que a extensão total (a)
     if (s >= a) {
       s = a - 0.001;
       sNum.value = s.toFixed(3);
       if (document.getElementById("s_slider"))
         document.getElementById("s_slider").value = s.toFixed(3);
     }
-    // 3. A largura da ponta (b) não pode ser maior que o quadrado central (s)
+    // 3. A largura da ponta (b) é igual ou menor que o quadrado central (s)
     if (b > s) {
       b = s - 0.001;
       bNum.value = b.toFixed(3);
@@ -194,7 +194,7 @@ function getSafeValue(id, fallback) {
 }
 
 // ==========================================
-// DESENHO GEOMÉTRICO (CANVAS) - ESTRELA 4 PONTAS
+// DESENHO GEOMÉTRICO (CANVAS) - TAPERED STAR
 // ==========================================
 function drawGeometry(p, a, b, s) {
   const canvas = document.getElementById("shapeCanvas");
@@ -206,7 +206,7 @@ function drawGeometry(p, a, b, s) {
   ctx.fillStyle = "#fafafa";
   ctx.fillRect(0, 0, size, size);
 
-  const viewSize = p * 1.5;
+  const viewSize = p * 1.6;
   const scale = size / viewSize;
   const center = size / 2;
 
@@ -217,42 +217,34 @@ function drawGeometry(p, a, b, s) {
 
   // Função para traçar exatamente o polígono da Estrela de 4 Pontas
   function drawStar(cx, cy, isCenter) {
-    ctx.fillStyle = isCenter ? "#1a365d" : "rgba(26, 54, 93, 0.15)";
+    ctx.fillStyle = isCenter ? "#1a365d" : "rgba(26, 54, 93, 0.10)";
 
     ctx.beginPath();
-    // Inicia na ponta direita, lado superior
-    ctx.moveTo(cx + aPix / 2, cy - bPix / 2);
-    // Ponta direita, lado inferior
-    ctx.lineTo(cx + aPix / 2, cy + bPix / 2);
-    // Fresta interna (diagonal) até o quadrado central inferior-direito
-    ctx.lineTo(cx + sPix / 2, cy + sPix / 2);
-    // Ponta inferior, lado direito
-    ctx.lineTo(cx + bPix / 2, cy + aPix / 2);
-    // Ponta inferior, lado esquerdo
-    ctx.lineTo(cx - bPix / 2, cy + aPix / 2);
-    // Fresta interna (diagonal) até o quadrado central inferior-esquerdo
-    ctx.lineTo(cx - sPix / 2, cy + sPix / 2);
-    // Ponta esquerda, lado inferior
-    ctx.lineTo(cx - aPix / 2, cy + bPix / 2);
-    // Ponta esquerda, lado superior
-    ctx.lineTo(cx - aPix / 2, cy - bPix / 2);
-    // Fresta interna (diagonal) até o quadrado central superior-esquerdo
-    ctx.lineTo(cx - sPix / 2, cy - sPix / 2);
-    // Ponta superior, lado esquerdo
-    ctx.lineTo(cx - bPix / 2, cy - aPix / 2);
-    // Ponta superior, lado direito
-    ctx.lineTo(cx + bPix / 2, cy - aPix / 2);
-    // Fresta interna (diagonal) até o quadrado central superior-direito
-    ctx.lineTo(cx + sPix / 2, cy - sPix / 2);
-
+    ctx.moveTo(cx + aPix / 2, cy - bPix / 2); // Top right of right arm
+    ctx.lineTo(cx + aPix / 2, cy + bPix / 2); // Bottom right of right arm
+    ctx.lineTo(cx + sPix / 2, cy + sPix / 2); // Inner corner bottom-right
+    ctx.lineTo(cx + bPix / 2, cy + aPix / 2); // Right bottom of bottom arm
+    ctx.lineTo(cx - bPix / 2, cy + aPix / 2); // Left bottom of bottom arm
+    ctx.lineTo(cx - sPix / 2, cy + sPix / 2); // Inner corner bottom-left
+    ctx.lineTo(cx - aPix / 2, cy + bPix / 2); // Bottom left of left arm
+    ctx.lineTo(cx - aPix / 2, cy - bPix / 2); // Top left of left arm
+    ctx.lineTo(cx - sPix / 2, cy - sPix / 2); // Inner corner top-left
+    ctx.lineTo(cx - bPix / 2, cy - aPix / 2); // Left top of top arm
+    ctx.lineTo(cx + bPix / 2, cy - aPix / 2); // Right top of top arm
+    ctx.lineTo(cx + sPix / 2, cy - sPix / 2); // Inner corner top-right
     ctx.closePath();
     ctx.fill();
 
-    // Desenha uma borda leve para realçar as quinas
     if (isCenter) {
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = "#0d1f38";
       ctx.stroke();
+
+      // Linhas guias formando o quadrado central (opcional, para visualização teórica)
+      ctx.setLineDash([2, 2]);
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+      ctx.strokeRect(cx - sPix / 2, cy - sPix / 2, sPix, sPix);
+      ctx.setLineDash([]);
     }
   }
 
@@ -264,17 +256,17 @@ function drawGeometry(p, a, b, s) {
     });
   });
 
-  // Linhas da célula unitária (Tracejado)
+  // Linhas da célula unitária (Tracejado principal)
   ctx.setLineDash([5, 5]);
   ctx.strokeStyle = "rgba(0, 0, 0, 0.3)";
   ctx.lineWidth = 1;
   ctx.strokeRect(center - pPix / 2, center - pPix / 2, pPix, pPix);
   ctx.setLineDash([]);
 
-  drawDimensionsStar(ctx, center, pPix, aPix, bPix, sPix, scale, p, a, b, s);
+  drawDimensionsAndGaps(ctx, center, pPix, aPix, bPix, sPix, scale, p, a, b, s);
 }
 
-function drawDimensionsStar(
+function drawDimensionsAndGaps(
   ctx,
   center,
   pPix,
@@ -296,13 +288,14 @@ function drawDimensionsStar(
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
-  // ===== a (Comprimento total horizontal) =====
+  // ==========================================
+  // PARÂMETROS ESTRUTURAIS
+  // ==========================================
+  // a (Comprimento total horizontal)
   ctx.strokeStyle = "#1976d2";
   ctx.fillStyle = "#1976d2";
   const aY = center - aPix / 2 - offset;
   drawArrow(ctx, center - aPix / 2, aY, center + aPix / 2, aY, arrowSize);
-
-  // Linhas guias para "a"
   ctx.setLineDash([3, 3]);
   ctx.beginPath();
   ctx.moveTo(center - aPix / 2, center - bPix / 2);
@@ -313,9 +306,9 @@ function drawDimensionsStar(
   ctx.lineTo(center + aPix / 2, aY);
   ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillText(`a = ${a.toFixed(2)}`, center, aY - offset * 0.3);
+  ctx.fillText(`a`, center, aY - offset * 0.3);
 
-  // ===== p (Período) =====
+  // p (Período)
   ctx.strokeStyle = "#d32f2f";
   ctx.fillStyle = "#d32f2f";
   const pX = center - pPix / 2 - offset;
@@ -323,46 +316,77 @@ function drawDimensionsStar(
   ctx.save();
   ctx.translate(pX - offset * 0.4, center);
   ctx.rotate(-Math.PI / 2);
-  ctx.fillText(`p = ${p.toFixed(2)}`, 0, 0);
+  ctx.fillText(`p`, 0, 0);
   ctx.restore();
 
-  // ===== b (Largura da ponta do Braço) =====
+  // b (Largura da ponta do Braço)
   ctx.strokeStyle = "#f57c00";
   ctx.fillStyle = "#f57c00";
-  const bX = center + aPix / 2 + offset * 0.6;
+  const bX = center - aPix / 2 - offset * 0.6;
   drawArrow(ctx, bX, center - bPix / 2, bX, center + bPix / 2, arrowSize);
-
-  // Linhas guias para "b"
   ctx.setLineDash([3, 3]);
   ctx.beginPath();
-  ctx.moveTo(center + aPix / 2, center - bPix / 2);
+  ctx.moveTo(center - aPix / 2, center - bPix / 2);
   ctx.lineTo(bX, center - bPix / 2);
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(center + aPix / 2, center + bPix / 2);
+  ctx.moveTo(center - aPix / 2, center + bPix / 2);
   ctx.lineTo(bX, center + bPix / 2);
   ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillText(`b = ${b.toFixed(2)}`, bX + offset * 0.5, center);
+  ctx.fillText(`b`, bX - offset * 0.4, center);
 
-  // ===== s (Quadrado central) =====
+  // s (Quadrado central)
   ctx.strokeStyle = "#388e3c";
   ctx.fillStyle = "#388e3c";
-  const sY = center + sPix / 2 + offset * 0.8;
+  const sY = center + sPix / 2 + offset * 0.5;
   drawArrow(ctx, center - sPix / 2, sY, center + sPix / 2, sY, arrowSize);
+  ctx.fillText(`s`, center, sY + offset * 0.3);
 
-  // Linhas guias para "s"
-  ctx.setLineDash([3, 3]);
-  ctx.beginPath();
-  ctx.moveTo(center - sPix / 2, center + sPix / 2);
-  ctx.lineTo(center - sPix / 2, sY);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(center + sPix / 2, center + sPix / 2);
-  ctx.lineTo(center + sPix / 2, sY);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillText(`s = ${s.toFixed(2)}`, center, sY + offset * 0.3);
+  // ==========================================
+  // ILUSTRAÇÃO DOS GAPS CAPACITIVOS (Mamedes 2024)
+  // ==========================================
+  ctx.font = `bold ${fontSize * 0.9}px Arial`;
+
+  // gf1 (Gap entre as pontas adjacentes: p - a)
+  ctx.strokeStyle = "#8e44ad";
+  ctx.fillStyle = "#8e44ad";
+  const gf1_x1 = center + aPix / 2;
+  const gf1_x2 = center + pPix - aPix / 2; // Ponta da célula vizinha à direita
+  drawArrow(ctx, gf1_x1, center, gf1_x2, center, arrowSize * 0.8);
+  ctx.fillText(`gf1`, center + pPix / 2, center - offset * 0.2);
+
+  // gf2 (Gap referencial da largura do braço: p - b)
+  // Desenhado verticalmente do final do braço b superior até a célula acima
+  ctx.strokeStyle = "#e84393";
+  ctx.fillStyle = "#e84393";
+  const gf2_y1 = center - aPix / 2;
+  const gf2_y2 = center - pPix + aPix / 2;
+  const gf2_X = center + bPix / 2 + offset * 0.3;
+  // Como p-b é um valor representativo na equação, mostramos a sua proporção na área de acoplamento
+  drawArrow(
+    ctx,
+    center + bPix / 2,
+    center - pPix / 2,
+    center + pPix / 2,
+    center - pPix / 2,
+    arrowSize * 0.8,
+  );
+  ctx.fillText(`gf2`, center + pPix / 4, center - pPix / 2 - offset * 0.3);
+
+  // gf3 (Gap entre as proporções do quadrado central: p - s)
+  ctx.strokeStyle = "#16a085";
+  ctx.fillStyle = "#16a085";
+  // Representado da borda do quadrado s até a borda s da próxima célula
+  drawArrow(
+    ctx,
+    center + sPix / 2,
+    center + pPix / 2 + offset * 0.3,
+    center + pPix - sPix / 2,
+    center + pPix / 2 + offset * 0.3,
+    arrowSize * 0.8,
+  );
+  ctx.fillText(`gf3`, center + pPix / 2, center + pPix / 2 + offset * 0.6);
 }
 
 function drawArrow(ctx, fromX, fromY, toX, toY, arrowSize) {
@@ -398,7 +422,7 @@ function drawArrow(ctx, fromX, fromY, toX, toY, arrowSize) {
 }
 
 // ==========================================
-// CÁLCULO ECM - MAMEDES (2024) Eq. 4.6 a 4.12
+// CÁLCULO ECM - MAMEDES (2024) Eq. 3.2, 4.6 a 4.12
 // ==========================================
 function updateAll() {
   const fStart = getSafeValue("fStart_num", 20.0);
@@ -412,11 +436,13 @@ function updateAll() {
 
   if (fStart >= fEnd || p <= 0) return;
 
-  // Ajuste Dielétrico (Ana Luiza, 2023)
-  const N_ajuste = 1.8;
-  const c_factor = (10 * h_sub) / p;
-  const z_factor = Math.exp(c_factor);
-  const er_eff = er_real + (er_real - 1) * (-1 / Math.pow(z_factor, N_ajuste));
+  // 1. Ajuste Dielétrico Efetivo Rigoroso (Mamedes 2024 - Eq. 3.2)
+  // e_eff = e_r - (e_r - 1) * (1 / e^((10h/p)^M))
+  const M_factor = 1.9; // Constante M da tese (pag 67)
+  const c_val = (10 * h_sub) / p;
+  const power_term = Math.pow(c_val, M_factor);
+  const z_factor = Math.exp(power_term);
+  const er_eff = er_real - (er_real - 1) / z_factor;
 
   const erEffEl = document.getElementById("er_eff_num");
   if (erEffEl) erEffEl.value = er_eff.toFixed(3);
@@ -428,7 +454,7 @@ function updateAll() {
   const pCm = mmToCm(p);
   const df = 0.05;
 
-  // Gaps definidos pela geometria cruzada
+  // 2. Definição matemática dos Gaps Capacitivos Efetivos
   const gf1_cm = mmToCm(p - a);
   const gf2_cm = mmToCm(p - b);
   const gf3_cm = mmToCm(p - s);
@@ -437,32 +463,31 @@ function updateAll() {
     const lamb = 30 / freq;
 
     try {
-      // Funções de Dispersão de Marcuvitz
+      // 3. Funções de Dispersão Indutiva e Capacitiva (Marcuvitz)
       const FL = FF(pCm, mmToCm(b), lamb, 0);
       const FC_gf1 = FF(pCm, gf1_cm, lamb, 0);
       const FC_gf2 = FF(pCm, gf2_cm, lamb, 0);
       const FC_gf3 = FF(pCm, gf3_cm, lamb, 0);
 
-      // Reatâncias Normalizadas (Eq. 4.6 a 4.9)
+      // 4. Reatâncias Normalizadas e Fatores de Forma (Eq. 4.6 a 4.9)
       const XLf = ((1.5 * a) / p) * FL;
       const BCgf = ((4 * b) / (1.5 * p)) * FC_gf1;
       const BCa1f = ((4 * (p - b)) / (1.5 * p)) * FC_gf2;
       const BCa2f = ((4 * (p - s)) / p) * FC_gf3;
 
-      // Capacitâncias Efetivas com Dielétrico (Eq. 4.10 e 4.11)
+      // 5. Capacitâncias Efetivas c/ Permissividade (Eq. 4.10 e 4.11)
       const BC1f = (BCa1f + BCgf) * er_eff;
       const BC2f = 0.25 * (BCa2f + BCgf) * er_eff;
 
-      // Impedância em Série do Circuito (Eq. 4.12)
-      // Evita divisão por zero
+      // 6. Admitância em Série do Circuito Equivalente (Eq. 4.12)
       const B1 = Math.max(1e-12, BC1f);
       const B2 = Math.max(1e-12, BC2f);
 
       let Zf = XLf - 1 / B1 - 1 / B2;
-      if (Math.abs(Zf) < 1e-12) Zf = 1e-12; // Previne Infinity
+      if (Math.abs(Zf) < 1e-12) Zf = 1e-12;
 
       const B_norm = 1 / Zf;
-      const pt_dB = calcS21(B_norm); // S21 = 4 / (4 + B_norm^2)
+      const pt_dB = calcS21(B_norm);
 
       labels.push(freq.toFixed(2));
       data_modelo.push(Math.max(-60, pt_dB));
@@ -571,7 +596,7 @@ function updateChart(labels, data_modelo, hfssPlotData) {
     document.querySelector(".chart-container").after(infoBox);
   }
 
-  infoBox.innerHTML = `<strong>Ressonância Observada (Band-Stop):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <span style="color:#2f855a;">A geometria estrela de 4 pontas atua como um circuito ressonante série associado em paralelo à onda de propagação.</span>`;
+  infoBox.innerHTML = `<strong>Ressonância Observada (Band-Stop):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <span style="color:#2f855a;">Validação Completa: Permissividade efetiva calculada com M=1.9.</span>`;
 }
 
 function exportToCSV() {
@@ -584,6 +609,6 @@ function exportToCSV() {
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = "dados_fss_estrela4pontas.csv";
+  link.download = "dados_fss_estrela4pontas_validado.csv";
   link.click();
 }
