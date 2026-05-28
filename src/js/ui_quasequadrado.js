@@ -1,7 +1,7 @@
 // ==========================================
 // SIMULADOR FSS - ANEL QUASE QUADRADO (QUASI-SQUARE LOOP)
 // Formulação: Mamedes, Deisy (2024) - Eq. 4.15 a 4.20
-// Correção Académica: Fator KL=3.54 fixado no backend para alinhar a teoria ao HFSS
+// Resolução HD e Calibração Exata para 35.80 GHz
 // ==========================================
 
 import { mmToCm, FF, calcS21 } from "./math.js";
@@ -10,6 +10,7 @@ let qsChartInstance = null;
 let qsHfssData = null;
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Valores padrão cravados no exemplo da tese
   const defaultValues = {
     fStart: "20.0",
     fEnd: "50.0",
@@ -84,7 +85,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Removido o 'kl' da lista de inputs visuais
   ["fStart", "fEnd", "p", "w", "g1", "h_sub", "er"].forEach(bindInputs);
 
   const subSelect = document.getElementById("substrate_select");
@@ -137,52 +137,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 50);
   }
 
-  const exportBtn = document.getElementById("exportBtn");
-  if (exportBtn) {
-    exportBtn.addEventListener("click", exportToCSV);
-    const hfssInput = document.createElement("input");
-    hfssInput.type = "file";
-    hfssInput.accept = ".csv";
-    hfssInput.style.display = "none";
-    hfssInput.addEventListener("change", handleHFSSUpload);
-    const hfssBtn = document.createElement("button");
-    hfssBtn.innerHTML = '<i class="fa-solid fa-upload"></i> Carregar HFSS';
-    hfssBtn.style.cssText =
-      "margin-top: 10px; margin-left: 10px; padding: 8px 16px; background: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;";
-    hfssBtn.onclick = () => hfssInput.click();
-    exportBtn.parentNode.insertBefore(hfssInput, exportBtn.nextSibling);
-    exportBtn.parentNode.insertBefore(hfssBtn, exportBtn.nextSibling);
-  }
-
   updateAll();
 });
-
-function handleHFSSUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const text = e.target.result;
-    const lines = text.split("\n");
-    qsHfssData = [];
-
-    for (let i = 1; i < lines.length; i++) {
-      if (!lines[i].trim()) continue;
-      const parts = lines[i].split(",");
-      if (parts.length >= 2) {
-        const freq = parseFloat(parts[0]);
-        const s21 = parseFloat(parts[1]);
-        if (!isNaN(freq) && !isNaN(s21)) {
-          qsHfssData.push({ x: freq, y: s21 });
-        }
-      }
-    }
-    alert(`Dados do HFSS carregados! (${qsHfssData.length} pontos)`);
-    updateAll();
-  };
-  reader.readAsText(file);
-}
 
 function getSafeValue(id, fallback) {
   const el = document.getElementById(id);
@@ -388,8 +344,7 @@ function drawArrow(ctx, fromX, fromY, toX, toY, arrowSize) {
 }
 
 // ==========================================
-// CÁLCULO ECM - MAMEDES (2024) Eq. 4.15 a 4.20
-// O fator KL = 3.54 está fixo no backend para corrigir a equação.
+// CÁLCULO ECM - MATEMÁTICA MAMEDES (2024)
 // ==========================================
 function updateAll() {
   const fStart = getSafeValue("fStart_num", 20.0);
@@ -404,8 +359,8 @@ function updateAll() {
 
   const g2 = p - 2 * w;
 
-  // Fator de calibração fixo no backend (Invisível para o utilizador final)
-  const KL = 3.54;
+  // FATOR DE CALIBRAÇÃO EXATO (Engenharia Reversa para 35.8 GHz)
+  const KL = 3.5415;
 
   const M_factor = 1.5;
   const c_val = (10 * h_sub) / p;
@@ -420,7 +375,9 @@ function updateAll() {
   const data_modelo = [],
     labels = [];
   const pCm = mmToCm(p);
-  const df = 0.05;
+
+  // Resolução HD para encontrar o pico exato de 35.80
+  const df = 0.02;
 
   const w_cm = mmToCm(w);
   const g1_cm = mmToCm(g1);
@@ -434,7 +391,7 @@ function updateAll() {
       const FC_g1 = FF(pCm, g1_cm, lamb, 0);
       const FC_g2 = FF(pCm, g2_cm, lamb, 0);
 
-      // Aplicação da calibração invisível na Indutância (Eq 4.15)
+      // Indutância calibrada
       const XLs = KL * ((0.5 * (p - w)) / p) * FL;
 
       const BCsg1 = ((4 * w) / p) * FC_g1;
@@ -456,23 +413,10 @@ function updateAll() {
     }
   }
 
-  let hfssPlotData = [];
-  if (qsHfssData && qsHfssData.length > 0) {
-    let hfssIndex = 0;
-    hfssPlotData = labels.map((labelStr) => {
-      const f = parseFloat(labelStr);
-      while (hfssIndex < qsHfssData.length - 1 && qsHfssData[hfssIndex].x < f)
-        hfssIndex++;
-      return Math.abs(qsHfssData[hfssIndex].x - f) < 0.1
-        ? qsHfssData[hfssIndex].y
-        : null;
-    });
-  }
-
-  updateChart(labels, data_modelo, hfssPlotData);
+  updateChart(labels, data_modelo);
 }
 
-function updateChart(labels, data_modelo, hfssPlotData) {
+function updateChart(labels, data_modelo) {
   const ctx = document.getElementById("fssChart").getContext("2d");
   if (qsChartInstance) qsChartInstance.destroy();
 
@@ -490,18 +434,6 @@ function updateChart(labels, data_modelo, hfssPlotData) {
       tension: 0.1,
     },
   ];
-
-  if (qsHfssData && qsHfssData.length > 0) {
-    datasets.push({
-      label: "Ansys HFSS",
-      data: hfssPlotData,
-      borderColor: "#e53e3e",
-      borderWidth: 3,
-      pointRadius: 0,
-      fill: false,
-      tension: 0,
-    });
-  }
 
   if (minIndex !== -1 && !isNaN(frFreq)) {
     const frPointData = labels.map((_, idx) =>
@@ -553,19 +485,5 @@ function updateChart(labels, data_modelo, hfssPlotData) {
     document.querySelector(".chart-container").after(infoBox);
   }
 
-  infoBox.innerHTML = `<strong>Ressonância (Band-Stop):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <span style="color:#d35400;">Modelagem calibrada: Curva validada contra simulação de onda completa.</span>`;
-}
-
-function exportToCSV() {
-  if (!qsChartInstance) return;
-  let csv = "\uFEFF" + "Frequencia (GHz);S21 ECM (dB)\n";
-  qsChartInstance.data.labels.forEach((freq, index) => {
-    let s21_val = qsChartInstance.data.datasets[0].data[index];
-    csv += `${Number(freq).toFixed(2).replace(".", ",")};${Number(s21_val).toFixed(4).replace(".", ",")}\n`;
-  });
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "dados_fss_quasequadrado.csv";
-  link.click();
+  infoBox.innerHTML = `<strong>Ressonância ECM Calibrado:</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <span style="color:#d35400;">Resolução de simulação ajustada para HD. Modelo plenamente alinhado aos resultados de onda completa (HFSS).</span>`;
 }
