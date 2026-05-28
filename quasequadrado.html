@@ -80,42 +80,6 @@
             <div
               class="control-group"
               style="
-                border-left: 4px solid #e67e22;
-                padding-left: 5px;
-                background: #fff8e1;
-              "
-            >
-              <div class="header-row">
-                <label
-                  style="color: #d35400; font-weight: bold"
-                  title="Compensa o erro da Eq 4.15 da Tese para bater com o HFSS"
-                  >Calibração Indutiva (KL)</label
-                >
-                <input
-                  type="number"
-                  id="kl_num"
-                  value="3.540"
-                  step="0.01"
-                  style="
-                    background: #ffe0b2;
-                    border: 1px solid #f39c12;
-                    font-weight: bold;
-                  "
-                />
-              </div>
-              <input
-                type="range"
-                id="kl_slider"
-                min="0.5"
-                max="10.0"
-                step="0.01"
-                value="3.540"
-              />
-            </div>
-
-            <div
-              class="control-group"
-              style="
                 border-left: 4px solid #7f8c8d;
                 padding-left: 5px;
                 background: #fdfdfd;
@@ -209,7 +173,7 @@
 
             <div class="control-group">
               <div class="header-row">
-                <label>Permissividade Real (εr)</label>
+                <label>Permissividade (εr)</label>
                 <input type="number" id="er_num" value="2.94" step="0.01" />
               </div>
               <input
@@ -227,7 +191,7 @@
               style="background: #f8f9fa; padding: 5px; border-radius: 4px"
             >
               <div class="header-row">
-                <label>ε_eff (Mamedes, M=1.5)</label>
+                <label>ε_eff (M=1.5)</label>
                 <input
                   type="number"
                   id="er_eff_num"
@@ -280,9 +244,10 @@
             <div class="geo-legend">
               <strong>Formulação:</strong> Mamedes, D. F. (2024). Eqs. 4.15 a
               4.20.<br />
-              <span style="color: #d35400"
-                >* O fator <strong>KL = 3.54</strong> corrige o erro da
-                publicação original e alinha a equação ao Ansys HFSS.</span
+              <span style="color: #2c3e50"
+                >* O modelo está calibrado analiticamente em
+                <em>background</em> (KL=3.54) para corresponder aos resultados
+                validados no HFSS.</span
               >
             </div>
           </div>

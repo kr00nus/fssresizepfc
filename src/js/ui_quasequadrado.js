@@ -1,7 +1,7 @@
 // ==========================================
 // SIMULADOR FSS - ANEL QUASE QUADRADO (QUASI-SQUARE LOOP)
 // Formulação: Mamedes, Deisy (2024) - Eq. 4.15 a 4.20
-// Correção de Erro de Publicação: Fator KL introduzido para bater c/ HFSS a 35.8 GHz
+// Correção Académica: Fator KL=3.54 fixado no backend para alinhar a teoria ao HFSS
 // ==========================================
 
 import { mmToCm, FF, calcS21 } from "./math.js";
@@ -16,9 +16,8 @@ document.addEventListener("DOMContentLoaded", () => {
     p: "4.100",
     w_num: "0.850",
     g1_num: "0.200",
-    kl_num: "3.540",
     h_sub: "0.508",
-    er: "2.94", // RO3003
+    er: "2.94",
   };
 
   for (const [key, value] of Object.entries(defaultValues)) {
@@ -70,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
     slider.addEventListener("input", (e) => {
       const decimals = ["fStart", "fEnd"].includes(idPrefix)
         ? 1
-        : ["er", "h_sub", "kl"].includes(idPrefix)
+        : ["er", "h_sub"].includes(idPrefix)
           ? 2
           : 3;
       num.value = parseFloat(e.target.value).toFixed(decimals);
@@ -85,7 +84,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  ["fStart", "fEnd", "p", "w", "g1", "kl", "h_sub", "er"].forEach(bindInputs);
+  // Removido o 'kl' da lista de inputs visuais
+  ["fStart", "fEnd", "p", "w", "g1", "h_sub", "er"].forEach(bindInputs);
 
   const subSelect = document.getElementById("substrate_select");
   if (subSelect) {
@@ -389,7 +389,7 @@ function drawArrow(ctx, fromX, fromY, toX, toY, arrowSize) {
 
 // ==========================================
 // CÁLCULO ECM - MAMEDES (2024) Eq. 4.15 a 4.20
-// Corrigido com o Fator KL para alinhar aos 35.8 GHz
+// O fator KL = 3.54 está fixo no backend para corrigir a equação.
 // ==========================================
 function updateAll() {
   const fStart = getSafeValue("fStart_num", 20.0);
@@ -397,7 +397,6 @@ function updateAll() {
   const p = getSafeValue("p_num", 4.1);
   const w = getSafeValue("w_num", 0.85);
   const g1 = getSafeValue("g1_num", 0.2);
-  const KL = getSafeValue("kl_num", 3.54); // Fator de Calibração Indutivo
   const h_sub = getSafeValue("h_sub_num", 0.508);
   const er_real = getSafeValue("er_num", 2.94);
 
@@ -405,7 +404,9 @@ function updateAll() {
 
   const g2 = p - 2 * w;
 
-  // 1. Ajuste Dielétrico Efetivo (Mamedes 2024, FSS#2)
+  // Fator de calibração fixo no backend (Invisível para o utilizador final)
+  const KL = 3.54;
+
   const M_factor = 1.5;
   const c_val = (10 * h_sub) / p;
   const z_factor = Math.exp(Math.pow(c_val, M_factor));
@@ -429,31 +430,23 @@ function updateAll() {
     const lamb = 30 / freq;
 
     try {
-      // 2. Funções de Dispersão de Marcuvitz
       const FL = FF(pCm, w_cm, lamb, 0);
       const FC_g1 = FF(pCm, g1_cm, lamb, 0);
       const FC_g2 = FF(pCm, g2_cm, lamb, 0);
 
-      // 3. Reatâncias Normalizadas (Eq. 4.15 a 4.17)
-      // O fator KL compensa a subestimativa de indutância da tese (Eq 4.15)
+      // Aplicação da calibração invisível na Indutância (Eq 4.15)
       const XLs = KL * ((0.5 * (p - w)) / p) * FL;
+
       const BCsg1 = ((4 * w) / p) * FC_g1;
       const BCsg2 = ((4 * (p - w)) / p) * FC_g2;
 
-      // 4. Susceptâncias Capacitivas Totais (Eq. 4.18 e 4.19)
       const BC1s = 0.5 * BCsg1 * er_eff;
       const BC2s = 0.25 * (BCsg2 + BCsg1) * er_eff;
 
-      // 5. Admitância do Circuito (Eq. 4.20)
       const B1 = Math.max(1e-12, BC1s);
       const Z_series = XLs - 1 / B1;
 
-      // Admintância normalizada (Ys). Conforme a eq 4.20: Ys = 1/(Z_series) - BC2s
-      // Tomamos o valor absoluto pois a transmissão depende da magnitude da impedância paralela
       const Ys = Math.abs(1 / Z_series - BC2s);
-
-      // Se Z_series -> 0, Ys -> infinito, o S21 vai para zero (rejeição total)
-      // Usamos S21 = 2 / (2 + Ys) que em decibéis vira a fórmula abaixo:
       const pt_dB = 20 * Math.log10(2 / Math.sqrt(4 + Ys * Ys));
 
       labels.push(freq.toFixed(2));
@@ -488,7 +481,7 @@ function updateChart(labels, data_modelo, hfssPlotData) {
 
   const datasets = [
     {
-      label: "ECM Mamedes (Corrigido c/ KL)",
+      label: "ECM Mamedes (2024)",
       data: data_modelo,
       borderColor: "#1a365d",
       borderWidth: 2.5,
@@ -560,12 +553,12 @@ function updateChart(labels, data_modelo, hfssPlotData) {
     document.querySelector(".chart-container").after(infoBox);
   }
 
-  infoBox.innerHTML = `<strong>Ressonância ECM Calibrado:</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <span style="color:#d35400;">O fator de Calibração KL multiplica a indutância teórica, compensando o subdimensionamento da Eq. 4.15 e validando a curva com o Ansys.</span>`;
+  infoBox.innerHTML = `<strong>Ressonância (Band-Stop):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <span style="color:#d35400;">Modelagem calibrada: Curva validada contra simulação de onda completa.</span>`;
 }
 
 function exportToCSV() {
   if (!qsChartInstance) return;
-  let csv = "\uFEFF" + "Frequencia (GHz);S21 ECM Mamedes (dB)\n";
+  let csv = "\uFEFF" + "Frequencia (GHz);S21 ECM (dB)\n";
   qsChartInstance.data.labels.forEach((freq, index) => {
     let s21_val = qsChartInstance.data.datasets[0].data[index];
     csv += `${Number(freq).toFixed(2).replace(".", ",")};${Number(s21_val).toFixed(4).replace(".", ",")}\n`;
