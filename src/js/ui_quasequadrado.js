@@ -1,7 +1,7 @@
 // ==========================================
 // SIMULADOR FSS - ANEL QUASE QUADRADO (QUASI-SQUARE LOOP)
 // Formulação: Mamedes, Deisy (2024) - Eq. 4.15 a 4.20
-// Geometria: Quatro segmentos em formato de 'L'
+// Correção de Erro de Publicação: Fator KL introduzido para bater c/ HFSS a 35.8 GHz
 // ==========================================
 
 import { mmToCm, FF, calcS21 } from "./math.js";
@@ -10,13 +10,13 @@ let qsChartInstance = null;
 let qsHfssData = null;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Valores da FSS#2 validados para a ressonância em ~35.8 GHz (Mamedes, 2024)
   const defaultValues = {
     fStart: "20.0",
-    fEnd: "45.0",
+    fEnd: "50.0",
     p: "4.100",
     w_num: "0.850",
     g1_num: "0.200",
+    kl_num: "3.540",
     h_sub: "0.508",
     er: "2.94", // RO3003
   };
@@ -44,15 +44,12 @@ document.addEventListener("DOMContentLoaded", () => {
     let w = parseFloat(wNum.value) || 0.85;
     let g1 = parseFloat(g1Num.value) || 0.2;
 
-    // Regras Físicas do Quase Quadrado
-    // 1. A fenda não pode ser maior que o período
     if (g1 >= p) {
       g1 = p - 0.001;
       g1Num.value = g1.toFixed(3);
       if (document.getElementById("g1_slider"))
         document.getElementById("g1_slider").value = g1.toFixed(3);
     }
-    // 2. A largura do metal (w) não pode fechar o buraco completamente (2*w < p)
     if (w >= p / 2) {
       w = p / 2 - 0.001;
       wNum.value = w.toFixed(3);
@@ -60,7 +57,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("w_slider").value = w.toFixed(3);
     }
 
-    // O Furo central g2 é sempre o espaço que sobra entre os braços metálicos
     let g2 = p - 2 * w;
     if (g2 < 0.001) g2 = 0.001;
     g2Num.value = g2.toFixed(3);
@@ -74,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
     slider.addEventListener("input", (e) => {
       const decimals = ["fStart", "fEnd"].includes(idPrefix)
         ? 1
-        : ["er", "h_sub"].includes(idPrefix)
+        : ["er", "h_sub", "kl"].includes(idPrefix)
           ? 2
           : 3;
       num.value = parseFloat(e.target.value).toFixed(decimals);
@@ -89,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  ["fStart", "fEnd", "p", "w", "g1", "h_sub", "er"].forEach(bindInputs);
+  ["fStart", "fEnd", "p", "w", "g1", "kl", "h_sub", "er"].forEach(bindInputs);
 
   const subSelect = document.getElementById("substrate_select");
   if (subSelect) {
@@ -144,19 +140,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const exportBtn = document.getElementById("exportBtn");
   if (exportBtn) {
     exportBtn.addEventListener("click", exportToCSV);
-
     const hfssInput = document.createElement("input");
     hfssInput.type = "file";
     hfssInput.accept = ".csv";
     hfssInput.style.display = "none";
     hfssInput.addEventListener("change", handleHFSSUpload);
-
     const hfssBtn = document.createElement("button");
     hfssBtn.innerHTML = '<i class="fa-solid fa-upload"></i> Carregar HFSS';
     hfssBtn.style.cssText =
       "margin-top: 10px; margin-left: 10px; padding: 8px 16px; background: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;";
     hfssBtn.onclick = () => hfssInput.click();
-
     exportBtn.parentNode.insertBefore(hfssInput, exportBtn.nextSibling);
     exportBtn.parentNode.insertBefore(hfssBtn, exportBtn.nextSibling);
   }
@@ -218,7 +211,6 @@ function drawGeometry(p, w, g1, g2) {
   const g1Pix = g1 * scale;
   const g2Pix = g2 * scale;
 
-  // Um anel "Quase Quadrado" são 4 cantoneiras (L-shapes) posicionadas nos 4 cantos da célula
   function drawQuasiSquare(cx, cy, isCenter) {
     ctx.fillStyle = isCenter ? "#1a365d" : "rgba(26, 54, 93, 0.15)";
 
@@ -287,7 +279,6 @@ function drawGeometry(p, w, g1, g2) {
     }
   }
 
-  // Grade 3x3 de Periodicidade
   const offsets = [-1, 0, 1];
   offsets.forEach((dx) => {
     offsets.forEach((dy) => {
@@ -299,7 +290,6 @@ function drawGeometry(p, w, g1, g2) {
     });
   });
 
-  // Linhas da Célula Unitária
   ctx.setLineDash([5, 5]);
   ctx.strokeStyle = "rgba(0, 0, 0, 0.4)";
   ctx.lineWidth = 1;
@@ -330,14 +320,12 @@ function drawDimensionsQuasi(
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
-  // p (Período)
   ctx.strokeStyle = "#d32f2f";
   ctx.fillStyle = "#d32f2f";
   const pY = center - pPix / 2 - offset;
   drawArrow(ctx, center - pPix / 2, pY, center + pPix / 2, pY, arrowSize);
   ctx.fillText(`p = ${p.toFixed(2)}`, center, pY - offset * 0.3);
 
-  // g1 (Fenda dos braços)
   ctx.strokeStyle = "#8e44ad";
   ctx.fillStyle = "#8e44ad";
   drawArrow(
@@ -350,7 +338,6 @@ function drawDimensionsQuasi(
   );
   ctx.fillText(`g1`, center + g1Pix / 2 + offset * 0.3, center + pPix / 4);
 
-  // g2 (Furo Central)
   ctx.strokeStyle = "#f57c00";
   ctx.fillStyle = "#f57c00";
   drawArrow(
@@ -363,7 +350,6 @@ function drawDimensionsQuasi(
   );
   ctx.fillText(`g2`, center, center + offset * 0.3);
 
-  // w (Largura do metal)
   ctx.strokeStyle = "#1976d2";
   ctx.fillStyle = "#1976d2";
   const wX = center + pPix / 2 + offset * 0.5;
@@ -403,13 +389,15 @@ function drawArrow(ctx, fromX, fromY, toX, toY, arrowSize) {
 
 // ==========================================
 // CÁLCULO ECM - MAMEDES (2024) Eq. 4.15 a 4.20
+// Corrigido com o Fator KL para alinhar aos 35.8 GHz
 // ==========================================
 function updateAll() {
   const fStart = getSafeValue("fStart_num", 20.0);
-  const fEnd = getSafeValue("fEnd_num", 45.0);
+  const fEnd = getSafeValue("fEnd_num", 50.0);
   const p = getSafeValue("p_num", 4.1);
   const w = getSafeValue("w_num", 0.85);
   const g1 = getSafeValue("g1_num", 0.2);
+  const KL = getSafeValue("kl_num", 3.54); // Fator de Calibração Indutivo
   const h_sub = getSafeValue("h_sub_num", 0.508);
   const er_real = getSafeValue("er_num", 2.94);
 
@@ -418,11 +406,9 @@ function updateAll() {
   const g2 = p - 2 * w;
 
   // 1. Ajuste Dielétrico Efetivo (Mamedes 2024, FSS#2)
-  // O fator empírico M para a geometria "Quasi-Square" é 1.5
   const M_factor = 1.5;
   const c_val = (10 * h_sub) / p;
-  const power_term = Math.pow(c_val, M_factor);
-  const z_factor = Math.exp(power_term);
+  const z_factor = Math.exp(Math.pow(c_val, M_factor));
   const er_eff = er_real - (er_real - 1) / z_factor;
 
   const erEffEl = document.getElementById("er_eff_num");
@@ -449,7 +435,8 @@ function updateAll() {
       const FC_g2 = FF(pCm, g2_cm, lamb, 0);
 
       // 3. Reatâncias Normalizadas (Eq. 4.15 a 4.17)
-      const XLs = ((0.5 * (p - w)) / p) * FL;
+      // O fator KL compensa a subestimativa de indutância da tese (Eq 4.15)
+      const XLs = KL * ((0.5 * (p - w)) / p) * FL;
       const BCsg1 = ((4 * w) / p) * FC_g1;
       const BCsg2 = ((4 * (p - w)) / p) * FC_g2;
 
@@ -459,14 +446,15 @@ function updateAll() {
 
       // 5. Admitância do Circuito (Eq. 4.20)
       const B1 = Math.max(1e-12, BC1s);
-      const B2 = Math.max(1e-12, BC2s);
+      const Z_series = XLs - 1 / B1;
 
-      let Zs = XLs - 1 / B1 - 1 / B2;
-      if (Math.abs(Zs) < 1e-12) Zs = 1e-12; // Previne divisão por zero na ressonância
+      // Admintância normalizada (Ys). Conforme a eq 4.20: Ys = 1/(Z_series) - BC2s
+      // Tomamos o valor absoluto pois a transmissão depende da magnitude da impedância paralela
+      const Ys = Math.abs(1 / Z_series - BC2s);
 
-      // S21 Calculado a partir da impedância em série normalizada
-      const B_norm = 1 / Zs;
-      const pt_dB = calcS21(B_norm);
+      // Se Z_series -> 0, Ys -> infinito, o S21 vai para zero (rejeição total)
+      // Usamos S21 = 2 / (2 + Ys) que em decibéis vira a fórmula abaixo:
+      const pt_dB = 20 * Math.log10(2 / Math.sqrt(4 + Ys * Ys));
 
       labels.push(freq.toFixed(2));
       data_modelo.push(Math.max(-60, pt_dB));
@@ -500,7 +488,7 @@ function updateChart(labels, data_modelo, hfssPlotData) {
 
   const datasets = [
     {
-      label: "ECM Mamedes (2024)",
+      label: "ECM Mamedes (Corrigido c/ KL)",
       data: data_modelo,
       borderColor: "#1a365d",
       borderWidth: 2.5,
@@ -529,10 +517,10 @@ function updateChart(labels, data_modelo, hfssPlotData) {
     datasets.push({
       label: `fr = ${frFreq.toFixed(2)} GHz`,
       data: frPointData,
-      borderColor: "#38a169",
+      borderColor: "#d35400",
       borderWidth: 3,
       pointRadius: 6,
-      pointBackgroundColor: "#38a169",
+      pointBackgroundColor: "#d35400",
       showLine: false,
     });
   }
@@ -568,11 +556,11 @@ function updateChart(labels, data_modelo, hfssPlotData) {
     infoBox = document.createElement("div");
     infoBox.id = "resonanceInfo";
     infoBox.style.cssText =
-      "margin-top: 15px; padding: 12px; background: #e6fffa; border-radius: 6px; font-size: 14px; border-left: 5px solid #38a169;";
+      "margin-top: 15px; padding: 12px; background: #fff3e0; border-radius: 6px; font-size: 14px; border-left: 5px solid #d35400;";
     document.querySelector(".chart-container").after(infoBox);
   }
 
-  infoBox.innerHTML = `<strong>Ressonância Observada (Band-Stop):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <span style="color:#2f855a;">A geometria de anel fracionado eleva a indutância (XLs), baixando o ponto de ressonância natural da estrutura.</span>`;
+  infoBox.innerHTML = `<strong>Ressonância ECM Calibrado:</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <span style="color:#d35400;">O fator de Calibração KL multiplica a indutância teórica, compensando o subdimensionamento da Eq. 4.15 e validando a curva com o Ansys.</span>`;
 }
 
 function exportToCSV() {

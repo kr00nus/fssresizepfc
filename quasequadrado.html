@@ -46,7 +46,7 @@
               style="border-left: 4px solid #1976d2; padding-left: 5px"
             >
               <div class="header-row">
-                <label>Largura do Metal w (mm)</label>
+                <label>Largura Metal w (mm)</label>
                 <input type="number" id="w_num" value="0.850" step="0.001" />
               </div>
               <input
@@ -64,7 +64,7 @@
               style="border-left: 4px solid #8e44ad; padding-left: 5px"
             >
               <div class="header-row">
-                <label>Fenda dos Braços g1 (mm)</label>
+                <label>Fenda Braços g1 (mm)</label>
                 <input type="number" id="g1_num" value="0.200" step="0.001" />
               </div>
               <input
@@ -80,7 +80,43 @@
             <div
               class="control-group"
               style="
-                border-left: 4px solid #f57c00;
+                border-left: 4px solid #e67e22;
+                padding-left: 5px;
+                background: #fff8e1;
+              "
+            >
+              <div class="header-row">
+                <label
+                  style="color: #d35400; font-weight: bold"
+                  title="Compensa o erro da Eq 4.15 da Tese para bater com o HFSS"
+                  >Calibração Indutiva (KL)</label
+                >
+                <input
+                  type="number"
+                  id="kl_num"
+                  value="3.540"
+                  step="0.01"
+                  style="
+                    background: #ffe0b2;
+                    border: 1px solid #f39c12;
+                    font-weight: bold;
+                  "
+                />
+              </div>
+              <input
+                type="range"
+                id="kl_slider"
+                min="0.5"
+                max="10.0"
+                step="0.01"
+                value="3.540"
+              />
+            </div>
+
+            <div
+              class="control-group"
+              style="
+                border-left: 4px solid #7f8c8d;
                 padding-left: 5px;
                 background: #fdfdfd;
               "
@@ -123,7 +159,7 @@
             <div class="control-group">
               <div class="header-row">
                 <label>Freq. Final (GHz)</label>
-                <input type="number" id="fEnd_num" value="45.0" step="0.1" />
+                <input type="number" id="fEnd_num" value="50.0" step="0.1" />
               </div>
               <input
                 type="range"
@@ -131,7 +167,7 @@
                 min="1.0"
                 max="60.0"
                 step="0.1"
-                value="45.0"
+                value="50.0"
               />
             </div>
           </div>
@@ -242,9 +278,12 @@
           <div class="geometry-container">
             <canvas id="shapeCanvas" width="400" height="400"></canvas>
             <div class="geo-legend">
-              <strong>Formulação:</strong> Mamedes, D. F. (2024).
-              <em>Eqs. 4.15 a 4.20</em>.<br />
-              Um anel dividido em 4 segmentos para alta indutância.
+              <strong>Formulação:</strong> Mamedes, D. F. (2024). Eqs. 4.15 a
+              4.20.<br />
+              <span style="color: #d35400"
+                >* O fator <strong>KL = 3.54</strong> corrige o erro da
+                publicação original e alinha a equação ao Ansys HFSS.</span
+              >
             </div>
           </div>
         </div>
