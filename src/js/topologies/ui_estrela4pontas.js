@@ -216,7 +216,7 @@ function drawGeometry(p, a, b, s) {
     ctx.translate(cx, cy);
 
     ctx.fillStyle = isCenter ? "#1a365d" : "rgba(26, 54, 93, 0.10)";
-    
+
     const L = aPix / 2 - bPix / 2;
 
     const positions = [
@@ -260,7 +260,7 @@ function drawGeometry(p, a, b, s) {
     ctx.beginPath();
     ctx.rect(-sPix / 2, -sPix / 2, sPix, sPix);
     ctx.fill();
-    
+
     ctx.restore();
   }
 
@@ -348,7 +348,7 @@ function drawDimensionsAndGaps(
   ctx.strokeStyle = "#388e3c";
   ctx.fillStyle = "#388e3c";
   const sY = center + sPix / 2 + offset * 0.3;
-  
+
   // Desenha linhas tracejadas descendo do quadrado central
   ctx.beginPath();
   ctx.setLineDash([2, 2]);
@@ -359,7 +359,7 @@ function drawDimensionsAndGaps(
   ctx.lineTo(center + sPix / 2, sY);
   ctx.stroke();
   ctx.setLineDash([]);
-  
+
   ctx.strokeStyle = "#388e3c";
   drawArrow(ctx, center - sPix / 2, sY, center + sPix / 2, sY, arrowSize);
   ctx.fillText(`s_p`, center, sY + offset * 0.3);
@@ -371,10 +371,10 @@ function drawDimensionsAndGaps(
   const axisX = (center * 2) - offset * 1.5;
   const axisY = (center * 2) - offset * 1.5;
   const axisLen = offset;
-  
+
   drawArrow(ctx, axisX, axisY, axisX + axisLen, axisY, arrowSize);
   drawArrow(ctx, axisX, axisY, axisX, axisY - axisLen, arrowSize);
-  
+
   ctx.font = `italic bold ${fontSize}px "Times New Roman", serif`;
   ctx.fillText(`x`, axisX + axisLen + offset * 0.2, axisY);
   ctx.fillText(`y`, axisX - offset * 0.2, axisY - axisLen - offset * 0.2);
@@ -428,7 +428,7 @@ function updateAll() {
 
   const M_factor = 1.9;
   const er_eff = er_real + (er_real - 1) * (-1 / Math.exp((10 * h_sub) / (p * M_factor)));
-  
+
   const f_GHz_analitico = 0.3 / (2 * (a / 1000) * Math.sqrt(er_eff));
 
   const erEffEl = document.getElementById("er_eff_num");
@@ -455,7 +455,7 @@ function updateAll() {
 
       const XLf_base = ((1.5 * a) / p) * FL;
       const XLf = KL_AUTO * XLf_base;
-      
+
       const BCgf = ((4 * b) / (1.5 * p)) * FC_gf1;
       const BCa1f = ((4 * (p - b)) / (1.5 * p)) * FC_gf2;
       const BCa2f = ((4 * (p - s)) / p) * FC_gf3;
@@ -577,7 +577,17 @@ function updateChart(labels, data_modelo, hfssPlotData, f_GHz_analitico) {
       "margin-top: 15px; padding: 12px; background: #e6fffa; border-radius: 6px; font-size: 14px; border-left: 5px solid #38a169;";
     document.querySelector(".chart-container").after(infoBox);
   }
-  infoBox.innerHTML = `<strong>Ressonância ECM Alvo (Band-Stop):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <span style="color:#2f855a;">Calibração Dinâmica Ativa (KL = ${KL_AUTO.toFixed(2)}): Compensação automática aplicada no cálculo de Indutância (ECM) para alinhar exatamente com os 28 GHz reportados no livro para a Tapered Star.</span> <br> <span style="color:#555; font-size: 0.9em;">(Ressonância Analítica Direta s/ Fator de Forma: ${isNaN(f_GHz_analitico) ? "-" : f_GHz_analitico.toFixed(2)} GHz)</span>`;
+  let f_low = null;
+  let f_high = null;
+  for(let i=0; i<data_modelo.length; i++) {
+    if (data_modelo[i] <= -10) {
+      if (f_low === null) f_low = parseFloat(labels[i]);
+      f_high = parseFloat(labels[i]);
+    }
+  }
+  let bw = f_low !== null ? (f_high - f_low).toFixed(2) : "-";
+
+  infoBox.innerHTML = `<strong>Ressonância ECM (Band-Stop):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <strong>Banda (-10 dB):</strong> ${bw} GHz`;
 }
 
 function exportToCSV() {
