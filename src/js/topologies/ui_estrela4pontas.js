@@ -183,56 +183,62 @@ function drawGeometry(p, a, c, b, s) {
   const bPix = b * scale;
   const sPix = s * scale;
 
-  // Lógica do polígono de 20 vértices
+  // Lógica do polígono (Estrela na Diagonal com quadrados nas pontas)
   function drawMamedesStar(cx, cy, isCenter) {
-    ctx.fillStyle = isCenter ? "#1a365d" : "rgba(26, 54, 93, 0.10)";
-    ctx.beginPath();
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(Math.PI / 4); // "ficar na diagonal"
 
+    ctx.fillStyle = isCenter ? "#1a365d" : "rgba(26, 54, 93, 0.10)";
+    
+    // Desenha as 4 hastes (triângulos que ligam as pontas ao centro) e os quadrados
+    ctx.beginPath();
+    
     // BRAÇO DIREITO
-    ctx.moveTo(cx + cPix / 2, cy - bPix / 2);
-    ctx.lineTo(cx + aPix / 2, cy); // Ponta espetada Direita
-    ctx.lineTo(cx + cPix / 2, cy + bPix / 2);
-    ctx.lineTo(cx + sPix / 2, cy + bPix / 2);
-    ctx.lineTo(cx + sPix / 2, cy + sPix / 2); // Quina inferior direita
+    ctx.moveTo(0, 0);
+    ctx.lineTo(aPix / 2 - bPix, -bPix / 2);
+    ctx.lineTo(aPix / 2, -bPix / 2);
+    ctx.lineTo(aPix / 2, bPix / 2);
+    ctx.lineTo(aPix / 2 - bPix, bPix / 2);
+    ctx.lineTo(0, 0);
 
     // BRAÇO INFERIOR
-    ctx.lineTo(cx + bPix / 2, cy + sPix / 2);
-    ctx.lineTo(cx + bPix / 2, cy + cPix / 2);
-    ctx.lineTo(cx, cy + aPix / 2); // Ponta espetada Inferior
-    ctx.lineTo(cx - bPix / 2, cy + cPix / 2);
-    ctx.lineTo(cx - bPix / 2, cy + sPix / 2);
-    ctx.lineTo(cx - sPix / 2, cy + sPix / 2); // Quina inferior esquerda
+    ctx.lineTo(bPix / 2, aPix / 2 - bPix);
+    ctx.lineTo(bPix / 2, aPix / 2);
+    ctx.lineTo(-bPix / 2, aPix / 2);
+    ctx.lineTo(-bPix / 2, aPix / 2 - bPix);
+    ctx.lineTo(0, 0);
 
     // BRAÇO ESQUERDO
-    ctx.lineTo(cx - sPix / 2, cy + bPix / 2);
-    ctx.lineTo(cx - cPix / 2, cy + bPix / 2);
-    ctx.lineTo(cx - aPix / 2, cy); // Ponta espetada Esquerda
-    ctx.lineTo(cx - cPix / 2, cy - bPix / 2);
-    ctx.lineTo(cx - sPix / 2, cy - bPix / 2);
-    ctx.lineTo(cx - sPix / 2, cy - sPix / 2); // Quina superior esquerda
+    ctx.lineTo(-aPix / 2 + bPix, bPix / 2);
+    ctx.lineTo(-aPix / 2, bPix / 2);
+    ctx.lineTo(-aPix / 2, -bPix / 2);
+    ctx.lineTo(-aPix / 2 + bPix, -bPix / 2);
+    ctx.lineTo(0, 0);
 
     // BRAÇO SUPERIOR
-    ctx.lineTo(cx - bPix / 2, cy - sPix / 2);
-    ctx.lineTo(cx - bPix / 2, cy - cPix / 2);
-    ctx.lineTo(cx, cy - aPix / 2); // Ponta espetada Superior
-    ctx.lineTo(cx + bPix / 2, cy - cPix / 2);
-    ctx.lineTo(cx + bPix / 2, cy - sPix / 2);
-    ctx.lineTo(cx + sPix / 2, cy - sPix / 2); // Quina superior direita
-    ctx.lineTo(cx + sPix / 2, cy - bPix / 2);
+    ctx.lineTo(-bPix / 2, -aPix / 2 + bPix);
+    ctx.lineTo(-bPix / 2, -aPix / 2);
+    ctx.lineTo(bPix / 2, -aPix / 2);
+    ctx.lineTo(bPix / 2, -aPix / 2 + bPix);
+    ctx.lineTo(0, 0);
 
     ctx.closePath();
     ctx.fill();
+
+    // Quadrado central
+    ctx.fillRect(-sPix / 2, -sPix / 2, sPix, sPix);
 
     if (isCenter) {
       ctx.lineWidth = 1.5;
       ctx.strokeStyle = "#0d1f38";
       ctx.stroke();
 
-      ctx.setLineDash([2, 2]);
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
-      ctx.strokeRect(cx - sPix / 2, cy - sPix / 2, sPix, sPix);
-      ctx.setLineDash([]);
+      // Contorno do quadrado central para destaque visual
+      ctx.strokeRect(-sPix / 2, -sPix / 2, sPix, sPix);
     }
+    
+    ctx.restore();
   }
 
   const offsets = [-1, 0, 1];
