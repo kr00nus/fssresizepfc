@@ -81,5 +81,8 @@ export function getAvailableSubstrates() {
  * @returns {boolean}
  */
 export function isValidSubstrate(substrateId) {
-  return substrateId === "manual" || Object.keys(SUBSTRATE_PRESETS).includes(substrateId);
+  return (
+    substrateId === "manual" ||
+    Object.keys(SUBSTRATE_PRESETS).includes(substrateId)
+  );
 }

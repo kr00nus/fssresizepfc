@@ -333,8 +333,8 @@ function drawDimensionsAndGaps(
   ctx.strokeStyle = "#000";
   ctx.fillStyle = "#000";
   ctx.lineWidth = 2;
-  const axisX = size - offset * 1.5;
-  const axisY = size - offset * 1.5;
+  const axisX = (center * 2) - offset * 1.5;
+  const axisY = (center * 2) - offset * 1.5;
   const axisLen = offset;
   
   drawArrow(ctx, axisX, axisY, axisX + axisLen, axisY, arrowSize);
