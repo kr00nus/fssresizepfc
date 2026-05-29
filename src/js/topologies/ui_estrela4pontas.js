@@ -392,9 +392,9 @@ function updateAll() {
   if (fStart >= fEnd || p <= 0) return;
 
   const M_factor = 1.9;
-  const c_val = (10 * h_sub) / p;
-  const z_factor = Math.exp(Math.pow(c_val, M_factor));
-  const er_eff = er_real - (er_real - 1) / z_factor;
+  const er_eff = er_real + (er_real - 1) * (-1 / Math.exp((10 * h_sub) / (p * M_factor)));
+  
+  const f_GHz_analitico = 0.3 / (2 * (a / 1000) * Math.sqrt(er_eff));
 
   const erEffEl = document.getElementById("er_eff_num");
   if (erEffEl) erEffEl.value = er_eff.toFixed(3);
@@ -457,10 +457,10 @@ function updateAll() {
         : null;
     });
   }
-  updateChart(labels, data_modelo, hfssPlotData);
+  updateChart(labels, data_modelo, hfssPlotData, f_GHz_analitico);
 }
 
-function updateChart(labels, data_modelo, hfssPlotData) {
+function updateChart(labels, data_modelo, hfssPlotData, f_GHz_analitico) {
   const ctx = document.getElementById("fssChart").getContext("2d");
   if (starChartInstance) starChartInstance.destroy();
 
@@ -539,7 +539,7 @@ function updateChart(labels, data_modelo, hfssPlotData) {
       "margin-top: 15px; padding: 12px; background: #e6fffa; border-radius: 6px; font-size: 14px; border-left: 5px solid #38a169;";
     document.querySelector(".chart-container").after(infoBox);
   }
-  infoBox.innerHTML = `<strong>Ressonância (Band-Stop):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <span style="color:#2f855a;">Fidelidade Visual Alcançada: O desenho corresponde fielmente à célula unitária do artigo (Tapered Star).</span>`;
+  infoBox.innerHTML = `<strong>Ressonância ECM (Band-Stop):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <strong>Ressonância Analítica (f_GHz):</strong> ${isNaN(f_GHz_analitico) ? "-" : f_GHz_analitico.toFixed(2)} GHz <br> <span style="color:#2f855a;">Fidelidade Visual Alcançada: O desenho corresponde fielmente à célula unitária do artigo (Tapered Star).</span>`;
 }
 
 function exportToCSV() {
