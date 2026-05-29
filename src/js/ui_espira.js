@@ -77,6 +77,12 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("er_slider").value = "6.50";
         document.getElementById("h_sub_num").value = "1.28";
         document.getElementById("h_sub_slider").value = "1.28";
+      } else if (e.target.value === "FR4") {
+        // FR-4: permissividade 4.40 e altura 1.60mm
+        document.getElementById("er_num").value = "4.40";
+        document.getElementById("er_slider").value = "4.40";
+        document.getElementById("h_sub_num").value = "1.60";
+        document.getElementById("h_sub_slider").value = "1.60";
       } else if (e.target.value === "RT5880") {
         // Rogers RT/duroid 5880: permissividade 2.20 e altura 0.254mm
         document.getElementById("er_num").value = "2.20";

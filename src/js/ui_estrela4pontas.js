@@ -104,7 +104,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (subSelect) {
     subSelect.addEventListener("change", (e) => {
       const val = e.target.value;
-      const isPreset = val === "RO3003" || val === "FR4" || val === "RT5880" || val === "RO4350B" || val === "RF35" || val === "TMM4";
+      const isPreset =
+        val === "RO3003" ||
+        val === "RO3006" ||
+        val === "FR4" ||
+        val === "RT5880" ||
+        val === "RO4350B" ||
+        val === "RF35" ||
+        val === "TMM4";
 
       const erNum = document.getElementById("er_num");
       const erSlider = document.getElementById("er_slider");
@@ -127,6 +134,11 @@ document.addEventListener("DOMContentLoaded", () => {
           erSlider.value = "2.94";
           hNum.value = "0.508";
           hSlider.value = "0.508";
+        } else if (val === "RO3006") {
+          erNum.value = "6.50";
+          erSlider.value = "6.50";
+          hNum.value = "1.28";
+          hSlider.value = "1.28";
         } else if (val === "FR4") {
           erNum.value = "4.40";
           erSlider.value = "4.40";
