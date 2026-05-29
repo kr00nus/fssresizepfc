@@ -3,7 +3,8 @@
 // Interface de usuário e cálculos do gráfico
 // ==========================================
 
-import { mmToCm } from "./math.js";
+import { mmToCm } from "../core/math.js";
+import { initSubstrateSelector } from "../common/substrate-selector.js";
 
 let patchChartInstance = null;
 let patchHfssData = null;
@@ -92,79 +93,11 @@ document.addEventListener("DOMContentLoaded", () => {
   ["fStart", "fEnd", "p", id_c, id_g, "h_sub", "er"].forEach(bindInputs);
 
   // ==========================================
-  // LÓGICA DO SELETOR DE SUBSTRATO (MANUAL vs PRESETS)
+  // SELETOR DE SUBSTRATO CENTRALIZADO
   // ==========================================
+  initSubstrateSelector(() => updateAll());
   const subSelect = document.getElementById("substrate_select");
   if (subSelect) {
-    subSelect.addEventListener("change", (e) => {
-      const val = e.target.value;
-      const isPreset =
-        val === "RO3003" ||
-        val === "RO3006" ||
-        val === "FR4" ||
-        val === "RT5880" ||
-        val === "RO4350B" ||
-        val === "RF35" ||
-        val === "TMM4";
-
-      const erNum = document.getElementById("er_num");
-      const erSlider = document.getElementById("er_slider");
-      const hNum = document.getElementById("h_sub_num");
-      const hSlider = document.getElementById("h_sub_slider");
-
-      // Se for manual, desbloqueia os campos
-      if (!isPreset) {
-        if (erNum) erNum.disabled = false;
-        if (erSlider) erSlider.disabled = false;
-        if (hNum) hNum.disabled = false;
-        if (hSlider) hSlider.disabled = false;
-      } else {
-        // Se for um preset, bloqueia os inputs para evitar edição
-        if (erNum) erNum.disabled = true;
-        if (erSlider) erSlider.disabled = true;
-        if (hNum) hNum.disabled = true;
-        if (hSlider) hSlider.disabled = true;
-
-        if (val === "RO3003") {
-          if (erNum) erNum.value = "3.00";
-          if (erSlider) erSlider.value = "3.00";
-          if (hNum) hNum.value = "1.52";
-          if (hSlider) hSlider.value = "1.52";
-        } else if (val === "RO3006") {
-          if (erNum) erNum.value = "6.50";
-          if (erSlider) erSlider.value = "6.50";
-          if (hNum) hNum.value = "1.28";
-          if (hSlider) hSlider.value = "1.28";
-        } else if (val === "FR4") {
-          if (erNum) erNum.value = "4.40";
-          if (erSlider) erSlider.value = "4.40";
-          if (hNum) hNum.value = "1.60";
-          if (hSlider) hSlider.value = "1.60";
-        } else if (val === "RT5880") {
-          if (erNum) erNum.value = "2.20";
-          if (erSlider) erSlider.value = "2.20";
-          if (hNum) hNum.value = "0.254";
-          if (hSlider) hSlider.value = "0.254";
-        } else if (val === "RO4350B") {
-          if (erNum) erNum.value = "3.66";
-          if (erSlider) erSlider.value = "3.66";
-          if (hNum) hNum.value = "0.762";
-          if (hSlider) hSlider.value = "0.762";
-        } else if (val === "RF35") {
-          if (erNum) erNum.value = "3.50";
-          if (erSlider) erSlider.value = "3.50";
-          if (hNum) hNum.value = "0.762";
-          if (hSlider) hSlider.value = "0.762";
-        } else if (val === "TMM4") {
-          if (erNum) erNum.value = "4.50";
-          if (erSlider) erSlider.value = "4.50";
-          if (hNum) hNum.value = "0.381";
-          if (hSlider) hSlider.value = "0.381";
-        }
-      }
-      updateAll();
-    });
-    // Força o disparo do evento na primeira carga para ajustar os bloqueios
     setTimeout(() => subSelect.dispatchEvent(new Event("change")), 50);
   }
 

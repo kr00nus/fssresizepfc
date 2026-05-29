@@ -11,7 +11,8 @@
 //   - Gráficos mostrando S21 em diferentes frequências
 //   - Export/import de dados para comparação com HFSS
 
-import { mmToCm, FF, calcS21 } from "./math.js"; // Importa funções matemáticas compartilhadas
+import { mmToCm, FF, calcS21 } from "../core/math.js"; // Importa funções matemáticas compartilhadas
+import { initSubstrateSelector } from "../common/substrate-selector.js"; // Seletor de substrato centralizado
 
 // Variável global que armazena a instância do gráfico Chart.js
 let chart = null;
@@ -60,57 +61,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // er = constante dielétrica do material
   ["fStart", "fEnd", "p", "d", "w", "h_sub", "er"].forEach(bindInputs);
 
-  // Encontra o seletor de substrato (material da PCB)
-  const subSelect = document.getElementById("substrate_select");
-  if (subSelect) {
-    // Quando o usuário muda o substrato
-    subSelect.addEventListener("change", (e) => {
-      // Se selecionou RO3003: permissividade 3.00 e altura 1.52mm
-      if (e.target.value === "RO3003") {
-        document.getElementById("er_num").value = "3.00";
-        document.getElementById("er_slider").value = "3.00";
-        document.getElementById("h_sub_num").value = "1.52";
-        document.getElementById("h_sub_slider").value = "1.52";
-      } else if (e.target.value === "RO3006") {
-        // Se selecionou RO3006: permissividade 6.50 e altura 1.28mm
-        document.getElementById("er_num").value = "6.50";
-        document.getElementById("er_slider").value = "6.50";
-        document.getElementById("h_sub_num").value = "1.28";
-        document.getElementById("h_sub_slider").value = "1.28";
-      } else if (e.target.value === "FR4") {
-        // FR-4: permissividade 4.40 e altura 1.60mm
-        document.getElementById("er_num").value = "4.40";
-        document.getElementById("er_slider").value = "4.40";
-        document.getElementById("h_sub_num").value = "1.60";
-        document.getElementById("h_sub_slider").value = "1.60";
-      } else if (e.target.value === "RT5880") {
-        // Rogers RT/duroid 5880: permissividade 2.20 e altura 0.254mm
-        document.getElementById("er_num").value = "2.20";
-        document.getElementById("er_slider").value = "2.20";
-        document.getElementById("h_sub_num").value = "0.254";
-        document.getElementById("h_sub_slider").value = "0.254";
-      } else if (e.target.value === "RO4350B") {
-        // Rogers RO4350B: permissividade 3.66 e altura 0.762mm
-        document.getElementById("er_num").value = "3.66";
-        document.getElementById("er_slider").value = "3.66";
-        document.getElementById("h_sub_num").value = "0.762";
-        document.getElementById("h_sub_slider").value = "0.762";
-      } else if (e.target.value === "RF35") {
-        // Taconic RF-35: permissividade 3.50 e altura 0.762mm
-        document.getElementById("er_num").value = "3.50";
-        document.getElementById("er_slider").value = "3.50";
-        document.getElementById("h_sub_num").value = "0.762";
-        document.getElementById("h_sub_slider").value = "0.762";
-      } else if (e.target.value === "TMM4") {
-        // Rogers TMM 4: permissividade 4.50 e altura 0.381mm
-        document.getElementById("er_num").value = "4.50";
-        document.getElementById("er_slider").value = "4.50";
-        document.getElementById("h_sub_num").value = "0.381";
-        document.getElementById("h_sub_slider").value = "0.381";
-      }
-      updateAll(); // Recalcula com os novos valores
-    });
-  }
+  // Seletor de substrato centralizado
+  initSubstrateSelector(() => updateAll());
 
   // ===== BOTÕES DE EXPORTAÇÃO E CARREGAMENTO =====
   // Encontra o botão de exportar

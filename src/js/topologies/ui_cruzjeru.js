@@ -10,7 +10,8 @@
 // mmToCm = converte milímetros para centímetros
 // FF = calcula funções matemáticas específicas
 // calcS21 = calcula o parâmetro S21 (transmissão de sinal)
-import { mmToCm, FF, calcS21 } from "./math.js";
+import { mmToCm, FF, calcS21 } from "../core/math.js";
+import { initSubstrateSelector } from "../common/substrate-selector.js";
 
 // Variável global que armazena o gráfico Chart.js (biblioteca para fazer gráficos)
 let chart = null;
@@ -70,59 +71,8 @@ document.addEventListener("DOMContentLoaded", () => {
     bindInputs,
   );
 
-  // Encontra o seletor de substrato (material da placa PCB)
-  const subSelect = document.getElementById("substrate_select");
-  if (subSelect) {
-    // Quando o usuário muda o tipo de substrato
-    subSelect.addEventListener("change", (e) => {
-      // Se selecionou substrato RO3003
-      if (e.target.value === "RO3003") {
-        // Define os valores típicos para RO3003: permissividade 3.00 e altura 1.52mm
-        document.getElementById("er_num").value = "3.00";
-        document.getElementById("er_slider").value = "3.00";
-        document.getElementById("h_sub_num").value = "1.52";
-        document.getElementById("h_sub_slider").value = "1.52";
-      } else if (e.target.value === "RO3006") {
-        // Se selecionou substrato RO3006: permissividade 6.50 e altura 1.28mm
-        document.getElementById("er_num").value = "6.50";
-        document.getElementById("er_slider").value = "6.50";
-        document.getElementById("h_sub_num").value = "1.28";
-        document.getElementById("h_sub_slider").value = "1.28";
-      } else if (e.target.value === "FR4") {
-        // FR-4: permissividade 4.40 e altura 1.60mm
-        document.getElementById("er_num").value = "4.40";
-        document.getElementById("er_slider").value = "4.40";
-        document.getElementById("h_sub_num").value = "1.60";
-        document.getElementById("h_sub_slider").value = "1.60";
-      } else if (e.target.value === "RT5880") {
-        // Rogers RT/duroid 5880: permissividade 2.20 e altura 0.254mm
-        document.getElementById("er_num").value = "2.20";
-        document.getElementById("er_slider").value = "2.20";
-        document.getElementById("h_sub_num").value = "0.254";
-        document.getElementById("h_sub_slider").value = "0.254";
-      } else if (e.target.value === "RO4350B") {
-        // Rogers RO4350B: permissividade 3.66 e altura 0.762mm
-        document.getElementById("er_num").value = "3.66";
-        document.getElementById("er_slider").value = "3.66";
-        document.getElementById("h_sub_num").value = "0.762";
-        document.getElementById("h_sub_slider").value = "0.762";
-      } else if (e.target.value === "RF35") {
-        // Taconic RF-35: permissividade 3.50 e altura 0.762mm
-        document.getElementById("er_num").value = "3.50";
-        document.getElementById("er_slider").value = "3.50";
-        document.getElementById("h_sub_num").value = "0.762";
-        document.getElementById("h_sub_slider").value = "0.762";
-      } else if (e.target.value === "TMM4") {
-        // Rogers TMM 4: permissividade 4.50 e altura 0.381mm
-        document.getElementById("er_num").value = "4.50";
-        document.getElementById("er_slider").value = "4.50";
-        document.getElementById("h_sub_num").value = "0.381";
-        document.getElementById("h_sub_slider").value = "0.381";
-      }
-      // Recalcula tudo com os novos valores de substrato
-      updateAll();
-    });
-  }
+  // Seletor de substrato centralizado
+  initSubstrateSelector(() => updateAll());
 
   // Encontra o botão de exportar
   const exportBtn = document.getElementById("exportBtn");

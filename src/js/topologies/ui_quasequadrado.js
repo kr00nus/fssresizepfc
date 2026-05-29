@@ -4,7 +4,8 @@
 // Inovação: Motor de Auto-Calibração Dinâmica para HFSS (35.80 GHz)
 // ==========================================
 
-import { mmToCm, FF, calcS21 } from "./math.js";
+import { mmToCm, FF, calcS21 } from "../core/math.js";
+import { initSubstrateSelector } from "../common/substrate-selector.js";
 
 let qsChartInstance = null;
 let qsHfssData = null;
@@ -120,102 +121,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   ["fStart", "fEnd", "p", "w", "g1", "h_sub", "er"].forEach(bindInputs);
 
+  // Seletor de substrato centralizado
+  initSubstrateSelector(() => updateAll());
   const subSelect = document.getElementById("substrate_select");
   if (subSelect) {
-    subSelect.addEventListener("change", (e) => {
-      const val = e.target.value;
-      const isPreset =
-        val === "RO3003" ||
-        val === "RO3006" ||
-        val === "FR4" ||
-        val === "RT5880" ||
-        val === "RO4350B" ||
-        val === "RF35" ||
-        val === "TMM4";
-
-      const erNum = document.getElementById("er_num");
-      const erSlider = document.getElementById("er_slider");
-      const hNum = document.getElementById("h_sub_num");
-      const hSlider = document.getElementById("h_sub_slider");
-
-      if (!isPreset) {
-        if (erNum) erNum.disabled = false;
-        if (erSlider) erSlider.disabled = false;
-        if (hNum) hNum.disabled = false;
-        if (hSlider) hSlider.disabled = false;
-      } else {
-        if (erNum) erNum.disabled = true;
-        if (erSlider) erSlider.disabled = true;
-        if (hNum) hNum.disabled = true;
-        if (hSlider) hSlider.disabled = true;
-
-        if (val === "RO3003") {
-          if (erNum) {
-            erNum.value = "2.94";
-            erSlider.value = "2.94";
-          }
-          if (hNum) {
-            hNum.value = "0.508";
-            hSlider.value = "0.508";
-          }
-        } else if (val === "RO3006") {
-          if (erNum) {
-            erNum.value = "6.50";
-            erSlider.value = "6.50";
-          }
-          if (hNum) {
-            hNum.value = "1.28";
-            hSlider.value = "1.28";
-          }
-        } else if (val === "FR4") {
-          if (erNum) {
-            erNum.value = "4.40";
-            erSlider.value = "4.40";
-          }
-          if (hNum) {
-            hNum.value = "1.600";
-            hSlider.value = "1.600";
-          }
-        } else if (val === "RT5880") {
-          if (erNum) {
-            erNum.value = "2.20";
-            erSlider.value = "2.20";
-          }
-          if (hNum) {
-            hNum.value = "0.254";
-            hSlider.value = "0.254";
-          }
-        } else if (val === "RO4350B") {
-          if (erNum) {
-            erNum.value = "3.66";
-            erSlider.value = "3.66";
-          }
-          if (hNum) {
-            hNum.value = "0.762";
-            hSlider.value = "0.762";
-          }
-        } else if (val === "RF35") {
-          if (erNum) {
-            erNum.value = "3.50";
-            erSlider.value = "3.50";
-          }
-          if (hNum) {
-            hNum.value = "0.762";
-            hSlider.value = "0.762";
-          }
-        } else if (val === "TMM4") {
-          if (erNum) {
-            erNum.value = "4.50";
-            erSlider.value = "4.50";
-          }
-          if (hNum) {
-            hNum.value = "0.381";
-            hSlider.value = "0.381";
-          }
-        }
-      }
-      updateAll();
-    });
     setTimeout(() => {
       subSelect.value = "RO3003";
       subSelect.dispatchEvent(new Event("change"));
