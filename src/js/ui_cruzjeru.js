@@ -88,6 +88,30 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("er_slider").value = "6.50";
         document.getElementById("h_sub_num").value = "1.28";
         document.getElementById("h_sub_slider").value = "1.28";
+      } else if (e.target.value === "RT5880") {
+        // Rogers RT/duroid 5880: permissividade 2.20 e altura 0.254mm
+        document.getElementById("er_num").value = "2.20";
+        document.getElementById("er_slider").value = "2.20";
+        document.getElementById("h_sub_num").value = "0.254";
+        document.getElementById("h_sub_slider").value = "0.254";
+      } else if (e.target.value === "RO4350B") {
+        // Rogers RO4350B: permissividade 3.66 e altura 0.762mm
+        document.getElementById("er_num").value = "3.66";
+        document.getElementById("er_slider").value = "3.66";
+        document.getElementById("h_sub_num").value = "0.762";
+        document.getElementById("h_sub_slider").value = "0.762";
+      } else if (e.target.value === "RF35") {
+        // Taconic RF-35: permissividade 3.50 e altura 0.762mm
+        document.getElementById("er_num").value = "3.50";
+        document.getElementById("er_slider").value = "3.50";
+        document.getElementById("h_sub_num").value = "0.762";
+        document.getElementById("h_sub_slider").value = "0.762";
+      } else if (e.target.value === "TMM4") {
+        // Rogers TMM 4: permissividade 4.50 e altura 0.381mm
+        document.getElementById("er_num").value = "4.50";
+        document.getElementById("er_slider").value = "4.50";
+        document.getElementById("h_sub_num").value = "0.381";
+        document.getElementById("h_sub_slider").value = "0.381";
       }
       // Recalcula tudo com os novos valores de substrato
       updateAll();

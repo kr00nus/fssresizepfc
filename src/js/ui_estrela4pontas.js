@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (subSelect) {
     subSelect.addEventListener("change", (e) => {
       const val = e.target.value;
-      const isPreset = val === "RO3003" || val === "FR4";
+      const isPreset = val === "RO3003" || val === "FR4" || val === "RT5880" || val === "RO4350B" || val === "RF35" || val === "TMM4";
 
       const erNum = document.getElementById("er_num");
       const erSlider = document.getElementById("er_slider");
@@ -132,6 +132,26 @@ document.addEventListener("DOMContentLoaded", () => {
           erSlider.value = "4.40";
           hNum.value = "1.600";
           hSlider.value = "1.600";
+        } else if (val === "RT5880") {
+          erNum.value = "2.20";
+          erSlider.value = "2.20";
+          hNum.value = "0.254";
+          hSlider.value = "0.254";
+        } else if (val === "RO4350B") {
+          erNum.value = "3.66";
+          erSlider.value = "3.66";
+          hNum.value = "0.762";
+          hSlider.value = "0.762";
+        } else if (val === "RF35") {
+          erNum.value = "3.50";
+          erSlider.value = "3.50";
+          hNum.value = "0.762";
+          hSlider.value = "0.762";
+        } else if (val === "TMM4") {
+          erNum.value = "4.50";
+          erSlider.value = "4.50";
+          hNum.value = "0.381";
+          hSlider.value = "0.381";
         }
       }
       updateAll();
