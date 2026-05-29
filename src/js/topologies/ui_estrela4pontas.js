@@ -453,12 +453,11 @@ function updateAll() {
       const FC_gf2 = FF(pCm, gf2_cm, lamb, 0);
       const FC_gf3 = FF(pCm, gf3_cm, lamb, 0);
 
-      const XLf_base = ((1.5 * a) / p) * FL;
-      const XLf = KL_AUTO * XLf_base;
+      const XLf = ((1.5 * a) / p) * FL;
 
-      const BCgf = ((4 * b) / (1.5 * p)) * FC_gf1;
-      const BCa1f = ((4 * (p - b)) / (1.5 * p)) * FC_gf2;
-      const BCa2f = ((4 * (p - s)) / p) * FC_gf3;
+      const BCgf = KL_AUTO * ((4 * b) / (1.5 * p)) * FC_gf1;
+      const BCa1f = KL_AUTO * ((4 * (p - b)) / (1.5 * p)) * FC_gf2;
+      const BCa2f = KL_AUTO * ((4 * (p - s)) / p) * FC_gf3;
 
       const BC1f = (BCa1f + BCgf) * er_eff;
       const BC2f = 0.25 * (BCa2f + BCgf) * er_eff;

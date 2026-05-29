@@ -425,11 +425,12 @@ function updateAll() {
       const FC_g1 = FF(pCm, g1_cm, lamb, 0);
       const FC_g2 = FF(pCm, g2_cm, lamb, 0);
 
-      // Aplicação da calibração invisível calculada (KL_AUTO)
-      const XLs = KL_AUTO * ((0.5 * (p - w)) / p) * FL;
+      // Indutância baseada na geometria e constantes físicas
+      const XLs = ((0.5 * (p - w)) / p) * FL;
 
-      const BCsg1 = ((4 * w) / p) * FC_g1;
-      const BCsg2 = ((4 * (p - w)) / p) * FC_g2;
+      // Aplicação da calibração na Capacitância para alargar a banda corretamente
+      const BCsg1 = KL_AUTO * ((4 * w) / p) * FC_g1;
+      const BCsg2 = KL_AUTO * ((4 * (p - w)) / p) * FC_g2;
 
       const BC1s = 0.5 * BCsg1 * er_eff;
       const BC2s = 0.25 * (BCsg2 + BCsg1) * er_eff;
