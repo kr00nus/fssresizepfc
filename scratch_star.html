@@ -12,59 +12,74 @@
     const cx = 200, cy = 200;
     
     // Parâmetros (pixels)
-    const a = 300; // total span
-    const s = 60;  // central square
-    const b = 40;  // outer squares
-    
-    // Rotate 45 degrees
-    ctx.translate(cx, cy);
-    ctx.rotate(Math.PI / 4);
-    ctx.translate(-cx, -cy);
+    const a = 300; // span from tip to tip along the diagonal? Or total bounding box?
+    const s = 60;  // central square side
+    const b = 40;  // outer square side
     
     ctx.fillStyle = '#1a365d';
     ctx.strokeStyle = '#1a365d';
     ctx.lineWidth = 2;
     
-    // Draw central square
+    // Draw central square (NO rotation)
     ctx.fillRect(cx - s/2, cy - s/2, s, s);
     
-    // Draw 4 outer squares and lines
-    const offset = a/2 - b/2;
+    // The star is on the diagonals. Let's place the 4 outer squares.
+    // Distance from center to the outer tip of the outer square along the diagonal is a/2?
+    // Let's say a is the distance between the far corners of opposite outer squares.
+    // So distance from center to far corner is a/2.
+    // The center of the outer square is at distance (a/2 - b/2 * sqrt(2))? No, if the square is horizontal/vertical,
+    // the distance from its center to its corner is b/2 * sqrt(2).
+    // Let's just place them by center coordinates (dx, dy).
+    
+    // Distance from center to center of outer square:
+    const dist = (a/2) - (b/2); // assuming 'a' is the bounding box width/height, and the outer squares touch the bounding box.
+    // Wait, if the outer square is horizontal/vertical, and it's in the corner of the bounding box 'a',
+    // its center is at (+- (a/2 - b/2), +- (a/2 - b/2)).
+    
+    // Let's draw the 4 outer squares
     const positions = [
-      {x: cx, y: cy - offset}, // Top
-      {x: cx, y: cy + offset}, // Bottom
-      {x: cx - offset, y: cy}, // Left
-      {x: cx + offset, y: cy}  // Right
+      {x: cx + dist, y: cy - dist}, // Top-Right
+      {x: cx - dist, y: cy - dist}, // Top-Left
+      {x: cx + dist, y: cy + dist}, // Bottom-Right
+      {x: cx - dist, y: cy + dist}  // Bottom-Left
     ];
     
     positions.forEach(pos => {
       ctx.fillRect(pos.x - b/2, pos.y - b/2, b, b);
       
-      // Draw lines from corners of outer square to center of central square
-      // Actually, to the center of the central square? Or to the corners of the central square?
-      // User said: "juntas as pontas dos quadrados laterais ao centro do quadrado central com uma linha"
+      // Connect inner corners to the center
+      // For Top-Right square (pos.x > cx, pos.y < cy), the inner corner is Bottom-Left of the square:
+      // Corner: (pos.x - b/2, pos.y + b/2)
+      // Wait, is it ONE corner or TWO corners?
+      // "juntas as pontas dos quadrados laterais ao centro do quadrado central"
+      // If we join the TWO inner-most corners?
+      // For Top-Right square, the corners are:
+      // Top-Left: (pos.x - b/2, pos.y - b/2)
+      // Bottom-Right: (pos.x + b/2, pos.y + b/2)
+      // Bottom-Left: (pos.x - b/2, pos.y + b/2) -> this is the absolute inner-most corner.
       
-      // Let's connect the 2 inner corners of the outer square to the origin (cx, cy)
+      // Let's join the two adjacent corners to the center, forming a thick arm?
+      // The adjacent corners to the innermost one are Top-Left and Bottom-Right.
       ctx.beginPath();
-      if (pos.y < cy) { // Top
-        ctx.moveTo(pos.x - b/2, pos.y + b/2);
+      if (pos.x > cx && pos.y < cy) { // Top-Right
+        ctx.moveTo(pos.x - b/2, pos.y - b/2); // Top-Left corner
         ctx.lineTo(cx, cy);
-        ctx.moveTo(pos.x + b/2, pos.y + b/2);
+        ctx.moveTo(pos.x + b/2, pos.y + b/2); // Bottom-Right corner
         ctx.lineTo(cx, cy);
-      } else if (pos.y > cy) { // Bottom
-        ctx.moveTo(pos.x - b/2, pos.y - b/2);
+      } else if (pos.x < cx && pos.y < cy) { // Top-Left
+        ctx.moveTo(pos.x + b/2, pos.y - b/2); // Top-Right corner
         ctx.lineTo(cx, cy);
-        ctx.moveTo(pos.x + b/2, pos.y - b/2);
+        ctx.moveTo(pos.x - b/2, pos.y + b/2); // Bottom-Left corner
         ctx.lineTo(cx, cy);
-      } else if (pos.x < cx) { // Left
-        ctx.moveTo(pos.x + b/2, pos.y - b/2);
+      } else if (pos.x > cx && pos.y > cy) { // Bottom-Right
+        ctx.moveTo(pos.x - b/2, pos.y + b/2); // Bottom-Left corner
         ctx.lineTo(cx, cy);
-        ctx.moveTo(pos.x + b/2, pos.y + b/2);
+        ctx.moveTo(pos.x + b/2, pos.y - b/2); // Top-Right corner
         ctx.lineTo(cx, cy);
-      } else if (pos.x > cx) { // Right
-        ctx.moveTo(pos.x - b/2, pos.y - b/2);
+      } else if (pos.x < cx && pos.y > cy) { // Bottom-Left
+        ctx.moveTo(pos.x + b/2, pos.y + b/2); // Bottom-Right corner
         ctx.lineTo(cx, cy);
-        ctx.moveTo(pos.x - b/2, pos.y + b/2);
+        ctx.moveTo(pos.x - b/2, pos.y - b/2); // Top-Left corner
         ctx.lineTo(cx, cy);
       }
       ctx.stroke();

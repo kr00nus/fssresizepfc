@@ -183,56 +183,63 @@ function drawGeometry(p, a, c, b, s) {
   const bPix = b * scale;
   const sPix = s * scale;
 
-  // Lógica do polígono (Estrela na Diagonal com quadrados nas pontas)
+  // Lógica do polígono (Estrela na Diagonal, quadrados sem rotação)
   function drawMamedesStar(cx, cy, isCenter) {
     ctx.save();
     ctx.translate(cx, cy);
-    ctx.rotate(Math.PI / 4); // "ficar na diagonal"
 
     ctx.fillStyle = isCenter ? "#1a365d" : "rgba(26, 54, 93, 0.10)";
     
-    // Desenha as 4 hastes (triângulos que ligam as pontas ao centro) e os quadrados
+    // Distância do centro até o centro dos quadrados das pontas
+    // Supondo que aPix é a largura/altura total da "caixa" que contém a estrela
+    const L = aPix / 2 - bPix / 2;
+
     ctx.beginPath();
     
-    // BRAÇO DIREITO
-    ctx.moveTo(0, 0);
-    ctx.lineTo(aPix / 2 - bPix, -bPix / 2);
-    ctx.lineTo(aPix / 2, -bPix / 2);
-    ctx.lineTo(aPix / 2, bPix / 2);
-    ctx.lineTo(aPix / 2 - bPix, bPix / 2);
-    ctx.lineTo(0, 0);
+    // 1. QUADRADOS DAS PONTAS (Top-Right, Top-Left, Bottom-Left, Bottom-Right)
+    const positions = [
+      { x: L, y: -L },   // TR
+      { x: -L, y: -L },  // TL
+      { x: -L, y: L },   // BL
+      { x: L, y: L }     // BR
+    ];
 
-    // BRAÇO INFERIOR
-    ctx.lineTo(bPix / 2, aPix / 2 - bPix);
-    ctx.lineTo(bPix / 2, aPix / 2);
-    ctx.lineTo(-bPix / 2, aPix / 2);
-    ctx.lineTo(-bPix / 2, aPix / 2 - bPix);
-    ctx.lineTo(0, 0);
+    positions.forEach(pos => {
+      // Desenha o quadrado da ponta
+      ctx.rect(pos.x - bPix / 2, pos.y - bPix / 2, bPix, bPix);
+      
+      // Conecta os vértices adjacentes (que não o mais interno nem o mais externo) ao centro (0,0)
+      if (pos.x > 0 && pos.y < 0) { // Top-Right
+        ctx.moveTo(pos.x - bPix / 2, pos.y - bPix / 2); // Top-Left corner of TR square
+        ctx.lineTo(0, 0);
+        ctx.lineTo(pos.x + bPix / 2, pos.y + bPix / 2); // Bottom-Right corner of TR square
+      } else if (pos.x < 0 && pos.y < 0) { // Top-Left
+        ctx.moveTo(pos.x + bPix / 2, pos.y - bPix / 2); // Top-Right corner of TL square
+        ctx.lineTo(0, 0);
+        ctx.lineTo(pos.x - bPix / 2, pos.y + bPix / 2); // Bottom-Left corner of TL square
+      } else if (pos.x < 0 && pos.y > 0) { // Bottom-Left
+        ctx.moveTo(pos.x - bPix / 2, pos.y - bPix / 2); // Top-Left corner of BL square
+        ctx.lineTo(0, 0);
+        ctx.lineTo(pos.x + bPix / 2, pos.y + bPix / 2); // Bottom-Right corner of BL square
+      } else if (pos.x > 0 && pos.y > 0) { // Bottom-Right
+        ctx.moveTo(pos.x + bPix / 2, pos.y - bPix / 2); // Top-Right corner of BR square
+        ctx.lineTo(0, 0);
+        ctx.lineTo(pos.x - bPix / 2, pos.y + bPix / 2); // Bottom-Left corner of BR square
+      }
+    });
 
-    // BRAÇO ESQUERDO
-    ctx.lineTo(-aPix / 2 + bPix, bPix / 2);
-    ctx.lineTo(-aPix / 2, bPix / 2);
-    ctx.lineTo(-aPix / 2, -bPix / 2);
-    ctx.lineTo(-aPix / 2 + bPix, -bPix / 2);
-    ctx.lineTo(0, 0);
-
-    // BRAÇO SUPERIOR
-    ctx.lineTo(-bPix / 2, -aPix / 2 + bPix);
-    ctx.lineTo(-bPix / 2, -aPix / 2);
-    ctx.lineTo(bPix / 2, -aPix / 2);
-    ctx.lineTo(bPix / 2, -aPix / 2 + bPix);
-    ctx.lineTo(0, 0);
-
-    ctx.closePath();
     ctx.fill();
 
-    // Quadrado central
+    // 2. QUADRADO CENTRAL (fixo padrão, sem angulatura)
     ctx.fillRect(-sPix / 2, -sPix / 2, sPix, sPix);
 
     if (isCenter) {
       ctx.lineWidth = 1.5;
       ctx.strokeStyle = "#0d1f38";
-      ctx.stroke();
+      // Desenha contorno em volta da forma inteira?
+      // O path atual tem linhas internas, o stroke ficaria com um "X" no meio.
+      // Para o visual ficar limpo, o contorno pode ser evitado ou desenhado combinando os paths.
+      // Como a cor é escura, a ausência de contorno interno é OK.
 
       // Contorno do quadrado central para destaque visual
       ctx.strokeRect(-sPix / 2, -sPix / 2, sPix, sPix);
