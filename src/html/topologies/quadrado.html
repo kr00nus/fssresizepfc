@@ -7,147 +7,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="../../css/styles.css" />
   </head>
-  <body>
-    <div class="dashboard">
-      <div class="panel params">
-        <h2>Parâmetros</h2>
-        <div class="params-grid">
-          <div class="param-col">
-            <h3>Parâmetros Físicos</h3>
-            <div
-              class="control-group"
-              style="border-left: 4px solid #007bff; padding-left: 5px"
-            >
-              <div class="header-row">
-                <label>Período p (mm)</label
-                ><input type="number" id="p_num" value="0" step="0.001" />
-              </div>
-              <input
-                type="range"
-                id="p_slider"
-                min="0"
-                max="10.0"
-                step="0.001"
-                value="0"
-              />
-            </div>
-            <div
-              class="control-group"
-              style="border-left: 4px solid #28a745; padding-left: 5px"
-            >
-              <div class="header-row">
-                <label>Largura c (mm)</label
-                ><input type="number" id="c_num" value="0" step="0.001" />
-              </div>
-              <input
-                type="range"
-                id="c_slider"
-                min="0"
-                max="10.0"
-                step="0.001"
-                value="0"
-              />
-            </div>
-          </div>
-
-          <div class="param-col">
-            <h3>Parâmetros de Frequência</h3>
-            <div class="control-group">
-              <div class="header-row">
-                <label>Freq. Inicial (GHz)</label
-                ><input type="number" id="fStart_num" value="0" step="0.1" />
-              </div>
-              <input
-                type="range"
-                id="fStart_slider"
-                min="0"
-                max="50"
-                step="0.1"
-                value="0"
-              />
-            </div>
-            <div class="control-group">
-              <div class="header-row">
-                <label>Freq. Final (GHz)</label
-                ><input type="number" id="fEnd_num" value="0" step="0.1" />
-              </div>
-              <input
-                type="range"
-                id="fEnd_slider"
-                min="0"
-                max="50"
-                step="0.1"
-                value="0"
-              />
-            </div>
-          </div>
-
-          <div class="param-col">
-            <h3>Parâmetros do Substrato</h3>
-            <div class="control-group">
-              <div class="header-row">
-                <label>Substrato</label>
-                <select id="substrate_select">
-                  <option value="manual">Manual</option>
-                  <option value="RO3003">RO3003 (εr=3.00, h=1.52mm)</option>
-                  <option value="RO3006">RO3006 (εr=6.50, h=1.28mm)</option>
-                  <option value="FR4">FR-4 (εr=4.40, h=1.60mm)</option>
-                  <option value="RT5880">
-                    Rogers RT/duroid 5880 (εr=2.20, h=0.254mm)
-                  </option>
-                  <option value="RO4350B">
-                    Rogers RO4350B (εr=3.66, h=0.762mm)
-                  </option>
-                  <option value="RF35">
-                    Taconic RF-35 (εr=3.50, h=0.762mm)
-                  </option>
-                  <option value="TMM4">
-                    Rogers TMM 4 (εr=4.50, h=0.381mm)
-                  </option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="visuals">
-        <div class="panel">
-          <h2>Resposta de Transmissão (S21) - Passa-Baixa (Chen)</h2>
-          <div class="chart-container">
-            <canvas id="fssChart"></canvas>
-          </div>
-          <button
-            id="exportBtn"
-            style="
-              margin-top: 10px;
-              padding: 8px 16px;
-              background: #007bff;
-              color: white;
-              border: none;
-              border-radius: 4px;
-              cursor: pointer;
-            "
-          >
-            Exportar CSV
-          </button>
-        </div>
-
-        <div class="panel">
-          <h2>Célula Unitária - Patch Quadrado</h2>
-          <div class="geometry-container">
-            <canvas id="shapeCanvas" width="400" height="400"></canvas>
-            <div class="geo-legend">
-              <strong>Linha pontilhada:</strong> Limites do período (p x p)<br />
-              <strong>Azul Sólido:</strong> Metalização (Patch de largura c x
-              c)<br />
-              As células ao redor ilustram a periodicidade do arranjo.
-            </div>
-          </div>
-        </div>
-      </div>
+  <body style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; margin: 0;">
+    <div style="background: white; padding: 40px 50px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 500px;">
+      <div style="font-size: 48px; margin-bottom: 15px;">🚧</div>
+      <h1 style="color: #d97706; margin-top: 0; margin-bottom: 15px; font-size: 28px;">Em Manutenção</h1>
+      <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+        A topologia <strong>Patch Quadrado</strong> está temporariamente indisponível para ajustes na calibração do modelo matemático. Por favor, utilize as outras topologias enquanto trabalhamos nisso.
+      </p>
+      <a href="../../index.html" style="display: inline-block; background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; transition: background 0.2s;">
+        Voltar para a Página Inicial
+      </a>
     </div>
-
-    <script type="module" src="../../js/topologies/ui_quadrado.js"></script>
   </body>
 </html>
