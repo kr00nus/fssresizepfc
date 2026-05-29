@@ -16,7 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
     fEnd: "35.0",
     p: "4.100",
     a_num: "3.250",
-    c_num: "2.000",
     b_num: "0.600",
     s_num: "1.000",
     h_sub: "0.508",
@@ -37,15 +36,13 @@ document.addEventListener("DOMContentLoaded", () => {
   function handleGeometry(changed) {
     const pNum = document.getElementById("p_num");
     const aNum = document.getElementById("a_num");
-    const cNum = document.getElementById("c_num");
     const bNum = document.getElementById("b_num");
     const sNum = document.getElementById("s_num");
 
-    if (!pNum || !aNum || !cNum || !bNum || !sNum) return;
+    if (!pNum || !aNum || !bNum || !sNum) return;
 
     let p = parseFloat(pNum.value) || 4.1;
     let a = parseFloat(aNum.value) || 3.25;
-    let c = parseFloat(cNum.value) || 2.0;
     let b = parseFloat(bNum.value) || 0.6;
     let s = parseFloat(sNum.value) || 1.0;
 
@@ -60,16 +57,12 @@ document.addEventListener("DOMContentLoaded", () => {
       a = p - 0.001;
       setVal("a", a);
     }
-    if (c > a) {
-      c = a;
-      setVal("c", c);
-    }
-    if (s > c) {
-      s = c;
+    if (s > a) {
+      s = a;
       setVal("s", s);
     }
-    if (b > s) {
-      b = s;
+    if (b > a / 2) {
+      b = a / 2;
       setVal("b", b);
     }
   }
@@ -97,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  ["fStart", "fEnd", "p", "a", "c", "b", "s", "h_sub", "er"].forEach(
+  ["fStart", "fEnd", "p", "a", "b", "s", "h_sub", "er"].forEach(
     bindInputs,
   );
 
@@ -163,7 +156,7 @@ function getSafeValue(id, fallback) {
 // ==========================================
 // DESENHO GEOMÉTRICO (CANVAS)
 // ==========================================
-function drawGeometry(p, a, c, b, s) {
+function drawGeometry(p, a, b, s) {
   const canvas = document.getElementById("shapeCanvas");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
@@ -179,7 +172,6 @@ function drawGeometry(p, a, c, b, s) {
 
   const pPix = p * scale;
   const aPix = a * scale;
-  const cPix = c * scale;
   const bPix = b * scale;
   const sPix = s * scale;
 
@@ -259,13 +251,11 @@ function drawGeometry(p, a, c, b, s) {
     center,
     pPix,
     aPix,
-    cPix,
     bPix,
     sPix,
     scale,
     p,
     a,
-    c,
     b,
     s,
   );
@@ -276,63 +266,83 @@ function drawDimensionsAndGaps(
   center,
   pPix,
   aPix,
-  cPix,
   bPix,
   sPix,
   scale,
   p,
   a,
-  c,
   b,
   s,
 ) {
-  const fontSize = Math.max(10, pPix * 0.05);
+  const fontSize = Math.max(12, pPix * 0.05);
   const arrowSize = Math.max(3, pPix * 0.025);
   const offset = pPix * 0.15;
 
   ctx.lineWidth = 1.5;
-  ctx.font = `bold ${fontSize}px Arial`;
+  ctx.font = `italic bold ${fontSize}px "Times New Roman", serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
-  // ===== a (Comprimento total) =====
+  // ===== a_p (Comprimento total vertical à esquerda) =====
   ctx.strokeStyle = "#1976d2";
   ctx.fillStyle = "#1976d2";
-  const aY = center - aPix / 2 - offset;
-  drawArrow(ctx, center - aPix / 2, aY, center + aPix / 2, aY, arrowSize);
-  ctx.fillText(`a`, center, aY - offset * 0.3);
-
-  // ===== c (Início da ponta espetada) =====
-  ctx.strokeStyle = "#9c27b0";
-  ctx.fillStyle = "#9c27b0";
-  const cY = center - cPix / 2 - offset * 0.5;
-  drawArrow(ctx, center - cPix / 2, cY, center + cPix / 2, cY, arrowSize);
-  ctx.fillText(`c`, center, cY - offset * 0.3);
-
-  // ===== p (Período) =====
-  ctx.strokeStyle = "#d32f2f";
-  ctx.fillStyle = "#d32f2f";
-  const pX = center - pPix / 2 - offset;
-  drawArrow(ctx, pX, center - pPix / 2, pX, center + pPix / 2, arrowSize);
+  const aX = center - aPix / 2 - offset * 0.5;
+  drawArrow(ctx, aX, center - aPix / 2, aX, center + aPix / 2, arrowSize);
   ctx.save();
-  ctx.translate(pX - offset * 0.4, center);
-  ctx.rotate(-Math.PI / 2);
-  ctx.fillText(`p`, 0, 0);
+  ctx.translate(aX - offset * 0.3, center);
+  // Remove rotation for a_p text to match standard image if we want, or keep it.
+  ctx.fillText(`a_p`, 0, 0);
   ctx.restore();
 
-  // ===== b (Largura do braço reto) =====
+  // ===== p_p (Período no topo) =====
+  ctx.strokeStyle = "#d32f2f";
+  ctx.fillStyle = "#d32f2f";
+  const pY = center - pPix / 2 - offset * 0.4;
+  drawArrow(ctx, center - pPix / 2, pY, center + pPix / 2, pY, arrowSize);
+  ctx.fillText(`p_p`, center, pY - offset * 0.3);
+
+  // ===== b_p (Altura da ponta direita) =====
   ctx.strokeStyle = "#f57c00";
   ctx.fillStyle = "#f57c00";
-  const bX = center - cPix / 2 - offset * 0.6;
-  drawArrow(ctx, bX, center - bPix / 2, bX, center + bPix / 2, arrowSize);
-  ctx.fillText(`b`, bX - offset * 0.4, center);
+  const L = aPix / 2 - bPix / 2;
+  const bX = center + L + bPix / 2 + offset * 0.4;
+  drawArrow(ctx, bX, center - L - bPix / 2, bX, center - L + bPix / 2, arrowSize);
+  ctx.fillText(`b_p`, bX + offset * 0.3, center - L);
 
-  // ===== s (Quadrado central) =====
+  // ===== s_p (Largura do quadrado central embaixo) =====
   ctx.strokeStyle = "#388e3c";
   ctx.fillStyle = "#388e3c";
-  const sY = center + sPix / 2 + offset * 0.5;
+  const sY = center + sPix / 2 + offset * 0.3;
+  
+  // Desenha linhas tracejadas descendo do quadrado central
+  ctx.beginPath();
+  ctx.setLineDash([2, 2]);
+  ctx.strokeStyle = "rgba(0,0,0,0.5)";
+  ctx.moveTo(center - sPix / 2, center + sPix / 2);
+  ctx.lineTo(center - sPix / 2, sY);
+  ctx.moveTo(center + sPix / 2, center + sPix / 2);
+  ctx.lineTo(center + sPix / 2, sY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  
+  ctx.strokeStyle = "#388e3c";
   drawArrow(ctx, center - sPix / 2, sY, center + sPix / 2, sY, arrowSize);
-  ctx.fillText(`s`, center, sY + offset * 0.3);
+  ctx.fillText(`s_p`, center, sY + offset * 0.3);
+
+  // ===== Eixo x-y =====
+  ctx.strokeStyle = "#000";
+  ctx.fillStyle = "#000";
+  ctx.lineWidth = 2;
+  const axisX = size - offset * 1.5;
+  const axisY = size - offset * 1.5;
+  const axisLen = offset;
+  
+  drawArrow(ctx, axisX, axisY, axisX + axisLen, axisY, arrowSize);
+  drawArrow(ctx, axisX, axisY, axisX, axisY - axisLen, arrowSize);
+  
+  ctx.font = `italic bold ${fontSize}px "Times New Roman", serif`;
+  ctx.fillText(`x`, axisX + axisLen + offset * 0.2, axisY);
+  ctx.fillText(`y`, axisX - offset * 0.2, axisY - axisLen - offset * 0.2);
 }
 
 function drawArrow(ctx, fromX, fromY, toX, toY, arrowSize) {
@@ -374,7 +384,6 @@ function updateAll() {
   const fEnd = getSafeValue("fEnd_num", 35.0);
   const p = getSafeValue("p_num", 4.1);
   const a = getSafeValue("a_num", 3.25);
-  const c = getSafeValue("c_num", 2.0); // Apenas visual
   const b = getSafeValue("b_num", 0.6);
   const s = getSafeValue("s_num", 1.0);
   const h_sub = getSafeValue("h_sub_num", 0.508);
@@ -390,7 +399,7 @@ function updateAll() {
   const erEffEl = document.getElementById("er_eff_num");
   if (erEffEl) erEffEl.value = er_eff.toFixed(3);
 
-  drawGeometry(p, a, c, b, s);
+  drawGeometry(p, a, b, s);
 
   const data_modelo = [],
     labels = [];
@@ -530,7 +539,7 @@ function updateChart(labels, data_modelo, hfssPlotData) {
       "margin-top: 15px; padding: 12px; background: #e6fffa; border-radius: 6px; font-size: 14px; border-left: 5px solid #38a169;";
     document.querySelector(".chart-container").after(infoBox);
   }
-  infoBox.innerHTML = `<strong>Ressonância (Band-Stop):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <span style="color:#2f855a;">Fidelidade Visual Alcançada: Parâmetro 'c' inserido sem alterar equações de RF.</span>`;
+  infoBox.innerHTML = `<strong>Ressonância (Band-Stop):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <span style="color:#2f855a;">Fidelidade Visual Alcançada: O desenho corresponde fielmente à célula unitária do artigo (Tapered Star).</span>`;
 }
 
 function exportToCSV() {

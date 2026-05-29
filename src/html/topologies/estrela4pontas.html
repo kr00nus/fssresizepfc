@@ -26,7 +26,7 @@
               style="border-left: 4px solid #d32f2f; padding-left: 5px"
             >
               <div class="header-row">
-                <label>Período p (mm)</label>
+                <label>Período p_p (mm)</label>
                 <input type="number" id="p_num" value="4.100" step="0.001" />
               </div>
               <input
@@ -44,7 +44,7 @@
               style="border-left: 4px solid #1976d2; padding-left: 5px"
             >
               <div class="header-row">
-                <label>Comp. Total a (mm)</label>
+                <label>Comp. Total a_p (mm)</label>
                 <input type="number" id="a_num" value="3.250" step="0.001" />
               </div>
               <input
@@ -59,28 +59,10 @@
 
             <div
               class="control-group"
-              style="border-left: 4px solid #9c27b0; padding-left: 5px"
-            >
-              <div class="header-row">
-                <label>Início da Ponta c (mm)</label>
-                <input type="number" id="c_num" value="2.000" step="0.001" />
-              </div>
-              <input
-                type="range"
-                id="c_slider"
-                min="0.1"
-                max="25.0"
-                step="0.001"
-                value="2.000"
-              />
-            </div>
-
-            <div
-              class="control-group"
               style="border-left: 4px solid #f57c00; padding-left: 5px"
             >
               <div class="header-row">
-                <label>Largura do Braço b (mm)</label>
+                <label>Largura da Ponta b_p (mm)</label>
                 <input type="number" id="b_num" value="0.600" step="0.001" />
               </div>
               <input
@@ -98,7 +80,7 @@
               style="border-left: 4px solid #388e3c; padding-left: 5px"
             >
               <div class="header-row">
-                <label>Quadrado Central s (mm)</label>
+                <label>Quadrado Central s_p (mm)</label>
                 <input type="number" id="s_num" value="1.000" step="0.001" />
               </div>
               <input
@@ -259,9 +241,7 @@
           <div class="geometry-container">
             <canvas id="shapeCanvas" width="400" height="400"></canvas>
             <div class="geo-legend">
-              <strong>Formulação:</strong> Mamedes, D. F. (2024). Parâmetro
-              adicional <strong>c</strong> inserido para fidelidade CAD (ponta
-              espetada).
+              <strong>Formulação:</strong> Mamedes, D. F. (2024). Parâmetros atualizados para refletir a célula unitária exata do artigo (a_p, b_p, p_p, s_p).
             </div>
           </div>
         </div>
