@@ -190,13 +190,8 @@ function drawGeometry(p, a, c, b, s) {
 
     ctx.fillStyle = isCenter ? "#1a365d" : "rgba(26, 54, 93, 0.10)";
     
-    // Distância do centro até o centro dos quadrados das pontas
-    // Supondo que aPix é a largura/altura total da "caixa" que contém a estrela
     const L = aPix / 2 - bPix / 2;
 
-    ctx.beginPath();
-    
-    // 1. QUADRADOS DAS PONTAS (Top-Right, Top-Left, Bottom-Left, Bottom-Right)
     const positions = [
       { x: L, y: -L },   // TR
       { x: -L, y: -L },  // TL
@@ -204,46 +199,40 @@ function drawGeometry(p, a, c, b, s) {
       { x: L, y: L }     // BR
     ];
 
+    // 1. QUADRADOS DAS PONTAS
+    ctx.beginPath();
     positions.forEach(pos => {
-      // Desenha o quadrado da ponta
       ctx.rect(pos.x - bPix / 2, pos.y - bPix / 2, bPix, bPix);
-      
-      // Conecta os vértices adjacentes (que não o mais interno nem o mais externo) ao centro (0,0)
-      if (pos.x > 0 && pos.y < 0) { // Top-Right
-        ctx.moveTo(pos.x - bPix / 2, pos.y - bPix / 2); // Top-Left corner of TR square
-        ctx.lineTo(0, 0);
-        ctx.lineTo(pos.x + bPix / 2, pos.y + bPix / 2); // Bottom-Right corner of TR square
-      } else if (pos.x < 0 && pos.y < 0) { // Top-Left
-        ctx.moveTo(pos.x + bPix / 2, pos.y - bPix / 2); // Top-Right corner of TL square
-        ctx.lineTo(0, 0);
-        ctx.lineTo(pos.x - bPix / 2, pos.y + bPix / 2); // Bottom-Left corner of TL square
-      } else if (pos.x < 0 && pos.y > 0) { // Bottom-Left
-        ctx.moveTo(pos.x - bPix / 2, pos.y - bPix / 2); // Top-Left corner of BL square
-        ctx.lineTo(0, 0);
-        ctx.lineTo(pos.x + bPix / 2, pos.y + bPix / 2); // Bottom-Right corner of BL square
-      } else if (pos.x > 0 && pos.y > 0) { // Bottom-Right
-        ctx.moveTo(pos.x + bPix / 2, pos.y - bPix / 2); // Top-Right corner of BR square
-        ctx.lineTo(0, 0);
-        ctx.lineTo(pos.x - bPix / 2, pos.y + bPix / 2); // Bottom-Left corner of BR square
-      }
     });
-
     ctx.fill();
 
-    // 2. QUADRADO CENTRAL (fixo padrão, sem angulatura)
-    ctx.fillRect(-sPix / 2, -sPix / 2, sPix, sPix);
+    // 2. HASTES (Conectando aos quadrados)
+    ctx.beginPath();
+    positions.forEach(pos => {
+      if (pos.x > 0 && pos.y < 0) { // Top-Right
+        ctx.moveTo(pos.x - bPix / 2, pos.y - bPix / 2);
+        ctx.lineTo(0, 0);
+        ctx.lineTo(pos.x + bPix / 2, pos.y + bPix / 2);
+      } else if (pos.x < 0 && pos.y < 0) { // Top-Left
+        ctx.moveTo(pos.x + bPix / 2, pos.y - bPix / 2);
+        ctx.lineTo(0, 0);
+        ctx.lineTo(pos.x - bPix / 2, pos.y + bPix / 2);
+      } else if (pos.x < 0 && pos.y > 0) { // Bottom-Left
+        ctx.moveTo(pos.x - bPix / 2, pos.y - bPix / 2);
+        ctx.lineTo(0, 0);
+        ctx.lineTo(pos.x + bPix / 2, pos.y + bPix / 2);
+      } else if (pos.x > 0 && pos.y > 0) { // Bottom-Right
+        ctx.moveTo(pos.x + bPix / 2, pos.y - bPix / 2);
+        ctx.lineTo(0, 0);
+        ctx.lineTo(pos.x - bPix / 2, pos.y + bPix / 2);
+      }
+    });
+    ctx.fill();
 
-    if (isCenter) {
-      ctx.lineWidth = 1.5;
-      ctx.strokeStyle = "#0d1f38";
-      // Desenha contorno em volta da forma inteira?
-      // O path atual tem linhas internas, o stroke ficaria com um "X" no meio.
-      // Para o visual ficar limpo, o contorno pode ser evitado ou desenhado combinando os paths.
-      // Como a cor é escura, a ausência de contorno interno é OK.
-
-      // Contorno do quadrado central para destaque visual
-      ctx.strokeRect(-sPix / 2, -sPix / 2, sPix, sPix);
-    }
+    // 3. QUADRADO CENTRAL (fixo padrão, sem angulatura)
+    ctx.beginPath();
+    ctx.rect(-sPix / 2, -sPix / 2, sPix, sPix);
+    ctx.fill();
     
     ctx.restore();
   }
