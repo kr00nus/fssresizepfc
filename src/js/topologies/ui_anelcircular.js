@@ -585,13 +585,14 @@ function updateChart(
       idx === minIndex ? data_modelo[idx] : null,
     );
     datasets.push({
-      label: `fr = ${frFreq.toFixed(2)} GHz`,
+      label: `f₀ (Ressonância ECM) = ${frFreq.toFixed(2)} GHz`,
       data: frPointData,
       borderColor: "#ff0000",
       borderWidth: 3,
       pointRadius: 6,
       pointBackgroundColor: "#ff0000",
       showLine: false,
+      pointStyle: "circle",
     });
   }
 
@@ -628,13 +629,14 @@ function updateChart(
       (idx === idx_low || idx === idx_high) ? data_modelo[idx] : null
     );
     datasets.push({
-      label: `Banda (-10 dB) = ${bw} GHz`,
+      label: `BW (-10 dB) = ${bw} GHz`,
       data: bwPointData,
       borderColor: "#805ad5",
       borderWidth: 2,
       pointRadius: 5,
       pointBackgroundColor: "#805ad5",
       showLine: false,
+      pointStyle: "circle",
     });
   }
 
@@ -652,7 +654,14 @@ function updateChart(
         },
         y: { min: -60, max: 0, title: { display: true, text: "S21 (dB)", font: { weight: "bold" } } },
       },
-      plugins: { legend: { labels: { font: { family: "Arial", size: 13 } } } },
+      plugins: {
+        legend: {
+          labels: { 
+            font: { family: "Arial", size: 13 },
+            usePointStyle: true,
+          }
+        }
+      },
     },
   });
 

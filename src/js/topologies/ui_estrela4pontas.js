@@ -564,7 +564,7 @@ function updateChart(labels, data_modelo, hfssPlotData, f_GHz_analitico) {
 
   if (minIndex !== -1 && !isNaN(frFreq)) {
     datasets.push({
-      label: `fr = ${frFreq.toFixed(2)} GHz`,
+      label: `f₀ (Ressonância ECM) = ${frFreq.toFixed(2)} GHz`,
       data: labels.map((_, idx) =>
         idx === minIndex ? data_modelo[idx] : null,
       ),
@@ -573,6 +573,7 @@ function updateChart(labels, data_modelo, hfssPlotData, f_GHz_analitico) {
       pointRadius: 6,
       pointBackgroundColor: "#38a169",
       showLine: false,
+      pointStyle: "circle",
     });
   }
 
@@ -594,13 +595,14 @@ function updateChart(labels, data_modelo, hfssPlotData, f_GHz_analitico) {
       (idx === idx_low || idx === idx_high) ? data_modelo[idx] : null
     );
     datasets.push({
-      label: `Banda (-10 dB) = ${bw} GHz`,
+      label: `BW (-10 dB) = ${bw} GHz`,
       data: bwPointData,
       borderColor: "#805ad5",
       borderWidth: 2,
       pointRadius: 5,
       pointBackgroundColor: "#805ad5",
       showLine: false,
+      pointStyle: "circle",
     });
   }
 
@@ -626,7 +628,14 @@ function updateChart(labels, data_modelo, hfssPlotData, f_GHz_analitico) {
           title: { display: true, text: "S21 (dB)", font: { weight: "bold" } },
         },
       },
-      plugins: { legend: { labels: { font: { family: "Arial", size: 13 } } } },
+      plugins: {
+        legend: {
+          labels: {
+            font: { family: "Arial", size: 13 },
+            usePointStyle: true,
+          }
+        }
+      },
     },
   });
 

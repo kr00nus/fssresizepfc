@@ -716,13 +716,14 @@ function updateChart(
     idx === minIndex ? data_nova[idx] : null,
   );
   datasets.push({
-    label: `fr = ${frFreq.toFixed(2)} GHz`,
+    label: `f₀ (Ressonância ECM) = ${frFreq.toFixed(2)} GHz`,
     data: frPointData,
     borderColor: "#ff0000",
     borderWidth: 3,
     pointRadius: 6,
     pointBackgroundColor: "#ff0000",
     showLine: false,
+    pointStyle: "circle",
   });
 
   // ===== Marca o limite de difração (se existe) =====
@@ -759,13 +760,14 @@ function updateChart(
       (idx === idx_low || idx === idx_high) ? data_nova[idx] : null
     );
     datasets.push({
-      label: `Banda (-10 dB) = ${bw} GHz`,
+      label: `BW (-10 dB) = ${bw} GHz`,
       data: bwPointData,
       borderColor: "#805ad5",
       borderWidth: 2,
       pointRadius: 5,
       pointBackgroundColor: "#805ad5",
       showLine: false,
+      pointStyle: "circle",
     });
   }
 
@@ -793,7 +795,10 @@ function updateChart(
       },
       plugins: {
         legend: {
-          labels: { font: { family: "Arial", size: 13 } },
+          labels: { 
+            font: { family: "Arial", size: 13 },
+            usePointStyle: true,
+          },
         },
       },
     },

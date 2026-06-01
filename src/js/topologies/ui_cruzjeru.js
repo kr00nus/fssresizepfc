@@ -922,13 +922,14 @@ function updateChart(
   );
   // Adiciona o marcador da frequência de ressonância
   datasets.push({
-    label: `fr = ${frFreq.toFixed(2)} GHz (Curva Principal)`, // Rótulo com frequência
+    label: `f₀ (Ressonância ECM) = ${frFreq.toFixed(2)} GHz`, // Rótulo com frequência
     data: frPointData,
     borderColor: "#ff0000", // Cor: vermelho
     borderWidth: 3,
     pointRadius: 6, // Ponto grande
     pointBackgroundColor: "#ff0000", // Preenchimento vermelho
     showLine: false, // Apenas ponto, sem linha
+    pointStyle: "circle",
   });
 
   // Se há um limite de frequência, marca com um triângulo laranja
@@ -967,13 +968,14 @@ function updateChart(
       (idx === idx_low || idx === idx_high) ? data_nova[idx] : null
     );
     datasets.push({
-      label: `Banda (-10 dB) = ${bw} GHz`,
+      label: `BW (-10 dB) = ${bw} GHz`,
       data: bwPointData,
       borderColor: "#805ad5",
       borderWidth: 2,
       pointRadius: 5,
       pointBackgroundColor: "#805ad5",
       showLine: false,
+      pointStyle: "circle",
     });
   }
 
@@ -1000,7 +1002,10 @@ function updateChart(
       plugins: {
         // Configurações dos rótulos da legenda
         legend: {
-          labels: { font: { family: "Arial", size: 13 } }, // Fonte da legenda
+          labels: { 
+            font: { family: "Arial", size: 13 },
+            usePointStyle: true,
+          }, // Fonte da legenda
         },
       },
     },

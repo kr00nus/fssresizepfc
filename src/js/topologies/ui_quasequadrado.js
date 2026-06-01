@@ -530,13 +530,44 @@ function updateChart(labels, data_modelo, hfssPlotData) {
       idx === minIndex ? data_modelo[idx] : null,
     );
     datasets.push({
-      label: `fr = ${frFreq.toFixed(2)} GHz`,
+      label: `f₀ (Ressonância ECM) = ${frFreq.toFixed(2)} GHz`,
       data: frPointData,
       borderColor: "#d35400",
       borderWidth: 3,
       pointRadius: 6,
       pointBackgroundColor: "#d35400",
       showLine: false,
+      pointStyle: "circle",
+    });
+  }
+
+  // === CÁLCULO DA BANDA DE -10 dB ===
+  let f_low = null;
+  let f_high = null;
+  let idx_low = -1;
+  let idx_high = -1;
+  for(let i=0; i<data_modelo.length; i++) {
+    if (data_modelo[i] <= -10) {
+      if (f_low === null) { f_low = parseFloat(labels[i]); idx_low = i; }
+      f_high = parseFloat(labels[i]);
+      idx_high = i;
+    }
+  }
+  let bw = f_low !== null ? (f_high - f_low).toFixed(2) : "-";
+
+  if (idx_low !== -1 && idx_high !== -1) {
+    const bwPointData = labels.map((_, idx) =>
+      (idx === idx_low || idx === idx_high) ? data_modelo[idx] : null
+    );
+    datasets.push({
+      label: `BW (-10 dB) = ${bw} GHz`,
+      data: bwPointData,
+      borderColor: "#805ad5",
+      borderWidth: 2,
+      pointRadius: 5,
+      pointBackgroundColor: "#805ad5",
+      showLine: false,
+      pointStyle: "circle",
     });
   }
 
@@ -562,7 +593,14 @@ function updateChart(labels, data_modelo, hfssPlotData) {
           title: { display: true, text: "S21 (dB)", font: { weight: "bold" } },
         },
       },
-      plugins: { legend: { labels: { font: { family: "Arial", size: 13 } } } },
+      plugins: {
+        legend: {
+          labels: {
+            font: { family: "Arial", size: 13 },
+            usePointStyle: true,
+          }
+        }
+      },
     },
   });
 
