@@ -575,19 +575,18 @@ function updateChart(labels, data_modelo, hfssPlotData) {
     document.querySelector(".chart-container").after(infoBox);
   }
 
-  infoBox.innerHTML = `<strong>Ressonância ECM Alvo:</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <span style="color:#d35400;">Calibração Dinâmica Ativa (KL = ${KL_AUTO.toFixed(3)}): Compensação automática aplicada para alinhar as equações do seu 'math.js' aos resultados reais do Ansys HFSS.</span>`;
-}
 
-function exportToCSV() {
-  if (!qsChartInstance) return;
-  let csv = "\uFEFF" + "Frequencia (GHz);S21 ECM (dB)\n";
-  qsChartInstance.data.labels.forEach((freq, index) => {
-    let s21_val = qsChartInstance.data.datasets[0].data[index];
-    csv += `${Number(freq).toFixed(2).replace(".", ",")};${Number(s21_val).toFixed(4).replace(".", ",")}\n`;
-  });
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "dados_fss_quasequadrado.csv";
-  link.click();
+  function exportToCSV() {
+    if (!qsChartInstance) return;
+    let csv = "\uFEFF" + "Frequencia (GHz);S21 ECM (dB)\n";
+    qsChartInstance.data.labels.forEach((freq, index) => {
+      let s21_val = qsChartInstance.data.datasets[0].data[index];
+      csv += `${Number(freq).toFixed(2).replace(".", ",")};${Number(s21_val).toFixed(4).replace(".", ",")}\n`;
+    });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "dados_fss_quasequadrado.csv";
+    link.click();
+  }
 }

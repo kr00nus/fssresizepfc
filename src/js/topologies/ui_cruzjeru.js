@@ -948,6 +948,35 @@ function updateChart(
     });
   }
 
+  // === CÁLCULO DA BANDA DE -10 dB ===
+  let f_low = null;
+  let f_high = null;
+  let idx_low = -1;
+  let idx_high = -1;
+  for(let i=0; i<data_nova.length; i++) {
+    if (data_nova[i] <= -10) {
+      if (f_low === null) { f_low = parseFloat(labels[i]); idx_low = i; }
+      f_high = parseFloat(labels[i]);
+      idx_high = i;
+    }
+  }
+  let bw = f_low !== null ? (f_high - f_low).toFixed(2) : "-";
+
+  if (idx_low !== -1 && idx_high !== -1) {
+    const bwPointData = labels.map((_, idx) =>
+      (idx === idx_low || idx === idx_high) ? data_nova[idx] : null
+    );
+    datasets.push({
+      label: `Banda (-10 dB) = ${bw} GHz`,
+      data: bwPointData,
+      borderColor: "#805ad5",
+      borderWidth: 2,
+      pointRadius: 5,
+      pointBackgroundColor: "#805ad5",
+      showLine: false,
+    });
+  }
+
   // ===== CRIAÇÃO DO GRÁFICO =====
   // Cria um novo gráfico Chart.js com todas as configurações
   chart = new Chart(ctx, {
@@ -960,18 +989,18 @@ function updateChart(
       scales: {
         x: {
           ticks: { maxTicksLimit: 20 }, // Máximo 20 rótulos no eixo X
-          title: { display: true, text: "Frequência (GHz)" }, // Título do eixo X
+          title: { display: true, text: "Frequência (GHz)", font: { weight: "bold" } }, // Título do eixo X
         },
         y: {
           min: -60, // Mínimo S21: -60 dB
           max: 0, // Máximo S21: 0 dB
-          title: { display: true, text: "S21 (dB)" }, // Título do eixo Y
+          title: { display: true, text: "S21 (dB)", font: { weight: "bold" } }, // Título do eixo Y
         },
       },
       plugins: {
         // Configurações dos rótulos da legenda
         legend: {
-          labels: { font: { family: "Times New Roman" } }, // Fonte da legenda
+          labels: { font: { family: "Arial", size: 13 } }, // Fonte da legenda
         },
       },
     },
@@ -985,16 +1014,16 @@ function updateChart(
     // Cria um novo elemento div
     infoBox = document.createElement("div");
     infoBox.id = "resonanceInfo"; // Define um ID único
-    // Estilos da caixa: margem, padding, fundo amarelo claro, bordas arredondadas
+    // Estilos da caixa: margem, padding, fundo verde claro, bordas arredondadas
     infoBox.style.cssText =
-      "margin-top: 10px; padding: 10px; background: #fdfd96; border-radius: 4px; font-size: 14px;";
+      "margin-top: 15px; padding: 12px; background: #e6fffa; border-radius: 6px; font-size: 14px; border-left: 5px solid #38a169;";
     // Adiciona a caixa logo após o container do gráfico
     document.querySelector(".chart-container").after(infoBox);
   }
 
   // ===== CONTEÚDO DA CAIXA DE INFORMAÇÕES =====
   // Cria texto HTML com as informações principais
-  let infoHtml = `<strong>Ressonância (Fator de Forma):</strong> ${frFreq.toFixed(2)} GHz | <strong style="color:#0056b3;">Fator (α) dinâmico aplicado: ${alpha.toFixed(2)}</strong> | <strong>ε_eff (Sua Tentativa):</strong> ${er_tentativa.toFixed(3)}`;
+  let infoHtml = `<strong>Ressonância ECM (Band-Stop):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <strong>Banda (-10 dB):</strong> ${bw} GHz <br> <span style="color:#0056b3;">Fator (α) dinâmico aplicado (Costa): ${alpha.toFixed(2)}</span>`;
 
   // Se há dados do HFSS, adiciona uma mensagem de comparação
   if (hfssData && hfssData.length > 0) {

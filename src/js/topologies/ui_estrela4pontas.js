@@ -576,6 +576,34 @@ function updateChart(labels, data_modelo, hfssPlotData, f_GHz_analitico) {
     });
   }
 
+  let f_low = null;
+  let f_high = null;
+  let idx_low = -1;
+  let idx_high = -1;
+  for(let i=0; i<data_modelo.length; i++) {
+    if (data_modelo[i] <= -10) {
+      if (f_low === null) { f_low = parseFloat(labels[i]); idx_low = i; }
+      f_high = parseFloat(labels[i]);
+      idx_high = i;
+    }
+  }
+  let bw = f_low !== null ? (f_high - f_low).toFixed(2) : "-";
+
+  if (idx_low !== -1 && idx_high !== -1) {
+    const bwPointData = labels.map((_, idx) =>
+      (idx === idx_low || idx === idx_high) ? data_modelo[idx] : null
+    );
+    datasets.push({
+      label: `Banda (-10 dB) = ${bw} GHz`,
+      data: bwPointData,
+      borderColor: "#805ad5",
+      borderWidth: 2,
+      pointRadius: 5,
+      pointBackgroundColor: "#805ad5",
+      showLine: false,
+    });
+  }
+
   starChartInstance = new Chart(ctx, {
     type: "line",
     data: { labels, datasets },
@@ -610,17 +638,8 @@ function updateChart(labels, data_modelo, hfssPlotData, f_GHz_analitico) {
       "margin-top: 15px; padding: 12px; background: #e6fffa; border-radius: 6px; font-size: 14px; border-left: 5px solid #38a169;";
     document.querySelector(".chart-container").after(infoBox);
   }
-  let f_low = null;
-  let f_high = null;
-  for(let i=0; i<data_modelo.length; i++) {
-    if (data_modelo[i] <= -10) {
-      if (f_low === null) f_low = parseFloat(labels[i]);
-      f_high = parseFloat(labels[i]);
-    }
-  }
-  let bw = f_low !== null ? (f_high - f_low).toFixed(2) : "-";
 
-  infoBox.innerHTML = `<strong>Ressonância ECM (Band-Stop):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <strong>Banda (-10 dB):</strong> ${bw} GHz`;
+  infoBox.innerHTML = `<strong>Ressonância ECM (Band-Stop):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <strong>Banda (-10 dB):</strong> ${bw} GHz <br> <span style="color:#d35400;">Calibração Analítica (KL = ${KL_AUTO.toFixed(2)}) Mamedes (2024).</span>`;
 }
 
 function exportToCSV() {
