@@ -462,6 +462,36 @@ function updateAll() {
   }
 
   updateChart(labels, data_modelo, hfssPlotData);
+
+  // === FEEDBACK VISUAL DE REATÂNCIAS NA RESSONÂNCIA ===
+  const minIdx = data_modelo.indexOf(Math.min(...data_modelo));
+  const frFreq = parseFloat(labels[minIdx]);
+
+  if (!isNaN(frFreq) && frFreq > 0) {
+    const lamb_r = 30 / frFreq;
+    const FL_r = FF(pCm, w_cm, lamb_r, 0);
+    const FC_g1_r = FF(pCm, g1_cm, lamb_r, 0);
+    const FC_g2_r = FF(pCm, g2_cm, lamb_r, 0);
+
+    const XLs_r = ((0.5 * (p - w)) / p) * FL_r;
+    const BCsg1_r = KL_AUTO * ((4 * w) / p) * FC_g1_r;
+    const BCsg2_r = KL_AUTO * ((4 * (p - w)) / p) * FC_g2_r;
+    const BC1s_r = 0.5 * BCsg1_r * er_eff;
+    const BC2s_r = 0.25 * (BCsg2_r + BCsg1_r) * er_eff;
+    const B1_r = Math.max(1e-12, BC1s_r);
+    const Z_series_r = XLs_r - 1 / B1_r;
+    const Ys_r = Math.abs(1 / Z_series_r - BC2s_r);
+
+    const fmt = (v) => v.toFixed(4);
+    const setVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+
+    setVal("val_XL", `${fmt(XLs_r)} @ ${frFreq.toFixed(2)} GHz`);
+    setVal("val_BC1", `${fmt(BC1s_r)} (×ε_eff)`);
+    setVal("val_BC2", `${fmt(BC2s_r)} (×ε_eff)`);
+    setVal("val_Zseries", `${fmt(Z_series_r)}`);
+    setVal("val_Yshunt", `${fmt(Ys_r)}`);
+    setVal("val_erEff", `${er_eff.toFixed(4)}`);
+  }
 }
 
 function updateChart(labels, data_modelo, hfssPlotData) {
