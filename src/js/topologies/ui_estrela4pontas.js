@@ -495,6 +495,40 @@ function updateAll() {
     });
   }
   updateChart(labels, data_modelo, hfssPlotData, f_GHz_analitico);
+
+  // === FEEDBACK VISUAL DE REATÂNCIAS NA RESSONÂNCIA ===
+  const minIdx = data_modelo.indexOf(Math.min(...data_modelo));
+  const frFreq = parseFloat(labels[minIdx]);
+
+  if (!isNaN(frFreq) && frFreq > 0) {
+    const lamb_r = 30 / frFreq;
+    const FL_r = FF(pCm, mmToCm(b), lamb_r, 0);
+    const FC_gf1_r = FF(pCm, gf1_cm, lamb_r, 0);
+    const FC_gf2_r = FF(pCm, gf2_cm, lamb_r, 0);
+    const FC_gf3_r = FF(pCm, gf3_cm, lamb_r, 0);
+
+    const XLf_r = ((1.5 * a) / p) * FL_r;
+    const BCgf_r = KL_AUTO * ((4 * b) / (1.5 * p)) * FC_gf1_r;
+    const BCa1f_r = KL_AUTO * ((4 * (p - b)) / (1.5 * p)) * FC_gf2_r;
+    const BCa2f_r = KL_AUTO * ((4 * (p - s)) / p) * FC_gf3_r;
+    const BC1f_r = (BCa1f_r + BCgf_r) * er_eff;
+    const BC2f_r = 0.25 * (BCa2f_r + BCgf_r) * er_eff;
+    const B1_r = Math.max(1e-12, BC1f_r);
+    const B2_r = Math.max(1e-12, BC2f_r);
+    let Zf_r = XLf_r - 1 / B1_r - 1 / B2_r;
+    if (Math.abs(Zf_r) < 1e-12) Zf_r = 1e-12;
+    const B_total_r = Math.abs(1 / Zf_r);
+
+    const fmt = (v) => v.toFixed(4);
+    const setVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+
+    setVal("val_XL", `${fmt(XLf_r)} @ ${frFreq.toFixed(2)} GHz`);
+    setVal("val_BC1", `${fmt(BC1f_r)} (×ε_eff)`);
+    setVal("val_BC2", `${fmt(BC2f_r)} (×ε_eff)`);
+    setVal("val_Zseries", `${fmt(Zf_r)}`);
+    setVal("val_Yshunt", `${fmt(B_total_r)}`);
+    setVal("val_erEff", `${er_eff.toFixed(4)}`);
+  }
 }
 
 function updateChart(labels, data_modelo, hfssPlotData, f_GHz_analitico) {

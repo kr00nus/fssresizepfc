@@ -513,6 +513,31 @@ function updateAll() {
   }
 
   updateChart(labels, data_modelo, hfssPlotData, limitIndex, f_limit, N_ajuste);
+
+  // === FEEDBACK VISUAL DE REATÂNCIAS NA RESSONÂNCIA ===
+  const validForReact = limitIndex !== -1 ? data_modelo.slice(0, limitIndex) : data_modelo;
+  const minIdx = validForReact.indexOf(Math.min(...validForReact));
+  const frFreq = parseFloat(labels[minIdx]);
+
+  if (!isNaN(frFreq) && frFreq > 0) {
+    const lamb_r = 30 / frFreq;
+    const F_L_r = FF(pCm, 2 * wCm, lamb_r, 0);
+    const F_C_r = FF(pCm, g1_cm, lamb_r, 0);
+    const XL_r = (d_eq_cm / pCm) * F_L_r;
+    const C_base_r = 4 * (d_eq_cm / pCm) * F_C_r;
+    const BC_r = er_eff * C_base_r;
+    const X_total_r = XL_r - 1 / BC_r;
+    const B_norm_r = 1 / X_total_r;
+
+    const fmt = (v) => v.toFixed(4);
+    const setVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+
+    setVal("val_XL", `${fmt(XL_r)} @ ${frFreq.toFixed(2)} GHz`);
+    setVal("val_BC1", `${fmt(BC_r)} (×ε_eff)`);
+    setVal("val_Zseries", `${fmt(X_total_r)}`);
+    setVal("val_Yshunt", `${fmt(B_norm_r)}`);
+    setVal("val_erEff", `${er_eff.toFixed(4)}`);
+  }
 }
 
 function updateChart(

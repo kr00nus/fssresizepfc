@@ -761,6 +761,38 @@ function updateAll() {
     alpha,
     er_tentativa,
   );
+
+  // === FEEDBACK VISUAL DE REATÂNCIAS NA RESSONÂNCIA ===
+  const validForReact = limitIndex !== -1 ? data_nova.slice(0, limitIndex) : data_nova;
+  const minIdx = validForReact.indexOf(Math.min(...validForReact));
+  const frFreq = parseFloat(labels[minIdx]);
+
+  if (!isNaN(frFreq) && frFreq > 0) {
+    const lamb_r = 30 / frFreq;
+    const XL1_r = FF(pCm, wCm, lamb_r, 0);
+    const XL2_r = (dCm / pCm) * FF(pCm, 2 * wCm, lamb_r, 0);
+    const lamb3 = dCm / 0.43;
+    const Bg_r = ((4 * dCm) / pCm) * FF(pCm, gCm, lamb_r, 0);
+    const Bd_r = ((4 * (2 * hCm + gCm)) / pCm) * FF(pCm, pCm - dCm, lamb_r, 0);
+    const C_total_r = Bg_r + Bd_r;
+    const BC1_r = er_nova * C_total_r;
+    const X1_r = XL1_r - 1 / BC1_r;
+    const f3_eff = 30 / lamb3 / Math.sqrt(er_nova);
+    const BC2_r = (1 / XL2_r) * Math.pow(frFreq / f3_eff, 2);
+    const X2_r = XL2_r - 1 / BC2_r;
+    const B_total_r = 1 / X1_r + 1 / X2_r;
+
+    const fmt = (v) => v.toFixed(4);
+    const setVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+
+    setVal("val_XL", `${fmt(XL1_r)} @ ${frFreq.toFixed(2)} GHz`);
+    setVal("val_BC1", `${fmt(BC1_r)} (×ε_eff)`);
+    setVal("val_XL2", `${fmt(XL2_r)}`);
+    setVal("val_BC2", `${fmt(BC2_r)}`);
+    setVal("val_Zseries", `${fmt(X1_r)}`);
+    setVal("val_Yshunt", `${fmt(B_total_r)}`);
+    setVal("val_erEff", `${er_nova.toFixed(4)}`);
+  }
 }
 
 // Função que atualiza o gráfico Chart.js com todos os dados calculados

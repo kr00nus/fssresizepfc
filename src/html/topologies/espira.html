@@ -215,6 +215,17 @@
           >
             Exportar CSV
           </button>
+
+          <div id="reactancePanel" style="margin-top:15px;padding:18px 20px;background:linear-gradient(135deg,#eef2f7 0%,#e3eaf3 100%);border-radius:8px;border-left:5px solid #1976d2;font-size:13px;font-family:'Segoe UI',Tahoma,sans-serif;">
+            <h4 style="margin:0 0 12px 0;color:#1a2a3a;font-size:14px;">🧮 Reatâncias na Ressonância (ECM)</h4>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;">
+              <div><strong style="color:#1976d2;">X<sub>L</sub> (Indutiva):</strong> <span id="val_XL">—</span></div>
+              <div><strong style="color:#c62828;">B<sub>C</sub> (Capacitiva):</strong> <span id="val_BC1">—</span></div>
+              <div><strong style="color:#2e7d32;">X<sub>total</sub> (Série):</strong> <span id="val_Zseries">—</span></div>
+              <div><strong style="color:#6a1b9a;">B<sub>norm</sub>:</strong> <span id="val_Yshunt">—</span></div>
+              <div><strong style="color:#e65100;">ε<sub>eff</sub> (Costa):</strong> <span id="val_erEff">—</span></div>
+            </div>
+          </div>
         </div>
 
         <div class="panel">
