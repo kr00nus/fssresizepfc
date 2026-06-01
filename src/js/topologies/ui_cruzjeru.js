@@ -831,13 +831,14 @@ function updateChart(
   const datasets = [
     // CURVA 1: Modelo novo com fator de forma dinâmico (linha preta sólida)
     {
-      label: "1. ε_eff Fator Forma Dinâmico (Costa, Cruz)",
+      label: "Resposta em Frequência S21",
       data: data_nova,
       borderColor: "#000000", // Cor: preto
       borderWidth: 2.5, // Mais grossa (modelo principal)
       pointRadius: 0, // Sem pontos
       fill: false, // Sem preenchimento
       tension: 0, // Linha reta
+      pointStyle: "rect",
     },
 
     /* ===== CURVAS SECUNDÁRIAS OCULTADAS A PEDIDO =====
@@ -904,13 +905,14 @@ function updateChart(
   if (hfssData && hfssData.length > 0) {
     // Adiciona os dados do HFSS como uma curva vermelha grossa para comparação
     datasets.push({
-      label: "Ansys HFSS (Medição 3D)", // Dados da simulação 3D (referência)
+      label: "Ansys HFSS", // Dados da simulação 3D (referência)
       data: hfssPlotData, // Dados interpolados
       borderColor: "#dc3545", // Cor: vermelho
       borderWidth: 3, // Bem grossa para destacar
       pointRadius: 0,
       fill: false,
       tension: 0,
+      pointStyle: "rect",
     });
   }
 
@@ -922,7 +924,7 @@ function updateChart(
   );
   // Adiciona o marcador da frequência de ressonância
   datasets.push({
-    label: `f₀ (Ressonância ECM) = ${frFreq.toFixed(2)} GHz`, // Rótulo com frequência
+    label: `fr (Ressonância ECM) = ${frFreq.toFixed(2)} GHz`, // Rótulo com frequência
     data: frPointData,
     borderColor: "#ff0000", // Cor: vermelho
     borderWidth: 3,
@@ -954,7 +956,7 @@ function updateChart(
   let f_high = null;
   let idx_low = -1;
   let idx_high = -1;
-  for(let i=0; i<data_nova.length; i++) {
+  for (let i = 0; i < data_nova.length; i++) {
     if (data_nova[i] <= -10) {
       if (f_low === null) { f_low = parseFloat(labels[i]); idx_low = i; }
       f_high = parseFloat(labels[i]);
@@ -1002,7 +1004,7 @@ function updateChart(
       plugins: {
         // Configurações dos rótulos da legenda
         legend: {
-          labels: { 
+          labels: {
             font: { family: "Arial", size: 13 },
             usePointStyle: true,
           }, // Fonte da legenda

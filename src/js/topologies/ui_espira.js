@@ -634,13 +634,14 @@ function updateChart(
   const datasets = [
     {
       // Curva 1: Fator de Forma Dinâmico (Costa) - PRINCIPAL MANTIDA
-      label: "ε_eff Fator Forma Dinâmico (Costa)",
+      label: "Resposta em Frequência S21",
       data: data_nova,
       borderColor: "#000000",
       borderWidth: 2.5,
       pointRadius: 0,
       fill: false,
       tension: 0,
+      pointStyle: "rect",
     },
 
     /* === CURVAS SECUNDÁRIAS OCULTADAS A PEDIDO ===
@@ -701,13 +702,14 @@ function updateChart(
   // ===== Adiciona dados do HFSS (se carregados) =====
   if (hfssPlotData && hfssPlotData.length > 0) {
     datasets.push({
-      label: "Ansys HFSS (Medição 3D)",
+      label: "Ansys HFSS",
       data: hfssPlotData,
       borderColor: "#dc3545", // Vermelho
       borderWidth: 3, // Linha mais grossa para se destacar
       pointRadius: 0,
       fill: false,
       tension: 0,
+      pointStyle: "rect",
     });
   }
 
@@ -716,7 +718,7 @@ function updateChart(
     idx === minIndex ? data_nova[idx] : null,
   );
   datasets.push({
-    label: `f₀ (Ressonância ECM) = ${frFreq.toFixed(2)} GHz`,
+    label: `fr (Ressonância ECM) = ${frFreq.toFixed(2)} GHz`,
     data: frPointData,
     borderColor: "#ff0000",
     borderWidth: 3,
@@ -746,7 +748,7 @@ function updateChart(
   let f_high = null;
   let idx_low = -1;
   let idx_high = -1;
-  for(let i=0; i<data_nova.length; i++) {
+  for (let i = 0; i < data_nova.length; i++) {
     if (data_nova[i] <= -10) {
       if (f_low === null) { f_low = parseFloat(labels[i]); idx_low = i; }
       f_high = parseFloat(labels[i]);
@@ -795,7 +797,7 @@ function updateChart(
       },
       plugins: {
         legend: {
-          labels: { 
+          labels: {
             font: { family: "Arial", size: 13 },
             usePointStyle: true,
           },

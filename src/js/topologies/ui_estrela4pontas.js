@@ -540,13 +540,14 @@ function updateChart(labels, data_modelo, hfssPlotData, f_GHz_analitico) {
 
   const datasets = [
     {
-      label: "ECM Mamedes (2024)",
+      label: "Resposta em Frequência S21",
       data: data_modelo,
       borderColor: "#1a365d",
       borderWidth: 2.5,
       pointRadius: 0,
       fill: false,
       tension: 0.1,
+      pointStyle: "rect",
     },
   ];
 
@@ -558,13 +559,14 @@ function updateChart(labels, data_modelo, hfssPlotData, f_GHz_analitico) {
       borderWidth: 3,
       pointRadius: 0,
       fill: false,
-      tension: 0,
+      tension: 0.1,
+      pointStyle: "rect",
     });
   }
 
   if (minIndex !== -1 && !isNaN(frFreq)) {
     datasets.push({
-      label: `f₀ (Ressonância ECM) = ${frFreq.toFixed(2)} GHz`,
+      label: `fr (Ressonância ECM) = ${frFreq.toFixed(2)} GHz`,
       data: labels.map((_, idx) =>
         idx === minIndex ? data_modelo[idx] : null,
       ),
@@ -581,7 +583,7 @@ function updateChart(labels, data_modelo, hfssPlotData, f_GHz_analitico) {
   let f_high = null;
   let idx_low = -1;
   let idx_high = -1;
-  for(let i=0; i<data_modelo.length; i++) {
+  for (let i = 0; i < data_modelo.length; i++) {
     if (data_modelo[i] <= -10) {
       if (f_low === null) { f_low = parseFloat(labels[i]); idx_low = i; }
       f_high = parseFloat(labels[i]);

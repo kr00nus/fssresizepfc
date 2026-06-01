@@ -558,25 +558,27 @@ function updateChart(
 
   const datasets = [
     {
-      label: "Modelo Analítico (Ana Luiza - TCC 2023)",
+      label: "Resposta em Frequência S21",
       data: data_modelo,
       borderColor: "#000000",
       borderWidth: 2.5,
       pointRadius: 0,
       fill: false,
       tension: 0,
+      pointStyle: "rect",
     },
   ];
 
   if (ringHfssData && ringHfssData.length > 0) {
     datasets.push({
-      label: "Ansys HFSS (Medição 3D)",
+      label: "Ansys HFSS",
       data: hfssPlotData,
       borderColor: "#dc3545",
       borderWidth: 3,
       pointRadius: 0,
       fill: false,
       tension: 0,
+      pointStyle: "rect",
     });
   }
 
@@ -585,7 +587,7 @@ function updateChart(
       idx === minIndex ? data_modelo[idx] : null,
     );
     datasets.push({
-      label: `f₀ (Ressonância ECM) = ${frFreq.toFixed(2)} GHz`,
+      label: `fr (Ressonância ECM) = ${frFreq.toFixed(2)} GHz`,
       data: frPointData,
       borderColor: "#ff0000",
       borderWidth: 3,
@@ -615,7 +617,7 @@ function updateChart(
   let f_high = null;
   let idx_low = -1;
   let idx_high = -1;
-  for(let i=0; i<data_modelo.length; i++) {
+  for (let i = 0; i < data_modelo.length; i++) {
     if (data_modelo[i] <= -10) {
       if (f_low === null) { f_low = parseFloat(labels[i]); idx_low = i; }
       f_high = parseFloat(labels[i]);
@@ -656,7 +658,7 @@ function updateChart(
       },
       plugins: {
         legend: {
-          labels: { 
+          labels: {
             font: { family: "Arial", size: 13 },
             usePointStyle: true,
           }
