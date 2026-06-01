@@ -355,7 +355,7 @@
           <p>
             <strong>FSS Design Lab</strong> é um simulador educacional
             interativo de Superfícies Seletivas de Frequência (FSS). Permite
-            explorar 4 geometrias diferentes com visualização em tempo real.
+            explorar 6 geometrias diferentes com visualização em tempo real.
           </p>
           <div class="table-responsive">
             <table>
@@ -373,7 +373,7 @@
               </tr>
               <tr>
                 <td><strong>Modelos Suportados:</strong></td>
-                <td>4 geometrias FSS diferentes</td>
+                <td>6 geometrias FSS diferentes</td>
               </tr>
               <tr>
                 <td><strong>Funcionalidades:</strong></td>
@@ -405,27 +405,31 @@
           <h3>Estrutura de Arquivos</h3>
           <div class="info-block code-block">
             PFC/<br />
-            ├── index.html ..................... Dashboard principal<br />
-            ├── guia_rapido.html ............ Documentação técnica<br />
-            ├── explicacao_leigos.html .... Guia para leigos<br />
-            ├── resumo_completo.html ..... Esta página<br />
-            ├── Cruzjeru.html ................. Simulador: Cruz de Jerusalém<br />
-            ├── Quadrado.html ................. Simulador: Patch Quadrado<br />
-            ├── EspiraQuadrada.html ....... Simulador: Espira Quadrada<br />
-            ├── anelcircular.html ........... Simulador: Anel Circular<br />
+            ├── index.html ...................... Dashboard principal<br />
             ├── src/<br />
-            │ ├── css/styles.css ......... Estilos centralizados<br />
-            │ └── js/<br />
-            │ ├── math.js ........... Utilitários matemáticos<br />
-            │ ├── visual.js ........ Utilitários de visualização<br />
-            │ ├── ui_cruzjeru.js ........... Controller: Cruz<br />
-            │ ├── ui_quadrado.js ............ Controller: Patch<br />
-            │ ├── ui_espira.js ............. Controller: Espira<br />
-            │ └── ui_anelcircular.js .. Controller: Anel<br />
-            ├── README.md ...................... Documentação básica<br />
-            ├── GUIA_RAPIDO.md ............... Dicionário de termos<br />
-            ├── README_EXPLICACAO.md .... Guia leigo<br />
-            └── PROJETO_RESUMO_COMPLETO.md ... Resumo técnico
+            │&nbsp;&nbsp;├── html/<br />
+            │&nbsp;&nbsp;│&nbsp;&nbsp;├── topologies/<br />
+            │&nbsp;&nbsp;│&nbsp;&nbsp;│&nbsp;&nbsp;├── cruzjeru.html ....... Simulador: Cruz de Jerusalém<br />
+            │&nbsp;&nbsp;│&nbsp;&nbsp;│&nbsp;&nbsp;├── quadrado.html ....... Simulador: Patch Quadrado<br />
+            │&nbsp;&nbsp;│&nbsp;&nbsp;│&nbsp;&nbsp;├── espira.html ......... Simulador: Espira Quadrada<br />
+            │&nbsp;&nbsp;│&nbsp;&nbsp;│&nbsp;&nbsp;├── anelcircular.html ... Simulador: Anel Circular<br />
+            │&nbsp;&nbsp;│&nbsp;&nbsp;│&nbsp;&nbsp;├── quasequadrado.html .. Simulador: Quase Quadrado<br />
+            │&nbsp;&nbsp;│&nbsp;&nbsp;│&nbsp;&nbsp;└── estrela4pontas.html . Simulador: Estrela 4 Pontas<br />
+            │&nbsp;&nbsp;│&nbsp;&nbsp;└── docs/<br />
+            │&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── guia_rapido.html ........ Dicionário e Guia<br />
+            │&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── explicacao_leigos.html .. Guia para Leigos<br />
+            │&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── resumo_completo.html .... Documentação técnica<br />
+            │&nbsp;&nbsp;├── css/styles.css ............. Estilos centralizados<br />
+            │&nbsp;&nbsp;└── js/<br />
+            │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── core/math.js ............. Utilitários matemáticos<br />
+            │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── common/visual.js ......... Gráficos e Exportação<br />
+            │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── topologies/<br />
+            │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── ui_cruzjeru.js ........ Controller: Cruz<br />
+            │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── ui_quadrado.js ........ Controller: Patch<br />
+            │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── ui_espira.js .......... Controller: Espira<br />
+            │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── ui_anelcircular.js .... Controller: Anel<br />
+            │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── ui_quasequadrado.js ... Controller: Quase Quadrado<br />
+            │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── ui_estrela4pontas.js .. Controller: Estrela 4 Pontas
           </div>
         </div>
 
