@@ -480,10 +480,44 @@
 
       <!-- ===== SEÇÃO 3 ===== -->
       <section class="section" id="modelos">
-        <h2>🔬 3. Os 4 Modelos FSS Implementados</h2>
+        <h2>🔬 3. Os 6 Modelos FSS Implementados</h2>
 
         <div class="model-card">
-          <h4>1️⃣ Cruz de Jerusalém (Cruzjeru.html)</h4>
+          <h4>1️⃣ Quase Quadrado (quasequadrado.html)</h4>
+          <p>
+            <strong>Geometria:</strong> Topologia Quasi-Square Loop com gaps centrais.
+          </p>
+          <p><strong>Parâmetros:</strong> p, w, g1, g2 (4 parâmetros)</p>
+          <p><strong>Modelo Matemático:</strong> Mamedes (2024)</p>
+          <p><strong>Características:</strong></p>
+          <ul style="margin-left: 20px">
+            <li>✓ Calibração capacitiva dinâmica (KL_AUTO)</li>
+            <li>✓ Análise banda-larga 5G</li>
+            <li>✓ Geometria detalhada em SVG/Canvas</li>
+          </ul>
+          <span class="badge tech">Mamedes ECM</span>
+          <span class="badge status-complete">Completo</span>
+        </div>
+
+        <div class="model-card">
+          <h4>2️⃣ Estrela de 4 Pontas (estrela4pontas.html)</h4>
+          <p>
+            <strong>Geometria:</strong> Tapered Star com quadrado central e pontas afiladas.
+          </p>
+          <p><strong>Parâmetros:</strong> p, a, b, s (4 parâmetros)</p>
+          <p><strong>Modelo Matemático:</strong> Mamedes (2024)</p>
+          <p><strong>Características:</strong></p>
+          <ul style="margin-left: 20px">
+            <li>✓ Altíssima capacitância de borda compensada</li>
+            <li>✓ Operação mm-wave (ex: 28 GHz)</li>
+            <li>✓ Fidelidade geométrica baseada no artigo</li>
+          </ul>
+          <span class="badge tech">Mamedes ECM</span>
+          <span class="badge status-complete">Completo</span>
+        </div>
+
+        <div class="model-card">
+          <h4>3️⃣ Cruz de Jerusalém (cruzjeru.html)</h4>
           <p>
             <strong>Geometria:</strong> Padrão em forma de cruz com braços de
             comprimento d e espessura w
@@ -504,7 +538,7 @@
         </div>
 
         <div class="model-card">
-          <h4>2️⃣ Patch Quadrado (Quadrado.html)</h4>
+          <h4>4️⃣ Patch Quadrado (quadrado.html)</h4>
           <p>
             <strong>Geometria:</strong> Quadrado sólido de lado c repetido em
             grade p×p
@@ -513,16 +547,16 @@
           <p><strong>Modelo Matemático:</strong> Ulrich (sub-ressonante)</p>
           <p><strong>Características:</strong></p>
           <ul style="margin-left: 20px">
-            <li>✓ Modelo mais simples</li>
             <li>✓ Filtro passa-baixa</li>
-            <li>✓ Interface intuitiva</li>
+            <li>✓ Ajuste de calibração pendente</li>
+            <li>✓ Interface suspensa (bloqueada)</li>
           </ul>
           <span class="badge tech">Ulrich</span>
-          <span class="badge status-complete">Completo</span>
+          <span class="badge status-pending" style="background: #ffe8a1; color: #856404;">Em Manutenção</span>
         </div>
 
         <div class="model-card">
-          <h4>3️⃣ Espira Quadrada (EspiraQuadrada.html)</h4>
+          <h4>5️⃣ Espira Quadrada (EspiraQuadrada.html)</h4>
           <p>
             <strong>Geometria:</strong> Anel quadrado de fio metálico com
             diâmetro d e espessura w
@@ -542,7 +576,7 @@
         </div>
 
         <div class="model-card">
-          <h4>4️⃣ Anel Circular (anelcircular.html)</h4>
+          <h4>6️⃣ Anel Circular (anelcircular.html)</h4>
           <p>
             <strong>Geometria:</strong> Anel circular de fio metálico com raio r
             e espessura w
@@ -757,20 +791,38 @@
             </thead>
             <tbody>
               <tr>
+                <td><strong>Quase Quadrado</strong></td>
+                <td>
+                  <span class="badge status-complete">Completo</span>
+                </td>
+                <td>
+                  Topologia 5G, calibração na capacitância, SVG fidedigno
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Estrela de 4 Pontas</strong></td>
+                <td>
+                  <span class="badge status-complete">Completo</span>
+                </td>
+                <td>
+                  Topologia mm-wave, geometria exata (quadrados/triângulos)
+                </td>
+              </tr>
+              <tr>
                 <td><strong>Cruz de Jerusalém</strong></td>
                 <td>
                   <span class="badge status-complete">Completo</span>
                 </td>
                 <td>
-                  Modelo, visualização com 5 dimensões, simulação funcional
+                  Modelo de 5 parâmetros, multirressonante, desenho ajustado
                 </td>
               </tr>
               <tr>
                 <td><strong>Patch Quadrado</strong></td>
                 <td>
-                  <span class="badge status-complete">Completo</span>
+                  <span class="badge status-pending" style="background: #ffe8a1; color: #856404;">Em Manutenção</span>
                 </td>
-                <td>Modelo simplificado, interface limpa, exportação CSV</td>
+                <td>Interface bloqueada temporariamente para ajustes teóricos</td>
               </tr>
               <tr>
                 <td><strong>Espira Quadrada</strong></td>
@@ -792,7 +844,7 @@
                   <span class="badge status-complete">Completo</span>
                 </td>
                 <td>
-                  Portal com seções educacionais, blocos informativos, links
+                  Portal refatorado, focado em topologias, com ícones SVG nativos
                 </td>
               </tr>
               <tr>
@@ -801,15 +853,15 @@
                   <span class="badge status-complete">Completo</span>
                 </td>
                 <td>
-                  3 páginas: Guia Rápido, Explicação Leigos, Resumo Técnico
+                  Atualizado com as 6 geometrias e informações técnicas precisas
                 </td>
               </tr>
               <tr>
-                <td><strong>GPC (Guias de Projeto)</strong></td>
+                <td><strong>Módulo AMC (Condutores Magnéticos)</strong></td>
                 <td>
-                  <span class="badge status-pending">Planejado</span>
+                  <span class="badge status-pending">Em Desenvolvimento</span>
                 </td>
-                <td>Síntese automática de parâmetros (futuro)</td>
+                <td>Simulação de fase de reflexão (HIS)</td>
               </tr>
             </tbody>
           </table>
