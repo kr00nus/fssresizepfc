@@ -6,6 +6,7 @@
 
 import { mmToCm, FF, calcS21 } from "../core/math.js";
 import { initSubstrateSelector } from "../common/substrate-selector.js";
+import { drawCircuitAnelCircular } from "../common/circuit-diagram.js";
 
 let ringChartInstance = null;
 let ringHfssData = null;
@@ -537,6 +538,14 @@ function updateAll() {
     setVal("val_Zseries", `${fmt(X_total_r)}`);
     setVal("val_Yshunt", `${fmt(B_norm_r)}`);
     setVal("val_erEff", `${er_eff.toFixed(4)}`);
+
+    // Desenha o circuito equivalente visual
+    drawCircuitAnelCircular({
+      XL: fmt(XL_r),
+      BC: fmt(BC_r),
+      Xtotal: fmt(X_total_r),
+      Bnorm: fmt(B_norm_r),
+    });
   }
 }
 

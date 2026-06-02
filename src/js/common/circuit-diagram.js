@@ -334,3 +334,185 @@ export function drawCircuitEstrela(values) {
     ${svg}
   `;
 }
+
+// ==========================================
+// 4. ANEL CIRCULAR - Circuito LC Série em Shunt
+// Topologia: Port --- nó --- Port, com LC em shunt para ground
+// O anel é perfeitamente simétrico → independente de polarização
+// ==========================================
+export function drawCircuitAnelCircular(values) {
+  const containerId = "circuitDiagramAnelCircular";
+  const container = getOrCreateContainer(containerId, "Circuito Equivalente (ECM)");
+
+  const XL = values.XL || "—";
+  const BC = values.BC || "—";
+  const Xtotal = values.Xtotal || "—";
+  const Bnorm = values.Bnorm || "—";
+
+  const W = 500, H = 190;
+  const cy = 60;
+
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;height:auto;">`;
+
+  // Fundo
+  svg += `<rect x="0" y="0" width="${W}" height="${H}" rx="6" fill="white" stroke="#e0e0e0" stroke-width="1"/>`;
+
+  // Título
+  svg += `<text x="${W / 2}" y="18" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a2a3a" font-family="'Segoe UI', sans-serif">Circuito Equivalente — Anel Circular (LC Série Shunt)</text>`;
+
+  // Símbolo de simetria (anel pequeno no canto)
+  svg += `<circle cx="470" cy="18" r="7" fill="none" stroke="#2e7d32" stroke-width="1.5"/>`;
+  svg += `<text x="470" y="21" text-anchor="middle" font-size="8" fill="#2e7d32" font-weight="bold" font-family="'Segoe UI', sans-serif">∞</text>`;
+
+  // Terminais
+  svg += svgTerminal(40, cy, "Port 1", "left");
+  svg += svgTerminal(W - 40, cy, "Port 2", "right");
+
+  // Linha de transmissão (reta de Port 1 a Port 2, passando pelo nó)
+  svg += svgLine(44, cy, 245, cy);
+  svg += svgNode(250, cy);
+  svg += svgLine(255, cy, W - 44, cy);
+
+  // Ramo shunt para baixo: Indutor → Capacitor → Ground
+  // Linha vertical descendo do nó
+  svg += svgLine(250, cy, 250, cy + 10);
+
+  // Indutor XL (vertical)
+  const indY = cy + 18;
+  const indH = 50;
+  // Indutor vertical desenhado manualmente
+  const loops = 4;
+  const loopH = indH / loops;
+  const ampX = 14;
+  let indPath = `M 250 ${indY}`;
+  for (let i = 0; i < loops; i++) {
+    const ly = indY + i * loopH;
+    indPath += ` C ${250 + ampX} ${ly + loopH * 0.2}, ${250 + ampX} ${ly + loopH * 0.8}, 250 ${ly + loopH}`;
+  }
+  svg += `<path d="${indPath}" fill="none" stroke="#1976d2" stroke-width="2.5" stroke-linecap="round"/>`;
+  svg += `<text x="275" y="${indY + indH / 2 - 5}" text-anchor="start" font-size="11" font-weight="bold" fill="#1976d2" font-family="'Segoe UI', sans-serif">X_L</text>`;
+  svg += `<text x="275" y="${indY + indH / 2 + 8}" text-anchor="start" font-size="10" fill="#555" font-family="'Segoe UI', sans-serif">${XL}</text>`;
+
+  // Linha entre indutor e capacitor
+  const capY = indY + indH + 8;
+  svg += svgLine(250, indY + indH, 250, capY - 2);
+
+  // Capacitor BC (horizontal plates, vertical orientation)
+  const plateW = 18;
+  const capGap = 6;
+  svg += `<line x1="${250 - plateW / 2}" y1="${capY}" x2="${250 + plateW / 2}" y2="${capY}" stroke="#c62828" stroke-width="2.5" stroke-linecap="round"/>`;
+  svg += `<line x1="${250 - plateW / 2}" y1="${capY + capGap}" x2="${250 + plateW / 2}" y2="${capY + capGap}" stroke="#c62828" stroke-width="2.5" stroke-linecap="round"/>`;
+  svg += `<text x="275" y="${capY + capGap / 2 - 4}" text-anchor="start" font-size="11" font-weight="bold" fill="#c62828" font-family="'Segoe UI', sans-serif">B_C</text>`;
+  svg += `<text x="275" y="${capY + capGap / 2 + 9}" text-anchor="start" font-size="10" fill="#555" font-family="'Segoe UI', sans-serif">${BC}</text>`;
+
+  // Linha do capacitor para ground
+  const gndY = capY + capGap + 12;
+  svg += svgLine(250, capY + capGap, 250, gndY);
+
+  // Ground
+  svg += svgLine(238, gndY, 262, gndY, "#333", 2);
+  svg += svgLine(242, gndY + 4, 258, gndY + 4, "#333", 1.5);
+  svg += svgLine(246, gndY + 8, 254, gndY + 8, "#333", 1);
+
+  // Label "Z₀ (espaço livre)" nas linhas de transmissão
+  svg += `<text x="145" y="${cy - 10}" text-anchor="middle" font-size="9" font-style="italic" fill="#888" font-family="'Segoe UI', sans-serif">Z₀ (espaço livre)</text>`;
+  svg += `<text x="385" y="${cy - 10}" text-anchor="middle" font-size="9" font-style="italic" fill="#888" font-family="'Segoe UI', sans-serif">Z₀ (espaço livre)</text>`;
+
+  // Label inferior
+  svg += svgImpedanceLabel(W / 2, H - 10, "B_norm", Bnorm, "#6a1b9a");
+
+  svg += `</svg>`;
+
+  container.innerHTML = `
+    <h4 style="margin:0 0 10px 0;color:#1a2a3a;font-size:14px;">⚡ Circuito Equivalente (ECM) — Anel Circular</h4>
+    <p style="margin:0 0 10px 0;font-size:12px;color:#666;line-height:1.5;">
+      Topologia <strong>LC Série em Shunt (Derivação)</strong>: O ramo LC está ligado em derivação entre a linha de 
+      transmissão do espaço livre e o plano de terra. X<sub>L</sub> é proporcional ao perímetro do anel (2πr). 
+      B<sub>C</sub> surge do gap tangencial projetado (g<sub>1</sub>) — como os anéis só se aproximam num ponto tangencial, 
+      a capacitância é menor que na espira quadrada. <span style="color:#2e7d32;font-weight:bold;">Simetria perfeita → independente de polarização.</span>
+    </p>
+    ${svg}
+  `;
+}
+
+// ==========================================
+// 5. ANEL QUASE QUADRADO - Circuito Misto (Série + Paralelo)
+// Topologia: Port --- [L em série com C1] em paralelo com C2 --- Port
+// Semelhante à Estrela: a interação dos cantos cria dois caminhos capacitivos
+// ==========================================
+export function drawCircuitQuaseQuadrado(values) {
+  const containerId = "circuitDiagramQuaseQuadrado";
+  const container = getOrCreateContainer(containerId, "Circuito Equivalente (ECM)");
+
+  const XL = values.XL || "—";
+  const BC1 = values.BC1 || "—";
+  const BC2 = values.BC2 || "—";
+  const Zf = values.Zf || "—";
+  const Yf = values.Yf || "—";
+
+  const W = 540, H = 220;
+  const cy = 90;
+  const yShunt = 165;
+  const xMid = W / 2;
+
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;height:auto;">`;
+
+  // Fundo
+  svg += `<rect x="0" y="0" width="${W}" height="${H}" rx="6" fill="white" stroke="#e0e0e0" stroke-width="1"/>`;
+
+  // Título
+  svg += `<text x="${xMid}" y="18" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a2a3a" font-family="'Segoe UI', sans-serif">Circuito Equivalente — Anel Quase Quadrado (Série + Paralelo)</text>`;
+
+  // Terminais
+  svg += svgTerminal(30, cy, "Port 1", "left");
+  svg += svgTerminal(W - 30, cy, "Port 2", "right");
+
+  // Linha entrada → Indutor
+  svg += svgLine(34, cy, 110, cy);
+
+  // Indutor XLs (série)
+  svg += svgInductor(110, cy, 90, "X_Ls", XL, "#1976d2");
+
+  // Linha Indutor → Capacitor C1s (série)
+  svg += svgLine(200, cy, 260, cy);
+
+  // Capacitor C1s (série, inline)
+  svg += svgCapacitor(260, cy, "B_C1s", BC1, "#c62828");
+
+  // Linha C1 → Nó de junção
+  svg += svgLine(266, cy, 340, cy);
+
+  // Nó de junção
+  svg += svgNode(340, cy);
+
+  // Linha do nó para saída
+  svg += svgLine(340, cy, W - 34, cy);
+
+  // ===== Capacitor C2s (paralelo / shunt para ground) =====
+  svg += svgLine(340, cy, 340, cy + 10);
+  svg += svgCapacitor(337, cy + 33, "B_C2s", BC2, "#e65100");
+  svg += svgLine(340, cy + 56, 340, yShunt);
+
+  // Ground no C2
+  svg += svgLine(328, yShunt, 352, yShunt, "#333", 2);
+  svg += svgLine(332, yShunt + 4, 348, yShunt + 4, "#333", 1.5);
+  svg += svgLine(336, yShunt + 8, 344, yShunt + 8, "#333", 1);
+
+  // Labels inferiores
+  svg += `<text x="200" y="${H - 8}" text-anchor="middle" font-size="10" fill="#2e7d32" font-weight="bold" font-family="'Segoe UI', sans-serif">Z_série = ${Zf}</text>`;
+  svg += `<text x="400" y="${H - 8}" text-anchor="middle" font-size="10" fill="#6a1b9a" font-weight="bold" font-family="'Segoe UI', sans-serif">Y_total = ${Yf}</text>`;
+
+  svg += `</svg>`;
+
+  container.innerHTML = `
+    <h4 style="margin:0 0 10px 0;color:#1a2a3a;font-size:14px;">⚡ Circuito Equivalente (ECM) — Anel Quase Quadrado</h4>
+    <p style="margin:0 0 10px 0;font-size:12px;color:#666;line-height:1.5;">
+      Topologia <strong>Mista (Série + Paralelo)</strong>: X<sub>Ls</sub> e B<sub>C1s</sub> formam o ramo LC série, 
+      modelando a indutância da trilha e a capacitância do gap interno (g<sub>1</sub>). B<sub>C2s</sub> é o capacitor 
+      em paralelo que representa o acoplamento pelos gaps diagonais (g<sub>2</sub>). 
+      O arredondamento dos cantos reduz tanto L como C, empurrando a ressonância para frequências mais altas 
+      em relação a um quadrado perfeito.
+    </p>
+    ${svg}
+  `;
+}

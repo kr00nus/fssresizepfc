@@ -6,6 +6,7 @@
 
 import { mmToCm, FF, calcS21 } from "../core/math.js";
 import { initSubstrateSelector } from "../common/substrate-selector.js";
+import { drawCircuitQuaseQuadrado } from "../common/circuit-diagram.js";
 
 let qsChartInstance = null;
 let qsHfssData = null;
@@ -491,6 +492,15 @@ function updateAll() {
     setVal("val_Zseries", `${fmt(Z_series_r)}`);
     setVal("val_Yshunt", `${fmt(Ys_r)}`);
     setVal("val_erEff", `${er_eff.toFixed(4)}`);
+
+    // Desenha o circuito equivalente visual
+    drawCircuitQuaseQuadrado({
+      XL: fmt(XLs_r),
+      BC1: fmt(BC1s_r),
+      BC2: fmt(BC2s_r),
+      Zf: fmt(Z_series_r),
+      Yf: fmt(Ys_r),
+    });
   }
 }
 
