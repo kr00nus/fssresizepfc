@@ -165,7 +165,66 @@ function buildFixedParams() {
   const baseState = currentConfig.getCurrentState();
 
   container.innerHTML = "";
-  currentConfig.parameters.forEach(p => {
+  
+  // Adicionar fStart e fEnd se existirem
+  const fParams = [
+    { id: "fStart", name: "Freq. Inicial (GHz)" },
+    { id: "fEnd", name: "Freq. Final (GHz)" }
+  ];
+  const allParams = [];
+  if (baseState.fStart !== undefined) allParams.push(fParams[0]);
+  if (baseState.fEnd !== undefined) allParams.push(fParams[1]);
+  allParams.push(...currentConfig.parameters);
+
+  // Se 'er_real' e 'h_sub' não estiverem sendo varridos, podemos adicionar um seletor de substrato
+  const sweepingSubstrate = selectedParam === "er_real" || selectedParam === "h_sub";
+
+  if (!sweepingSubstrate) {
+    const mainSelect = document.getElementById("substrate_select");
+    if (mainSelect) {
+      const wrapper = document.createElement("div");
+      wrapper.style.cssText = "flex: 1; min-width: 250px;";
+      
+      const label = document.createElement("label");
+      label.style.cssText = "display:block; font-size:11px; font-weight:bold; margin-bottom:3px; color:#555;";
+      label.textContent = "Substrato Preset";
+      
+      const select = document.createElement("select");
+      select.innerHTML = mainSelect.innerHTML;
+      select.value = mainSelect.value;
+      select.style.cssText = "width:100%; padding:6px; border:1px solid #ccc; border-radius:4px;";
+      
+      const SUBSTRATE_PRESETS = {
+        RO3003: { er: "3.00", h: "1.52" },
+        RO3006: { er: "6.50", h: "1.28" },
+        FR4: { er: "4.40", h: "1.60" },
+        RT5880: { er: "2.20", h: "0.254" },
+        RO4350B: { er: "3.66", h: "0.762" },
+        RF35: { er: "3.50", h: "0.762" },
+        TMM4: { er: "4.50", h: "0.381" },
+        TMM10: { er: "9.20", h: "0.508" },
+        CER10: { er: "10.00", h: "2.540" }, // fix from earlier
+        AR1000: { er: "10.00", h: "1.270" }
+      };
+
+      select.onchange = (e) => {
+        const val = e.target.value;
+        const preset = SUBSTRATE_PRESETS[val];
+        if (preset) {
+          const erInput = document.querySelector('.fixed-param-input[data-param-id="er_real"]');
+          const hInput = document.querySelector('.fixed-param-input[data-param-id="h_sub"]');
+          if (erInput) erInput.value = preset.er;
+          if (hInput) hInput.value = preset.h;
+        }
+      };
+
+      wrapper.appendChild(label);
+      wrapper.appendChild(select);
+      container.appendChild(wrapper);
+    }
+  }
+
+  allParams.forEach(p => {
     if (p.id === selectedParam) return; // Skip the one being swept
 
     const wrapper = document.createElement("div");
