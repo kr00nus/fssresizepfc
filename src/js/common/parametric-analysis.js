@@ -25,9 +25,6 @@ export function initParametricAnalysis(config) {
 }
 
 function injectButton() {
-  const container = document.querySelector(".header-actions") || document.querySelector(".controls");
-  if (!container) return; // Fallback se não achar
-
   // Evitar duplicidade
   if (document.getElementById("btnParametric")) return;
 
@@ -35,7 +32,7 @@ function injectButton() {
   btn.id = "btnParametric";
   btn.className = "btn-secondary";
   btn.innerHTML = `⚙️ Análise Paramétrica`;
-  btn.style.marginLeft = "10px";
+  btn.style.marginLeft = "15px";
   btn.style.background = "#6a1b9a";
   btn.style.color = "white";
   btn.style.border = "none";
@@ -43,12 +40,28 @@ function injectButton() {
   btn.style.borderRadius = "4px";
   btn.style.cursor = "pointer";
   btn.style.fontWeight = "bold";
+  btn.style.fontSize = "14px";
   btn.style.transition = "background 0.3s";
   btn.onmouseover = () => btn.style.background = "#4a148c";
   btn.onmouseout = () => btn.style.background = "#6a1b9a";
 
   btn.addEventListener("click", openModal);
-  container.appendChild(btn);
+
+  // Tenta colocar no cabeçalho do painel de parâmetros
+  const paramsH2 = document.querySelector(".params h2");
+  if (paramsH2) {
+    paramsH2.style.display = "flex";
+    paramsH2.style.justifyContent = "space-between";
+    paramsH2.style.alignItems = "center";
+    paramsH2.appendChild(btn);
+    return;
+  }
+
+  // Fallback
+  const container = document.querySelector(".header-actions") || document.querySelector(".controls");
+  if (container) {
+    container.appendChild(btn);
+  }
 }
 
 function createModal() {
