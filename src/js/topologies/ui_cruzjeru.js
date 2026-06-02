@@ -13,6 +13,7 @@
 import { mmToCm, FF, calcS21 } from "../core/math.js";
 import { initSubstrateSelector } from "../common/substrate-selector.js";
 import { drawCircuitCruzJeru } from "../common/circuit-diagram.js";
+import { initParametricAnalysis } from "../common/parametric-analysis.js";
 
 // Variável global que armazena o gráfico Chart.js (biblioteca para fazer gráficos)
 let chart = null;
@@ -102,9 +103,93 @@ document.addEventListener("DOMContentLoaded", () => {
     exportBtn.parentNode.insertBefore(hfssBtn, exportBtn.nextSibling);
   }
 
-  // Executa uma atualização completa dos gráficos no carregamento inicial
+  // Inicializa a Análise Paramétrica
+  initParametricAnalysis({
+    topologyName: "Cruz de Jerusalém",
+    parameters: [
+      { id: "p", name: "Período (p)" },
+      { id: "d", name: "Comprimento do chapéu (d)" },
+      { id: "w", name: "Espessura do braço interno (w)" },
+      { id: "h", name: "Espessura do chapéu (h)" },
+      { id: "g", name: "Gap / Espaço vazio (g)" },
+      { id: "h_sub", name: "Espessura do Substrato (h_sub)" },
+      { id: "er_real", name: "Constante Dielétrica (er)" }
+    ],
+    getCurrentState: getCurrentState,
+    calculateS21: calculateS21CruzJeru
+  });
+
+  // Executa uma primeira atualização dos dados logo que a página carrega
   updateAll();
 });
+
+function getCurrentState() {
+  return {
+    fStart: parseFloat(document.getElementById("fStart_num").value),
+    fEnd: parseFloat(document.getElementById("fEnd_num").value),
+    p: parseFloat(document.getElementById("p_num").value),
+    d: parseFloat(document.getElementById("d_num").value),
+    w: parseFloat(document.getElementById("w_num").value),
+    h: parseFloat(document.getElementById("h_num").value),
+    g: parseFloat(document.getElementById("g_num").value),
+    h_sub: parseFloat(document.getElementById("h_sub_num").value),
+    er_real: parseFloat(document.getElementById("er_num").value)
+  };
+}
+
+export function calculateS21CruzJeru(state) {
+  let { fStart, fEnd, p, d, w, h, g, h_sub, er_real } = state;
+
+  if (g >= p) g = p - 0.001; 
+  if (d > p - g) d = p - g;
+
+  const df = 0.005; 
+  const pCm = mmToCm(p);
+  const dCm = mmToCm(d);
+  const wCm = mmToCm(w);
+  const hCm = mmToCm(h);
+  const gCm = mmToCm(g);
+
+  const ratio_hp = h_sub / p;
+  let alpha = 22 - (ratio_hp - 0.05) * ((22 - 17) / (0.2 - 0.05));
+  alpha = Math.max(17, Math.min(22, alpha));
+  const er_nova = 1 + ((er_real - 1) / 2) * (1 - Math.exp(-alpha * (h_sub / p)));
+
+  const curve = [];
+  const f_limit = 30 / pCm;
+  const calcEnd = Math.min(fEnd, f_limit - 0.1);
+
+  for (let freq = fStart; freq <= calcEnd; freq += df) {
+    const lamb = 30 / freq;
+    const ang = 0;
+
+    const XL1 = FF(pCm, wCm, lamb, ang);
+    const XL2 = (dCm / pCm) * FF(pCm, 2 * wCm, lamb, ang);
+    const lamb3 = dCm / 0.43;
+
+    const Bg_base = ((4 * dCm) / pCm) * FF(pCm, gCm, lamb, ang);
+    const Bd_base = ((4 * (2 * hCm + gCm)) / pCm) * FF(pCm, pCm - dCm, lamb, ang);
+    const C_total_base = Bg_base + Bd_base;
+
+    const BC1 = er_nova * C_total_base;
+    const X1 = XL1 - 1 / BC1;
+
+    const f3_eff = 30 / lamb3 / Math.sqrt(er_nova);
+    const BC2 = (1 / XL2) * Math.pow(freq / f3_eff, 2);
+    const X2 = XL2 - 1 / BC2;
+
+    const B_total = 1 / X1 + 1 / X2;
+    
+    let s21 = -60;
+    try {
+      s21 = Math.max(-60, calcS21(B_total));
+    } catch(e) {}
+
+    curve.push({ f: freq, s21: s21 });
+  }
+
+  return curve;
+}
 
 // Função que processa o arquivo CSV do HFSS quando o usuário o carrega
 function handleHFSSUpload(event) {

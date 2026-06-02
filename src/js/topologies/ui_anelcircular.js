@@ -7,6 +7,7 @@
 import { mmToCm, FF, calcS21 } from "../core/math.js";
 import { initSubstrateSelector } from "../common/substrate-selector.js";
 import { drawCircuitAnelCircular } from "../common/circuit-diagram.js";
+import { initParametricAnalysis } from "../common/parametric-analysis.js";
 
 let ringChartInstance = null;
 let ringHfssData = null;
@@ -137,8 +138,87 @@ document.addEventListener("DOMContentLoaded", () => {
     exportBtn.parentNode.insertBefore(hfssBtn, exportBtn.nextSibling);
   }
 
+  // Inicializa a Análise Paramétrica
+  initParametricAnalysis({
+    topologyName: "Anel Circular",
+    parameters: [
+      { id: "p", name: "Período (p)" },
+      { id: "r", name: "Raio (r)" },
+      { id: "w", name: "Espessura da fita (w)" },
+      { id: "g", name: "Gap físico (g)" },
+      { id: "h_sub", name: "Espessura do Substrato (h_sub)" },
+      { id: "er_real", name: "Constante Dielétrica (er)" }
+    ],
+    getCurrentState: getCurrentState,
+    calculateS21: calculateS21AnelCircular
+  });
+
   updateAll();
 });
+
+function getCurrentState() {
+  return {
+    fStart: parseFloat(document.getElementById("fStart_num").value),
+    fEnd: parseFloat(document.getElementById("fEnd_num").value),
+    p: parseFloat(document.getElementById("p_num").value),
+    r: parseFloat(document.getElementById("r_num").value),
+    w: parseFloat(document.getElementById("w_num").value),
+    g: parseFloat(document.getElementById("g_num").value),
+    h_sub: parseFloat(document.getElementById("h_sub_num").value),
+    er_real: parseFloat(document.getElementById("er_num").value)
+  };
+}
+
+export function calculateS21AnelCircular(state) {
+  let { fStart, fEnd, p, r, w, g, h_sub, er_real } = state;
+
+  const d_ext = 2 * r + w;
+  if (d_ext >= p) {
+    r = (p - w) / 2 - 0.001;
+  }
+
+  const N_ajuste = 1.8;
+  const c_factor = (10 * h_sub) / p;
+  const z_factor = Math.exp(c_factor);
+  const er_eff = er_real + (er_real - 1) * (-1 / Math.pow(z_factor, N_ajuste));
+
+  const df = 0.005; 
+  const pCm = mmToCm(p);
+  const wCm = mmToCm(w);
+  const f_limit = 30 / pCm;
+  const calcEnd = Math.min(fEnd, f_limit - 0.1);
+
+  const d_ext_cm = mmToCm(2 * r + w);
+  const g1_cm = pCm - (Math.PI * d_ext_cm) / 4;
+  const d_eq_cm = (Math.PI * mmToCm(r)) / 2;
+
+  const curve = [];
+
+  for (let freq = fStart; freq <= calcEnd; freq += df) {
+    const lamb = 30 / freq;
+    const teta_rad = 0;
+
+    try {
+      const F_L = FF(pCm, 2 * wCm, lamb, teta_rad);
+      const F_C = FF(pCm, g1_cm, lamb, teta_rad);
+
+      const XL_base = (d_eq_cm / pCm) * F_L * Math.cos(teta_rad);
+      const C_base = 4 * (d_eq_cm / pCm) * F_C * (1 / Math.cos(teta_rad));
+
+      const BC_norm = er_eff * C_base;
+      const X_total = XL_base - 1 / BC_norm;
+      const B_norm = 1 / X_total;
+
+      const pt_dB = calcS21(B_norm);
+
+      curve.push({ f: freq, s21: Math.max(-60, pt_dB) });
+    } catch (e) {
+      curve.push({ f: freq, s21: -60 });
+    }
+  }
+
+  return curve;
+}
 
 function handleHFSSUpload(event) {
   const file = event.target.files[0];

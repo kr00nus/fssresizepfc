@@ -7,6 +7,7 @@
 import { mmToCm, FF, calcS21 } from "../core/math.js";
 import { initSubstrateSelector } from "../common/substrate-selector.js";
 import { drawCircuitQuaseQuadrado } from "../common/circuit-diagram.js";
+import { initParametricAnalysis } from "../common/parametric-analysis.js";
 
 let qsChartInstance = null;
 let qsHfssData = null;
@@ -149,8 +150,82 @@ document.addEventListener("DOMContentLoaded", () => {
     exportBtn.parentNode.insertBefore(hfssBtn, exportBtn.nextSibling);
   }
 
+  // Inicializa a Análise Paramétrica
+  initParametricAnalysis({
+    topologyName: "Anel Quase Quadrado",
+    parameters: [
+      { id: "p", name: "Período (p)" },
+      { id: "w", name: "Espessura da fita (w)" },
+      { id: "g1", name: "Gap físico 1 (g1)" },
+      { id: "h_sub", name: "Espessura do Substrato (h_sub)" },
+      { id: "er_real", name: "Constante Dielétrica (er)" }
+    ],
+    getCurrentState: getCurrentState,
+    calculateS21: calculateS21QuaseQuadrado
+  });
+
   updateAll();
 });
+
+function getCurrentState() {
+  return {
+    fStart: parseFloat(document.getElementById("fStart_num").value),
+    fEnd: parseFloat(document.getElementById("fEnd_num").value),
+    p: parseFloat(document.getElementById("p_num").value),
+    w: parseFloat(document.getElementById("w_num").value),
+    g1: parseFloat(document.getElementById("g1_num").value),
+    h_sub: parseFloat(document.getElementById("h_sub_num").value),
+    er_real: parseFloat(document.getElementById("er_num").value)
+  };
+}
+
+export function calculateS21QuaseQuadrado(state) {
+  let { fStart, fEnd, p, w, g1, h_sub, er_real } = state;
+
+  const g2 = p - 2 * w;
+
+  const M_factor = 1.5;
+  const c_val = (10 * h_sub) / p;
+  const z_factor = Math.exp(Math.pow(c_val, M_factor));
+  const er_eff = er_real - (er_real - 1) / z_factor;
+
+  const curve = [];
+  const pCm = mmToCm(p);
+  const df = 0.02;
+
+  const w_cm = mmToCm(w);
+  const g1_cm = mmToCm(g1);
+  const g2_cm = mmToCm(g2);
+
+  for (let freq = fStart; freq <= fEnd; freq += df) {
+    const lamb = 30 / freq;
+
+    try {
+      const FL = FF(pCm, w_cm, lamb, 0);
+      const FC_g1 = FF(pCm, g1_cm, lamb, 0);
+      const FC_g2 = FF(pCm, g2_cm, lamb, 0);
+
+      const XLs = ((0.5 * (p - w)) / p) * FL;
+      const BCsg1 = KL_AUTO * ((4 * w) / p) * FC_g1;
+      const BCsg2 = KL_AUTO * ((4 * (p - w)) / p) * FC_g2;
+
+      const BC1s = 0.5 * BCsg1 * er_eff;
+      const BC2s = 0.25 * (BCsg2 + BCsg1) * er_eff;
+
+      const B1 = Math.max(1e-12, BC1s);
+      const Z_series = XLs - 1 / B1;
+
+      const Ys = Math.abs(1 / Z_series - BC2s);
+      const pt_dB = 20 * Math.log10(2 / Math.sqrt(4 + Ys * Ys));
+
+      curve.push({ f: freq, s21: Math.max(-60, pt_dB) });
+    } catch (e) {
+      curve.push({ f: freq, s21: -60 });
+    }
+  }
+
+  return curve;
+}
 
 function handleHFSSUpload(event) {
   const file = event.target.files[0];

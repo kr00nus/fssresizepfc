@@ -5,6 +5,7 @@
 
 import { mmToCm } from "../core/math.js";
 import { initSubstrateSelector } from "../common/substrate-selector.js";
+import { initParametricAnalysis } from "../common/parametric-analysis.js";
 
 let patchChartInstance = null;
 let patchHfssData = null;
@@ -121,8 +122,67 @@ document.addEventListener("DOMContentLoaded", () => {
     exportBtn.parentNode.insertBefore(hfssBtn, exportBtn.nextSibling);
   }
 
+  // Inicializa a Análise Paramétrica
+  initParametricAnalysis({
+    topologyName: "Patch Quadrado",
+    parameters: [
+      { id: "p", name: "Período (p)" },
+      { id: "c", name: "Tamanho do Patch (c)" },
+      { id: "g", name: "Gap (g)" },
+      { id: "h_sub", name: "Espessura do Substrato (h_sub)" },
+      { id: "er_real", name: "Constante Dielétrica (er)" }
+    ],
+    getCurrentState: getCurrentState,
+    calculateS21: calculateS21Quadrado
+  });
+
   updateAll();
 });
+
+function getCurrentState() {
+  const id_c = document.getElementById("c_num") ? "c" : "d";
+  const id_g = document.getElementById("g_num") ? "g" : "w";
+  return {
+    fStart: parseFloat(document.getElementById("fStart_num").value),
+    fEnd: parseFloat(document.getElementById("fEnd_num").value),
+    p: parseFloat(document.getElementById("p_num").value),
+    c: parseFloat(document.getElementById(id_c + "_num").value),
+    g: parseFloat(document.getElementById(id_g + "_num").value),
+    h_sub: parseFloat(document.getElementById("h_sub_num").value),
+    er_real: parseFloat(document.getElementById("er_num").value)
+  };
+}
+
+export function calculateS21Quadrado(state) {
+  let { fStart, fEnd, p, c, g, h_sub, er_real } = state;
+
+  let gCalc = p - c;
+  if (gCalc <= 0) gCalc = 0.001;
+  let cCalc = p - gCalc;
+
+  const df = 0.005;
+  const pCm = mmToCm(p);
+  const cCm = mmToCm(cCalc);
+  const h_sub_cm = mmToCm(h_sub);
+
+  const curve = [];
+  const f_limit = 30 / pCm;
+  const calcEnd = Math.min(fEnd, f_limit - 0.1);
+
+  for (let freq = fStart; freq <= calcEnd; freq += df) {
+    let l = 30 / freq;
+    let s21 = -60;
+    try {
+      // Usando Chen que é o modelo principal (Mais preciso)
+      let ycap_chen = calcChen(pCm, cCm, l);
+      s21 = cascadeDielectric(ycap_chen, freq, er_real, h_sub_cm);
+    } catch (e) {}
+
+    curve.push({ f: freq, s21: Math.max(-60, s21) });
+  }
+
+  return curve;
+}
 
 function handleHFSSUpload(event) {
   const file = event.target.files[0];

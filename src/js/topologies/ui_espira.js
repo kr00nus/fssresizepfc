@@ -14,6 +14,7 @@
 import { mmToCm, FF, calcS21 } from "../core/math.js"; // Importa funções matemáticas compartilhadas
 import { initSubstrateSelector } from "../common/substrate-selector.js"; // Seletor de substrato centralizado
 import { drawCircuitEspira } from "../common/circuit-diagram.js"; // Circuito equivalente visual
+import { initParametricAnalysis } from "../common/parametric-analysis.js"; // Análise paramétrica
 
 // Variável global que armazena a instância do gráfico Chart.js
 let chart = null;
@@ -91,9 +92,73 @@ document.addEventListener("DOMContentLoaded", () => {
     exportBtn.parentNode.insertBefore(hfssBtn, exportBtn.nextSibling);
   }
 
+  // Inicializa a Análise Paramétrica
+  initParametricAnalysis({
+    topologyName: "Espira Quadrada",
+    parameters: [
+      { id: "p", name: "Período (p)" },
+      { id: "d", name: "Diâmetro/Tamanho (d)" },
+      { id: "w", name: "Largura do fio (w)" },
+      { id: "h_sub", name: "Espessura do Substrato (h_sub)" },
+      { id: "er_real", name: "Constante Dielétrica (er)" }
+    ],
+    getCurrentState: getCurrentState,
+    calculateS21: calculateS21Espira
+  });
+
   // Executa uma atualização inicial quando a página carrega
   updateAll();
 });
+
+function getCurrentState() {
+  return {
+    fStart: parseFloat(document.getElementById("fStart_num").value),
+    fEnd: parseFloat(document.getElementById("fEnd_num").value),
+    p: parseFloat(document.getElementById("p_num").value),
+    d: parseFloat(document.getElementById("d_num").value),
+    w: parseFloat(document.getElementById("w_num").value),
+    h_sub: parseFloat(document.getElementById("h_sub_num").value),
+    er_real: parseFloat(document.getElementById("er_num").value)
+  };
+}
+
+export function calculateS21Espira(state) {
+  let { fStart, fEnd, p, d, w, h_sub, er_real } = state;
+  // Regra de validação base do modelo
+  if (d >= p) {
+    d = p - 0.001;
+  }
+  const df = 0.005; // Passo um pouco maior na análise paramétrica para velocidade
+  const pCm = mmToCm(p);
+  const dCm = mmToCm(d);
+  const wCm = mmToCm(w);
+  const gCm = mmToCm(p - d);
+
+  const ratio = w / p;
+  let alpha = 16 - (ratio - 0.05) * ((16 - 12.5) / (0.25 - 0.05));
+  alpha = Math.max(12.5, Math.min(16, alpha));
+  const er_nova = 1 + ((er_real - 1) / 2) * (1 - Math.exp(-alpha * (h_sub / p)));
+
+  const curve = [];
+  const f_limit = 30 / pCm; // grating lobe limit
+  const calcEnd = Math.min(fEnd, f_limit - 0.1); // Não calcula além do limite físico
+
+  for (let freq = fStart; freq <= calcEnd; freq += df) {
+    const lamb = 30 / freq;
+    const XL = (dCm / pCm) * FF(pCm, 2 * wCm, lamb, 0);
+    const C_base = 4 * (dCm / pCm) * FF(pCm, gCm, lamb, 0);
+    const BC_nova = er_nova * C_base;
+    const X_nova = XL - 1 / BC_nova;
+    
+    let s21 = -60;
+    try {
+      s21 = Math.max(-60, calcS21(1 / X_nova));
+    } catch(e) {}
+    
+    curve.push({ f: freq, s21: s21 });
+  }
+  return curve;
+}
 
 // ==========================================
 // FUNÇÃO: handleHFSSUpload()

@@ -7,6 +7,7 @@
 import { mmToCm, FF, calcS21 } from "../core/math.js";
 import { initSubstrateSelector } from "../common/substrate-selector.js";
 import { drawCircuitEstrela } from "../common/circuit-diagram.js";
+import { initParametricAnalysis } from "../common/parametric-analysis.js";
 
 let starChartInstance = null;
 let starHfssData = null;
@@ -157,8 +158,85 @@ document.addEventListener("DOMContentLoaded", () => {
     exportBtn.parentNode.insertBefore(hfssBtn, exportBtn.nextSibling);
   }
 
+  // Inicializa a Análise Paramétrica
+  initParametricAnalysis({
+    topologyName: "Estrela de 4 Pontas",
+    parameters: [
+      { id: "p", name: "Período (p)" },
+      { id: "a", name: "Comprimento da haste (a)" },
+      { id: "b", name: "Espessura da haste (b)" },
+      { id: "s", name: "Dimensão (s)" },
+      { id: "h_sub", name: "Espessura do Substrato (h_sub)" },
+      { id: "er_real", name: "Constante Dielétrica (er)" }
+    ],
+    getCurrentState: getCurrentState,
+    calculateS21: calculateS21Estrela
+  });
+
   updateAll();
 });
+
+function getCurrentState() {
+  return {
+    fStart: parseFloat(document.getElementById("fStart_num").value),
+    fEnd: parseFloat(document.getElementById("fEnd_num").value),
+    p: parseFloat(document.getElementById("p_num").value),
+    a: parseFloat(document.getElementById("a_num").value),
+    b: parseFloat(document.getElementById("b_num").value),
+    s: parseFloat(document.getElementById("s_num").value),
+    h_sub: parseFloat(document.getElementById("h_sub_num").value),
+    er_real: parseFloat(document.getElementById("er_num").value)
+  };
+}
+
+export function calculateS21Estrela(state) {
+  let { fStart, fEnd, p, a, b, s, h_sub, er_real } = state;
+
+  const M_factor = 1.9;
+  const er_eff = er_real + (er_real - 1) * (-1 / Math.exp((10 * h_sub) / (p * M_factor)));
+
+  const curve = [];
+  const pCm = mmToCm(p);
+  const df = 0.05;
+
+  const gf1_cm = mmToCm(p - a);
+  const gf2_cm = mmToCm(p - b);
+  const gf3_cm = mmToCm(p - s);
+
+  for (let freq = fStart; freq <= fEnd; freq += df) {
+    const lamb = 30 / freq;
+    try {
+      const FL = FF(pCm, mmToCm(b), lamb, 0);
+      const FC_gf1 = FF(pCm, gf1_cm, lamb, 0);
+      const FC_gf2 = FF(pCm, gf2_cm, lamb, 0);
+      const FC_gf3 = FF(pCm, gf3_cm, lamb, 0);
+
+      const XLf = ((1.5 * a) / p) * FL;
+
+      const BCgf = KL_AUTO * ((4 * b) / (1.5 * p)) * FC_gf1;
+      const BCa1f = KL_AUTO * ((4 * (p - b)) / (1.5 * p)) * FC_gf2;
+      const BCa2f = KL_AUTO * ((4 * (p - s)) / p) * FC_gf3;
+
+      const BC1f = (BCa1f + BCgf) * er_eff;
+      const BC2f = 0.25 * (BCa2f + BCgf) * er_eff;
+
+      const B1 = Math.max(1e-12, BC1f);
+      const B2 = Math.max(1e-12, BC2f);
+
+      let Zf = XLf - 1 / B1 - 1 / B2;
+      if (Math.abs(Zf) < 1e-12) Zf = 1e-12;
+
+      const B_norm = 1 / Zf;
+      const pt_dB = calcS21(B_norm);
+
+      curve.push({ f: freq, s21: Math.max(-60, pt_dB) });
+    } catch (e) {
+      curve.push({ f: freq, s21: -60 });
+    }
+  }
+
+  return curve;
+}
 
 function handleHFSSUpload(event) {
   const file = event.target.files[0];
