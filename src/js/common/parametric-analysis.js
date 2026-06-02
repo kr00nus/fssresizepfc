@@ -107,7 +107,7 @@ function createModal() {
              <label style="font-size:12px; font-weight:bold; margin-right:10px;">Eixo Y:</label>
              <select id="plotTypeSelect" style="padding:6px; border:1px solid #ccc; border-radius:4px;">
                <option value="fr">Frequência de Ressonância (GHz)</option>
-               <option value="bw">Largura de Banda (-10 dB) (%)</option>
+               <option value="bw">Largura de Banda (-10 dB) (GHz)</option>
              </select>
           </div>
           <div id="paramStatus" style="font-size:12px; color:#666; font-style:italic;">Pronto para simular.</div>
@@ -351,7 +351,7 @@ function extractMetrics(curve) {
   let bw = 0;
   if (fLow !== null && fHigh !== null && minF !== null) {
     const absoluteBw = fHigh - fLow;
-    bw = (absoluteBw / minF) * 100; // BW Fracional em %
+    bw = absoluteBw; // BW absoluto em GHz
   }
 
   return { fr: minF, bw: bw };
@@ -373,7 +373,7 @@ function renderChart() {
   const xData = lastResults.map(r => r.paramVal);
   const yData = lastResults.map(r => plotType === 'fr' ? r.fr : r.bw);
 
-  const label = plotType === 'fr' ? 'Frequência de Ressonância (GHz)' : 'Largura de Banda (-10 dB) (%)';
+  const label = plotType === 'fr' ? 'Frequência de Ressonância (GHz)' : 'Largura de Banda (-10 dB) (GHz)';
   const color = plotType === 'fr' ? '#e53935' : '#1e88e5';
 
   parametricChart = new Chart(ctx, {
