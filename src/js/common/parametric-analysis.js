@@ -91,8 +91,13 @@ function createModal() {
           </div>
           <div style="flex:1; min-width:100px;">
             <label style="display:block; font-size:12px; font-weight:bold; margin-bottom:5px;">Passos (N):</label>
-            <input type="number" id="paramSteps" value="10" min="2" max="100" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+            <input type="number" id="paramSteps" value="20" min="2" max="100" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
           </div>
+        </div>
+
+        <div style="margin-bottom:20px; padding:15px; background:#e8f4f8; border-radius:6px; border-left:4px solid #0277bd;">
+          <h3 style="margin-top:0; margin-bottom:10px; font-size:14px; color:#1a2a3a;">Valores Fixos (Modifique para simular)</h3>
+          <div id="fixedParamsContainer" style="display:flex; gap:15px; flex-wrap:wrap;"></div>
         </div>
 
         <div style="display:flex; gap:20px; align-items:center; margin-bottom:20px;">
@@ -147,7 +152,41 @@ function openModal() {
      document.getElementById("paramSteps").value = "20";
   }
 
+  // Update fixed params when the selected sweep parameter changes
+  select.onchange = buildFixedParams;
+  buildFixedParams();
+
   document.getElementById("parametricModal").style.display = "block";
+}
+
+function buildFixedParams() {
+  const container = document.getElementById("fixedParamsContainer");
+  const selectedParam = document.getElementById("paramSelect").value;
+  const baseState = currentConfig.getCurrentState();
+
+  container.innerHTML = "";
+  currentConfig.parameters.forEach(p => {
+    if (p.id === selectedParam) return; // Skip the one being swept
+
+    const wrapper = document.createElement("div");
+    wrapper.style.cssText = "flex: 1; min-width: 120px;";
+
+    const label = document.createElement("label");
+    label.style.cssText = "display:block; font-size:11px; font-weight:bold; margin-bottom:3px; color:#555;";
+    label.textContent = p.name;
+
+    const input = document.createElement("input");
+    input.type = "number";
+    input.step = "0.01";
+    input.className = "fixed-param-input"; // tag for easy retrieval
+    input.dataset.paramId = p.id;
+    input.value = baseState[p.id] !== undefined ? baseState[p.id] : "";
+    input.style.cssText = "width:100%; padding:6px; border:1px solid #ccc; border-radius:4px;";
+
+    wrapper.appendChild(label);
+    wrapper.appendChild(input);
+    container.appendChild(wrapper);
+  });
 }
 
 let lastResults = []; // [{paramVal, fr, bw}]
@@ -175,7 +214,18 @@ function runAnalysis() {
 
   // Use um setTimeout para dar tempo de atualizar o UI ("Simulando...") antes do loop travante
   setTimeout(() => {
-    const baseState = currentConfig.getCurrentState();
+    let baseState = currentConfig.getCurrentState();
+
+    // Ler os valores fixos diretamente dos inputs gerados no modal
+    const fixedInputs = document.querySelectorAll(".fixed-param-input");
+    fixedInputs.forEach(input => {
+      const pid = input.dataset.paramId;
+      const val = parseFloat(input.value);
+      if (!isNaN(val)) {
+        baseState[pid] = val;
+      }
+    });
+
     const stepSize = (end - start) / (steps - 1);
 
     for (let i = 0; i < steps; i++) {
