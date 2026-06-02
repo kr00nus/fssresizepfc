@@ -606,6 +606,32 @@ function updateChart(labels, data_modelo, hfssPlotData) {
     },
   });
 
+  // === CÁLCULO DA BANDA E FR DO HFSS ===
+  let hfss_fr = null;
+  let hfss_bw = "-";
+  if (qsHfssData && qsHfssData.length > 0) {
+    let minS21 = Infinity;
+    let minFreq = null;
+    let h_low = null;
+    let h_high = null;
+
+    for (let i = 0; i < qsHfssData.length; i++) {
+      const pt = qsHfssData[i];
+      if (pt.y < minS21) {
+        minS21 = pt.y;
+        minFreq = pt.x;
+      }
+      if (pt.y <= -10) {
+        if (h_low === null) h_low = pt.x;
+        h_high = pt.x;
+      }
+    }
+    hfss_fr = minFreq;
+    if (h_low !== null && h_high !== null) {
+      hfss_bw = (h_high - h_low).toFixed(2);
+    }
+  }
+
   let infoBox = document.getElementById("resonanceInfo");
   if (!infoBox) {
     infoBox = document.createElement("div");
@@ -615,7 +641,24 @@ function updateChart(labels, data_modelo, hfssPlotData) {
     document.querySelector(".chart-container").after(infoBox);
   }
 
-
+  let infoHtml = `<strong>Ressonância ECM (Band-Stop):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <strong>Banda (-10 dB):</strong> ${bw} GHz <br> <strong style="color:#d35400;">Calibração Automática KL: ${KL_AUTO.toFixed(3)}</strong>`;
+  if (qsHfssData && qsHfssData.length > 0) {
+    let frErrorHtml = "";
+    if (hfss_fr !== null && !isNaN(frFreq)) {
+      const err = Math.abs(frFreq - hfss_fr) / hfss_fr * 100;
+      frErrorHtml = `(Erro: ${err.toFixed(2)}%)`;
+    }
+    let bwErrorHtml = "";
+    if (hfss_bw !== "-" && bw !== "-") {
+      const err = Math.abs(parseFloat(bw) - parseFloat(hfss_bw)) / parseFloat(hfss_bw) * 100;
+      bwErrorHtml = `(Erro: ${err.toFixed(2)}%)`;
+    }
+    
+    infoHtml += `<br><br><span style="color:#dc3545; font-weight:bold;">Dados Ansys HFSS:</span><br>
+                 <strong>Ressonância HFSS:</strong> ${hfss_fr !== null ? hfss_fr.toFixed(2) : "-"} GHz <span style="color:#e65100; font-weight:bold; margin-left:8px;">${frErrorHtml}</span><br>
+                 <strong>Banda HFSS (-10 dB):</strong> ${hfss_bw} GHz <span style="color:#e65100; font-weight:bold; margin-left:8px;">${bwErrorHtml}</span>`;
+  }
+  infoBox.innerHTML = infoHtml;
   function exportToCSV() {
     if (!qsChartInstance) return;
     let csv = "\uFEFF" + "Frequencia (GHz);S21 ECM (dB)\n";

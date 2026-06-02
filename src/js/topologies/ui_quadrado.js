@@ -525,6 +525,62 @@ function updateChart(
     });
   }
 
+  // === CÁLCULO DA BANDA DE -10 dB PARA ECM ===
+  let f_low = null;
+  let f_high = null;
+  let idx_low = -1;
+  let idx_high = -1;
+  for (let i = 0; i < data_chen.length; i++) {
+    if (data_chen[i] <= -10) {
+      if (f_low === null) { f_low = parseFloat(labels[i]); idx_low = i; }
+      f_high = parseFloat(labels[i]);
+      idx_high = i;
+    }
+  }
+  let bw = f_low !== null ? (f_high - f_low).toFixed(2) : "-";
+
+  if (idx_low !== -1 && idx_high !== -1) {
+    const bwPointData = labels.map((_, idx) =>
+      (idx === idx_low || idx === idx_high) ? data_chen[idx] : null
+    );
+    datasets.push({
+      label: `BW (-10 dB) = ${bw} GHz`,
+      data: bwPointData,
+      borderColor: "#805ad5",
+      borderWidth: 2,
+      pointRadius: 5,
+      pointBackgroundColor: "#805ad5",
+      showLine: false,
+      pointStyle: "circle",
+    });
+  }
+
+  // === CÁLCULO DA BANDA E FR DO HFSS ===
+  let hfss_fr = null;
+  let hfss_bw = "-";
+  if (patchHfssData && patchHfssData.length > 0) {
+    let minS21 = Infinity;
+    let minFreq = null;
+    let h_low = null;
+    let h_high = null;
+
+    for (let i = 0; i < patchHfssData.length; i++) {
+      const pt = patchHfssData[i];
+      if (pt.y < minS21) {
+        minS21 = pt.y;
+        minFreq = pt.x;
+      }
+      if (pt.y <= -10) {
+        if (h_low === null) h_low = pt.x;
+        h_high = pt.x;
+      }
+    }
+    hfss_fr = minFreq;
+    if (h_low !== null && h_high !== null) {
+      hfss_bw = (h_high - h_low).toFixed(2);
+    }
+  }
+
   patchChartInstance = new Chart(ctx, {
     type: "line",
     data: { labels, datasets },
@@ -552,9 +608,22 @@ function updateChart(
     document.querySelector(".chart-container").after(infoBox);
   }
 
-  let infoHtml = `<strong>Ressonância (Corte):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz | <strong style="color:#0056b3;">Modelo Analítico: Fórmulas Aproximadas (Livro pág. 120-126)</strong>`;
+  let infoHtml = `<strong>Ressonância (Corte):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <strong>Banda (-10 dB):</strong> ${bw} GHz <br> <strong style="color:#0056b3;">Modelo Analítico: Fórmulas Aproximadas (Livro pág. 120-126)</strong>`;
   if (patchHfssData && patchHfssData.length > 0) {
-    infoHtml += `<br><span style="color:#dc3545; font-weight:bold;">Comparativo ativo: Avalie qual curva aproxima melhor o corte do Patch no Ansys HFSS.</span>`;
+    let frErrorHtml = "";
+    if (hfss_fr !== null && !isNaN(frFreq)) {
+      const err = Math.abs(frFreq - hfss_fr) / hfss_fr * 100;
+      frErrorHtml = `(Erro: ${err.toFixed(2)}%)`;
+    }
+    let bwErrorHtml = "";
+    if (hfss_bw !== "-" && bw !== "-") {
+      const err = Math.abs(parseFloat(bw) - parseFloat(hfss_bw)) / parseFloat(hfss_bw) * 100;
+      bwErrorHtml = `(Erro: ${err.toFixed(2)}%)`;
+    }
+    
+    infoHtml += `<br><br><span style="color:#dc3545; font-weight:bold;">Dados Ansys HFSS:</span><br>
+                 <strong>Ressonância HFSS:</strong> ${hfss_fr !== null ? hfss_fr.toFixed(2) : "-"} GHz <span style="color:#e65100; font-weight:bold; margin-left:8px;">${frErrorHtml}</span><br>
+                 <strong>Banda HFSS (-10 dB):</strong> ${hfss_bw} GHz <span style="color:#e65100; font-weight:bold; margin-left:8px;">${bwErrorHtml}</span>`;
   }
   if (limitIndex !== -1)
     infoHtml += `<br><small style="color:#d35400">⚠️ Aviso: Acima de ${f_limit.toFixed(2)} GHz o modelo ECM perde precisão.</small>`;
