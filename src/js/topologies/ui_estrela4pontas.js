@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const p = 4.1, a = 3.25, b = 0.6, s = 1.0;
     const h_sub = 0.508, er_real = 2.94;
     const M_factor = 1.9;
-    const er_eff = er_real + (er_real - 1) * (-1 / Math.exp((10 * h_sub) / (p * M_factor)));
+    const er_eff = er_real - (er_real - 1) * Math.exp(-(M_factor * 10 * h_sub) / p);
 
     const lamb = 30 / 28.0; // Alvo do livro: 28 GHz
     const pCm = p / 10;
@@ -193,7 +193,7 @@ export function calculateS21Estrela(state) {
   let { fStart, fEnd, p, a, b, s, h_sub, er_real } = state;
 
   const M_factor = 1.9;
-  const er_eff = er_real + (er_real - 1) * (-1 / Math.exp((10 * h_sub) / (p * M_factor)));
+  const er_eff = er_real - (er_real - 1) * Math.exp(-(M_factor * 10 * h_sub) / p);
 
   const curve = [];
   const pCm = mmToCm(p);
@@ -506,7 +506,7 @@ function updateAll() {
   if (fStart >= fEnd || p <= 0) return;
 
   const M_factor = 1.9;
-  const er_eff = er_real + (er_real - 1) * (-1 / Math.exp((10 * h_sub) / (p * M_factor)));
+  const er_eff = er_real - (er_real - 1) * Math.exp(-(M_factor * 10 * h_sub) / p);
 
   const f_GHz_analitico = 0.3 / (2 * (a / 1000) * Math.sqrt(er_eff));
 
