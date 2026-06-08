@@ -94,6 +94,8 @@ h2 {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2px; /* Slider praticamente colado no texto */
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 label {
@@ -125,6 +127,8 @@ select {
   font-size: 0.9em;
   font-family: "Times New Roman", serif;
   width: auto;
+  max-width: 100%;
+  text-overflow: ellipsis;
 }
 
 input:disabled, select:disabled {
