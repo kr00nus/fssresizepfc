@@ -53,8 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
     p: "4.100",
     w_num: "0.850",
     g1_num: "0.200",
-    h_sub: "0.508",
-    er: "2.94",
+    h_sub: "1.520",
+    er: "3.00",
   };
 
   for (const [key, value] of Object.entries(defaultValues)) {
