@@ -791,7 +791,9 @@ function updateChart(
     document.querySelector(".chart-container").after(infoBox);
   }
 
-  let infoHtml = `<strong>Ressonância ECM (Band-Stop):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <strong>Banda (-10 dB):</strong> ${bw} GHz <br> <span style="color:#2e7d32;">Ajuste de Espessura N = ${N_ajuste}</span>`;
+  const qFactor = (bw !== "-" && parseFloat(bw) > 0 && !isNaN(frFreq)) ? (frFreq / parseFloat(bw)).toFixed(2) : "-";
+  let infoHtml = `<strong>Ressonância ECM (Band-Stop):</strong> ${isNaN(frFreq) ? "-" : frFreq.toFixed(2)} GHz <br> <strong>Banda (-10 dB):</strong> ${bw} GHz <br> <strong>Fator de Qualidade (Q):</strong> ${qFactor}`;
+
   if (ringHfssData && ringHfssData.length > 0) {
     let frErrorHtml = "";
     if (hfss_fr !== null && !isNaN(frFreq)) {
@@ -803,10 +805,20 @@ function updateChart(
       const err = Math.abs(parseFloat(bw) - parseFloat(hfss_bw)) / parseFloat(hfss_bw) * 100;
       bwErrorHtml = `(Erro: ${err.toFixed(2)}%)`;
     }
+    let qErrorHtml = "";
+    let hfss_qFactor = "-";
+    if (hfss_fr !== null && hfss_bw !== "-" && parseFloat(hfss_bw) > 0) {
+      hfss_qFactor = (hfss_fr / parseFloat(hfss_bw)).toFixed(2);
+      if (qFactor !== "-") {
+         const errQ = Math.abs(parseFloat(qFactor) - parseFloat(hfss_qFactor)) / parseFloat(hfss_qFactor) * 100;
+         qErrorHtml = `(Erro: ${errQ.toFixed(2)}%)`;
+      }
+    }
     
     infoHtml += `<br><br><span style="color:#dc3545; font-weight:bold;">Dados Ansys HFSS:</span><br>
                  <strong>Ressonância HFSS:</strong> ${hfss_fr !== null ? hfss_fr.toFixed(2) : "-"} GHz <span style="color:#e65100; font-weight:bold; margin-left:8px;">${frErrorHtml}</span><br>
-                 <strong>Banda HFSS (-10 dB):</strong> ${hfss_bw} GHz <span style="color:#e65100; font-weight:bold; margin-left:8px;">${bwErrorHtml}</span>`;
+                 <strong>Banda HFSS (-10 dB):</strong> ${hfss_bw} GHz <span style="color:#e65100; font-weight:bold; margin-left:8px;">${bwErrorHtml}</span><br>
+                 <strong>Fator de Qualidade HFSS (Q):</strong> ${hfss_qFactor} <span style="color:#e65100; font-weight:bold; margin-left:8px;">${qErrorHtml}</span>`;
   }
   if (limitIndex !== -1)
     infoHtml += `<br><small style="color:#d35400">⚠️ Aviso: Acima de ${f_limit.toFixed(2)} GHz a hipótese macroscópica do ECM quebra.</small>`;
