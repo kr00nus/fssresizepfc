@@ -616,6 +616,19 @@ function updateAll() {
       Zf: fmt(Zf_r),
       Yf: fmt(B_total_r),
     });
+
+    // === MODELO FÍSICO: L & C EQUIVALENTE ===
+    const Z0 = 376.73;
+    const f_Hz = frFreq * 1e9;
+    const omega = 2 * Math.PI * f_Hz;
+
+    const L_total_nH = ((XLf_r * Z0) / omega) * 1e9;
+    const BC_total_lc = BC1f_r + BC2f_r;
+    const C_total_pF = ((BC_total_lc) / (omega * Z0)) * 1e12;
+
+    const setLCVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+    setLCVal("val_L_total", L_total_nH.toFixed(4));
+    setLCVal("val_C_total", C_total_pF.toFixed(4));
   }
 }
 

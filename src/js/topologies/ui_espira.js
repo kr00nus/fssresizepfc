@@ -678,6 +678,18 @@ function updateAll() {
       Xtotal: fmt(X_total_r),
       Bnorm: fmt(B_norm_r),
     });
+
+    // === MODELO FÍSICO: L & C EQUIVALENTE ===
+    const Z0 = 376.73;
+    const f_Hz = frFreq * 1e9;
+    const omega = 2 * Math.PI * f_Hz;
+
+    const L_total_nH = ((XL_r * Z0) / omega) * 1e9;
+    const C_total_pF = ((BC_r) / (omega * Z0)) * 1e12;
+
+    const setLCVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+    setLCVal("val_L_total", L_total_nH.toFixed(4));
+    setLCVal("val_C_total", C_total_pF.toFixed(4));
   }
 }
 
