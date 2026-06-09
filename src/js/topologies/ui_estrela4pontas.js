@@ -170,7 +170,8 @@ document.addEventListener("DOMContentLoaded", () => {
       { id: "er_real", name: "Constante Dielétrica (er)" }
     ],
     getCurrentState: getCurrentState,
-    calculateS21: calculateS21Estrela
+    calculateS21: calculateS21Estrela,
+    calculateLC: calculateLCEstrela
   });
 
   updateAll();
@@ -236,6 +237,39 @@ export function calculateS21Estrela(state) {
   }
 
   return curve;
+}
+
+function calculateLCEstrela(state) {
+  const { p, a, b, s, h_sub, er_real } = state;
+  const Z0 = 376.73;
+  const M_factor = 1.9;
+  const er_eff = er_real - (er_real - 1) * Math.exp(-(M_factor * 10 * h_sub) / p);
+  const f_analitico = 0.3 / (2 * (a / 1000) * Math.sqrt(er_eff)); // GHz
+
+  const pCm = mmToCm(p);
+  const lamb = 30 / f_analitico;
+  const omega = 2 * Math.PI * f_analitico * 1e9;
+
+  const gf1_cm = mmToCm(p - a);
+  const gf2_cm = mmToCm(p - b);
+  const gf3_cm = mmToCm(p - s);
+
+  const FL = FF(pCm, mmToCm(b), lamb, 0);
+  const FC1 = FF(pCm, gf1_cm, lamb, 0);
+  const FC2 = FF(pCm, gf2_cm, lamb, 0);
+  const FC3 = FF(pCm, gf3_cm, lamb, 0);
+
+  const XLf = ((1.5 * a) / p) * FL;
+  const BCgf = KL_AUTO * ((4 * b) / (1.5 * p)) * FC1;
+  const BCa1f = KL_AUTO * ((4 * (p - b)) / (1.5 * p)) * FC2;
+  const BCa2f = KL_AUTO * ((4 * (p - s)) / p) * FC3;
+  const BC1f = (BCa1f + BCgf) * er_eff;
+  const BC2f = 0.25 * (BCa2f + BCgf) * er_eff;
+
+  const L_nH = ((XLf * Z0) / omega) * 1e9;
+  const C_pF = ((BC1f + BC2f) / (omega * Z0)) * 1e12;
+
+  return { L_nH, C_pF };
 }
 
 function handleHFSSUpload(event) {

@@ -103,7 +103,8 @@ document.addEventListener("DOMContentLoaded", () => {
       { id: "er_real", name: "Constante Dielétrica (er)" }
     ],
     getCurrentState: getCurrentState,
-    calculateS21: calculateS21Espira
+    calculateS21: calculateS21Espira,
+    calculateLC: calculateLCEspira
   });
 
   // Executa uma atualização inicial quando a página carrega
@@ -158,6 +159,35 @@ export function calculateS21Espira(state) {
     curve.push({ f: freq, s21: s21 });
   }
   return curve;
+}
+
+function calculateLCEspira(state) {
+  let { p, d, w, h_sub, er_real } = state;
+  if (d >= p) d = p - 0.001;
+
+  const Z0 = 376.73;
+  const pCm = mmToCm(p);
+  const dCm = mmToCm(d);
+  const wCm = mmToCm(w);
+  const gCm = mmToCm(p - d);
+
+  const ratio = w / p;
+  let alpha = 16 - (ratio - 0.05) * ((16 - 12.5) / (0.25 - 0.05));
+  alpha = Math.max(12.5, Math.min(16, alpha));
+  const er_nova = 1 + ((er_real - 1) / 2) * (1 - Math.exp(-alpha * (h_sub / p)));
+
+  const f_analitico = 30 / (2 * dCm * Math.sqrt(er_nova)); // GHz
+  const lamb = 30 / f_analitico;
+  const omega = 2 * Math.PI * f_analitico * 1e9;
+
+  const XL = (dCm / pCm) * FF(pCm, 2 * wCm, lamb, 0);
+  const C_base = 4 * (dCm / pCm) * FF(pCm, gCm, lamb, 0);
+  const BC = er_nova * C_base;
+
+  const L_nH = ((XL * Z0) / omega) * 1e9;
+  const C_pF = (BC / (omega * Z0)) * 1e12;
+
+  return { L_nH, C_pF };
 }
 
 // ==========================================

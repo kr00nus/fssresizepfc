@@ -108,6 +108,7 @@ function createModal() {
              <select id="plotTypeSelect" style="padding:6px; border:1px solid #ccc; border-radius:4px;">
                <option value="fr">Frequência de Ressonância (GHz)</option>
                <option value="bw">Largura de Banda (-10 dB) (GHz)</option>
+               <option value="lc">Indutância (L) & Capacitância (C)</option>
              </select>
           </div>
           <div id="paramStatus" style="font-size:12px; color:#666; font-style:italic;">Pronto para simular.</div>
@@ -248,8 +249,19 @@ function buildFixedParams() {
   });
 }
 
-let lastResults = []; // [{paramVal, fr, bw}]
+let lastResults = []; // [{paramVal, fr, bw, L_nH, C_pF}]
 let lastParamName = "";
+
+/**
+ * Calcula L (nH) e C (pF) a partir do estado geométrico.
+ * Usa a frequência analítica derivada da geometria (independente do sweep).
+ */
+function calculateLC(simState) {
+  if (!currentConfig || !currentConfig.calculateLC) {
+    return { L_nH: null, C_pF: null };
+  }
+  return currentConfig.calculateLC(simState);
+}
 
 function runAnalysis() {
   const paramId = document.getElementById("paramSelect").value;
@@ -299,10 +311,16 @@ function runAnalysis() {
       
       // Extrair fr e bw
       const metrics = extractMetrics(curve);
+
+      // Calcular L e C
+      const lc = calculateLC(simState);
+
       lastResults.push({
         paramVal: val,
         fr: metrics.fr,
-        bw: metrics.bw
+        bw: metrics.bw,
+        L_nH: lc.L_nH,
+        C_pF: lc.C_pF
       });
     }
 
@@ -371,6 +389,83 @@ function renderChart() {
   }
 
   const xData = lastResults.map(r => r.paramVal);
+
+  // === MODO L & C: DUAL AXIS ===
+  if (plotType === 'lc') {
+    const yL = lastResults.map(r => r.L_nH);
+    const yC = lastResults.map(r => r.C_pF);
+
+    parametricChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: xData.map(v => v.toFixed(2)),
+        datasets: [
+          {
+            label: 'Indutância L (nH)',
+            data: yL,
+            borderColor: '#1976d2',
+            backgroundColor: '#1976d233',
+            borderWidth: 2.5,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            fill: false,
+            tension: 0.3,
+            yAxisID: 'yL'
+          },
+          {
+            label: 'Capacitância C (pF)',
+            data: yC,
+            borderColor: '#c62828',
+            backgroundColor: '#c6282833',
+            borderWidth: 2.5,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            fill: false,
+            tension: 0.3,
+            yAxisID: 'yC'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top' },
+          tooltip: {
+            callbacks: {
+              title: (items) => `${lastParamName}: ${items[0].label}`,
+              label: (item) => {
+                const unit = item.datasetIndex === 0 ? 'nH' : 'pF';
+                return `${item.dataset.label}: ${item.raw ? item.raw.toFixed(4) : 'N/A'} ${unit}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: { display: true, text: lastParamName, font: { weight: 'bold' } }
+          },
+          yL: {
+            type: 'linear',
+            position: 'left',
+            title: { display: true, text: 'Indutância L (nH)', font: { weight: 'bold' }, color: '#1976d2' },
+            ticks: { color: '#1976d2' },
+            grid: { drawOnChartArea: true }
+          },
+          yC: {
+            type: 'linear',
+            position: 'right',
+            title: { display: true, text: 'Capacitância C (pF)', font: { weight: 'bold' }, color: '#c62828' },
+            ticks: { color: '#c62828' },
+            grid: { drawOnChartArea: false }
+          }
+        }
+      }
+    });
+    return;
+  }
+
+  // === MODO PADRÃO: FR ou BW ===
   const yData = lastResults.map(r => plotType === 'fr' ? r.fr : r.bw);
 
   const label = plotType === 'fr' ? 'Frequência de Ressonância (GHz)' : 'Largura de Banda (-10 dB) (GHz)';
@@ -384,7 +479,7 @@ function renderChart() {
         label: label,
         data: yData,
         borderColor: color,
-        backgroundColor: color + '33', // com transparência
+        backgroundColor: color + '33',
         borderWidth: 2,
         pointRadius: 4,
         pointHoverRadius: 6,
@@ -406,18 +501,10 @@ function renderChart() {
       },
       scales: {
         x: {
-          title: {
-            display: true,
-            text: lastParamName,
-            font: { weight: 'bold' }
-          }
+          title: { display: true, text: lastParamName, font: { weight: 'bold' } }
         },
         y: {
-          title: {
-            display: true,
-            text: label,
-            font: { weight: 'bold' }
-          }
+          title: { display: true, text: label, font: { weight: 'bold' } }
         }
       }
     }
