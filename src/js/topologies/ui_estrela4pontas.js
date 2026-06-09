@@ -649,6 +649,7 @@ function updateAll() {
       BC2: fmt(BC2f_r),
       Zf: fmt(Zf_r),
       Yf: fmt(B_total_r),
+    });
   }
 
   // === MODELO FÍSICO: L & C EQUIVALENTE ===
