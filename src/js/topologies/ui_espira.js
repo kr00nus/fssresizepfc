@@ -678,19 +678,26 @@ function updateAll() {
       Xtotal: fmt(X_total_r),
       Bnorm: fmt(B_norm_r),
     });
-
-    // === MODELO FÍSICO: L & C EQUIVALENTE ===
-    const Z0 = 376.73;
-    const f_Hz = frFreq * 1e9;
-    const omega = 2 * Math.PI * f_Hz;
-
-    const L_total_nH = ((XL_r * Z0) / omega) * 1e9;
-    const C_total_pF = ((BC_r) / (omega * Z0)) * 1e12;
-
-    const setLCVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
-    setLCVal("val_L_total", L_total_nH.toFixed(4));
-    setLCVal("val_C_total", C_total_pF.toFixed(4));
   }
+
+  // === MODELO FÍSICO: L & C EQUIVALENTE ===
+  // Usa frequência analítica derivada da geometria para que L e C
+  // sejam constantes independentes da faixa de frequência (fStart/fEnd).
+  const f_analitico = 30 / (2 * dCm * Math.sqrt(er_nova)); // GHz
+  const Z0 = 376.73;
+  const lamb_lc = 30 / f_analitico;
+  const omega_lc = 2 * Math.PI * f_analitico * 1e9;
+
+  const XL_lc = (dCm / pCm) * FF(pCm, 2 * wCm, lamb_lc, 0);
+  const C_base_lc = 4 * (dCm / pCm) * FF(pCm, gCm, lamb_lc, 0);
+  const BC_lc = er_nova * C_base_lc;
+
+  const L_total_nH = ((XL_lc * Z0) / omega_lc) * 1e9;
+  const C_total_pF = ((BC_lc) / (omega_lc * Z0)) * 1e12;
+
+  const setLCVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+  setLCVal("val_L_total", L_total_nH.toFixed(4));
+  setLCVal("val_C_total", C_total_pF.toFixed(4));
 }
 
 // Função que atualiza o gráfico com os dados calculados

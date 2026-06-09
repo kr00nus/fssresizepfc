@@ -615,21 +615,34 @@ function updateAll() {
       BC2: fmt(BC2f_r),
       Zf: fmt(Zf_r),
       Yf: fmt(B_total_r),
-    });
-
-    // === MODELO FÍSICO: L & C EQUIVALENTE ===
-    const Z0 = 376.73;
-    const f_Hz = frFreq * 1e9;
-    const omega = 2 * Math.PI * f_Hz;
-
-    const L_total_nH = ((XLf_r * Z0) / omega) * 1e9;
-    const BC_total_lc = BC1f_r + BC2f_r;
-    const C_total_pF = ((BC_total_lc) / (omega * Z0)) * 1e12;
-
-    const setLCVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
-    setLCVal("val_L_total", L_total_nH.toFixed(4));
-    setLCVal("val_C_total", C_total_pF.toFixed(4));
   }
+
+  // === MODELO FÍSICO: L & C EQUIVALENTE ===
+  // Usa f_GHz_analitico (derivada da geometria) para que L e C
+  // sejam constantes independentes da faixa de frequência (fStart/fEnd).
+  const Z0 = 376.73;
+  const f_lc = f_GHz_analitico;
+  const lamb_lc = 30 / f_lc;
+  const omega_lc = 2 * Math.PI * f_lc * 1e9;
+
+  const FL_lc = FF(pCm, mmToCm(b), lamb_lc, 0);
+  const FC_gf1_lc = FF(pCm, gf1_cm, lamb_lc, 0);
+  const FC_gf2_lc = FF(pCm, gf2_cm, lamb_lc, 0);
+  const FC_gf3_lc = FF(pCm, gf3_cm, lamb_lc, 0);
+
+  const XLf_lc = ((1.5 * a) / p) * FL_lc;
+  const BCgf_lc = KL_AUTO * ((4 * b) / (1.5 * p)) * FC_gf1_lc;
+  const BCa1f_lc = KL_AUTO * ((4 * (p - b)) / (1.5 * p)) * FC_gf2_lc;
+  const BCa2f_lc = KL_AUTO * ((4 * (p - s)) / p) * FC_gf3_lc;
+  const BC1f_lc = (BCa1f_lc + BCgf_lc) * er_eff;
+  const BC2f_lc = 0.25 * (BCa2f_lc + BCgf_lc) * er_eff;
+
+  const L_total_nH = ((XLf_lc * Z0) / omega_lc) * 1e9;
+  const C_total_pF = (((BC1f_lc + BC2f_lc)) / (omega_lc * Z0)) * 1e12;
+
+  const setLCVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+  setLCVal("val_L_total", L_total_nH.toFixed(4));
+  setLCVal("val_C_total", C_total_pF.toFixed(4));
 }
 
 function updateChart(labels, data_modelo, hfssPlotData, f_GHz_analitico) {
