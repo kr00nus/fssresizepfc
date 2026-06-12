@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cálculo de L & C Equivalente - FSS Design Lab</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+
+    <style>
+      :root {
+        --primary-color: #1a365d;
+        --secondary-color: #2b6cb0;
+        --accent-color: #e2e8f0;
+        --text-color: #2d3748;
+        --bg-color: #f7fafc;
+        --border-color: #cbd5e0;
+        --green: #2e7d32;
+        --red: #c62828;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        font-family: "Georgia", "Times New Roman", serif;
+        line-height: 1.8;
+        color: var(--text-color);
+        background-color: var(--bg-color);
+        padding: 40px 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 60px;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        border-top: 8px solid var(--green);
+      }
+
+      h1 {
+        font-family: "Segoe UI", system-ui, sans-serif;
+        color: var(--primary-color);
+        font-size: 2.4em;
+        margin-bottom: 20px;
+        text-align: center;
+        border-bottom: 2px solid var(--accent-color);
+        padding-bottom: 15px;
+      }
+
+      h2 {
+        font-family: "Segoe UI", system-ui, sans-serif;
+        color: var(--primary-color);
+        font-size: 1.8em;
+        margin-top: 50px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 10px;
+      }
+
+      h3 {
+        font-family: "Segoe UI", system-ui, sans-serif;
+        color: var(--secondary-color);
+        font-size: 1.3em;
+        margin-top: 28px;
+        margin-bottom: 12px;
+      }
+
+      p { margin-bottom: 18px; font-size: 1.08em; text-align: justify; }
+
+      .math-box {
+        background-color: #f8fafc;
+        border-left: 4px solid var(--secondary-color);
+        padding: 22px 25px;
+        margin: 25px 0;
+        border-radius: 0 8px 8px 0;
+        overflow-x: auto;
+      }
+      .math-box p { margin-bottom: 8px; font-size: 1.02em; }
+
+      .math-box-green {
+        background-color: #f0fdf4;
+        border-left: 4px solid var(--green);
+        padding: 22px 25px;
+        margin: 25px 0;
+        border-radius: 0 8px 8px 0;
+        overflow-x: auto;
+      }
+      .math-box-green p { margin-bottom: 8px; font-size: 1.02em; }
+
+      .eq-label {
+        float: right;
+        color: #718096;
+        font-weight: bold;
+        font-family: "Segoe UI", sans-serif;
+      }
+
+      .tech-note {
+        background-color: #fffaf0;
+        border: 1px solid #feebc8;
+        border-left: 4px solid #dd6b20;
+        padding: 18px;
+        margin: 18px 0;
+        border-radius: 4px;
+        font-size: 0.95em;
+      }
+      .tech-note strong { color: #dd6b20; font-family: "Segoe UI", sans-serif; }
+
+      .info-note {
+        background-color: #ebf8ff;
+        border: 1px solid #bee3f8;
+        border-left: 4px solid #3182ce;
+        padding: 18px;
+        margin: 18px 0;
+        border-radius: 4px;
+        font-size: 0.95em;
+      }
+      .info-note strong { color: #2b6cb0; font-family: "Segoe UI", sans-serif; }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 25px 0;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        font-size: 0.95em;
+      }
+      th, td { border: 1px solid var(--border-color); padding: 12px 15px; text-align: left; }
+      th { background-color: var(--primary-color); color: white; font-weight: 600; }
+      tr:nth-child(even) { background-color: var(--bg-color); }
+
+      ul { margin-left: 30px; margin-bottom: 18px; }
+      li { margin-bottom: 8px; font-size: 1.05em; }
+
+      hr { border: none; border-top: 2px solid #e2e8f0; margin: 45px 0; }
+
+      .nav-btn {
+        display: inline-block;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 12px 25px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-family: "Segoe UI", sans-serif;
+        font-weight: bold;
+        margin-top: 40px;
+        transition: background-color 0.3s;
+      }
+      .nav-btn:hover { background-color: var(--secondary-color); }
+
+      .icon-margin { margin-right: 10px; }
+
+      .topo-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 50px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 10px;
+      }
+      .topo-header h2 { margin: 0; border: none; padding: 0; }
+      .topo-number {
+        background: var(--secondary-color);
+        color: white;
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-family: "Segoe UI", sans-serif;
+        font-weight: bold;
+        font-size: 1.1em;
+        flex-shrink: 0;
+      }
+
+      @media (max-width: 768px) {
+        .container { padding: 30px 20px; }
+        h1 { font-size: 1.8em; }
+        h2 { font-size: 1.5em; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>
+        <i class="fa-solid fa-microchip icon-margin"></i>Cálculo de Indutância (L) e Capacitância (C) Equivalente
+      </h1>
+      <p>
+        Este documento descreve, passo a passo, como o simulador extrai os valores físicos de
+        <strong>Indutância (L)</strong> e <strong>Capacitância (C)</strong> equivalentes para cada
+        topologia de Superfície Seletiva de Frequência (FSS). Estes valores são independentes da
+        frequência e dependem <strong>apenas da geometria</strong> e do substrato.
+      </p>
+
+      <!-- ============================================================ -->
+      <!-- FUNDAMENTO TEÓRICO COMUM -->
+      <!-- ============================================================ -->
+      <section>
+        <h2><i class="fa-solid fa-book icon-margin"></i>Fundamento Teórico Comum</h2>
+
+        <h3>Princípio</h3>
+        <p>
+          Uma FSS pode ser modelada por um <strong>Circuito Equivalente (ECM)</strong> composto por
+          elementos L e C. Na ressonância, a reatância indutiva iguala a susceptância capacitiva
+          (\(\omega^2 LC = 1\)). Os valores normalizados de reatância (\(X_L\)) e susceptância
+          (\(B_C\)) são adimensionais e variam com a frequência. Porém, os valores <strong>físicos</strong>
+          de L e C que os produzem são constantes geométricas.
+        </p>
+
+        <h3>Constantes Globais</h3>
+        <table>
+          <tr><th>Símbolo</th><th>Valor</th><th>Descrição</th></tr>
+          <tr><td>\(Z_0\)</td><td>376.73 Ω</td><td>Impedância do vácuo (espaço livre)</td></tr>
+          <tr><td>\(c\)</td><td>\(3 \times 10^{10}\) cm/s</td><td>Velocidade da luz</td></tr>
+        </table>
+
+        <h3>Função Núcleo: FF (Filter Function)</h3>
+        <p>
+          Todas as topologias utilizam a função <code>FF(p, w, λ, θ)</code> de Marcuvitz para calcular
+          reatâncias normalizadas de fitas metálicas periódicas:
+        </p>
+        <div class="math-box">
+          <span class="eq-label">(Eq. 0.1)</span>
+          <p>
+            \[ FF(p, w, \lambda, \theta) = \frac{p \cos\theta}{\lambda} \left[ \ln\!\left(\csc\frac{\pi w}{2p}\right) + GG(p, w, \lambda, \theta) \right] \]
+          </p>
+          <p>Onde <code>GG</code> é a função de correção de modos de ordem superior. Todos os parâmetros geométricos são em <strong>centímetros</strong>.</p>
+        </div>
+
+        <h3>Fórmulas de Conversão (L e C Físicos)</h3>
+        <p>A partir das reatâncias normalizadas, os valores físicos são extraídos com:</p>
+        <div class="math-box-green">
+          <span class="eq-label">(Eq. 0.2)</span>
+          <p>\[ L \ [\text{nH}] = \frac{X_L \cdot Z_0}{\omega} \times 10^9 \]</p>
+          <p>\[ C \ [\text{pF}] = \frac{B_C}{\omega \cdot Z_0} \times 10^{12} \]</p>
+          <p>Onde \(\omega = 2\pi f_{\text{analítico}} \times 10^9\) (rad/s).</p>
+        </div>
+
+        <div class="tech-note">
+          <i class="fa-solid fa-triangle-exclamation icon-margin"></i>
+          <strong>Importante:</strong> A frequência utilizada é a <strong>frequência analítica</strong>
+          (\(f_{\text{analítico}}\)), derivada exclusivamente da geometria, e <strong>não</strong> a
+          frequência numérica do mínimo da curva S21. Isso garante que L e C sejam invariantes à faixa
+          de varrimento de frequência.
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 1. ESPIRA QUADRADA -->
+      <!-- ============================================================ -->
+      <hr />
+      <section>
+        <div class="topo-header">
+          <div class="topo-number">1</div>
+          <h2>Espira Quadrada (Square Loop)</h2>
+        </div>
+
+        <h3>Parâmetros de Entrada</h3>
+        <table>
+          <tr><th>Símbolo</th><th>Descrição</th></tr>
+          <tr><td>\(p\)</td><td>Período da célula unitária (mm)</td></tr>
+          <tr><td>\(d\)</td><td>Lado externo da espira (mm)</td></tr>
+          <tr><td>\(w\)</td><td>Espessura da fita metálica (mm)</td></tr>
+          <tr><td>\(h_{sub}\)</td><td>Espessura do substrato (mm)</td></tr>
+          <tr><td>\(\varepsilon_r\)</td><td>Permissividade relativa do substrato</td></tr>
+        </table>
+
+        <h3>Passo 1 — Permissividade Efetiva (\(\varepsilon_{eff}\))</h3>
+        <p>Modelo exponencial de Costa com fator \(\alpha\) dinâmico baseado na razão \(w/p\):</p>
+        <div class="math-box">
+          <p>\[\text{ratio} = \frac{w}{p}\]</p>
+          <p>\[\alpha = 16 - \frac{(\text{ratio} - 0.05) \times (16 - 12.5)}{0.25 - 0.05} \quad \text{(limitado a } [12.5, 16]\text{)}\]</p>
+          <p>\[\varepsilon_{eff} = 1 + \frac{\varepsilon_r - 1}{2} \left(1 - e^{-\alpha \cdot h_{sub}/p}\right)\]</p>
+        </div>
+
+        <h3>Passo 2 — Frequência Analítica de Ressonância</h3>
+        <div class="math-box">
+          <span class="eq-label">(Eq. 1.1)</span>
+          <p>\[f_{\text{analítico}} = \frac{30}{2 \cdot d_{cm} \cdot \sqrt{\varepsilon_{eff}}} \quad [\text{GHz}]\]</p>
+          <p>Onde \(d_{cm} = d / 10\).</p>
+        </div>
+
+        <h3>Passo 3 — Reatâncias Normalizadas</h3>
+        <div class="math-box">
+          <p>\[X_L = \frac{d_{cm}}{p_{cm}} \cdot FF\!\left(p_{cm}, 2w_{cm}, \lambda, 0\right)\]</p>
+          <p>\[B_C = \varepsilon_{eff} \cdot 4 \cdot \frac{d_{cm}}{p_{cm}} \cdot FF\!\left(p_{cm}, g_{cm}, \lambda, 0\right)\]</p>
+          <p>Onde \(g_{cm} = (p - d) / 10\) é o gap em cm.</p>
+        </div>
+
+        <h3>Passo 4 — Valores Físicos</h3>
+        <div class="math-box-green">
+          <p>\[L \ [\text{nH}] = \frac{X_L \cdot 376.73}{\omega} \times 10^9\]</p>
+          <p>\[C \ [\text{pF}] = \frac{B_C}{\omega \cdot 376.73} \times 10^{12}\]</p>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 2. ESTRELA DE 4 PONTAS -->
+      <!-- ============================================================ -->
+      <hr />
+      <section>
+        <div class="topo-header">
+          <div class="topo-number">2</div>
+          <h2>Estrela de 4 Pontas (Tapered Star)</h2>
+        </div>
+
+        <h3>Parâmetros de Entrada</h3>
+        <table>
+          <tr><th>Símbolo</th><th>Descrição</th></tr>
+          <tr><td>\(p\)</td><td>Período da célula unitária (mm)</td></tr>
+          <tr><td>\(a\)</td><td>Comprimento total da haste (mm)</td></tr>
+          <tr><td>\(b\)</td><td>Espessura da haste / lado do quadrado da ponta (mm)</td></tr>
+          <tr><td>\(s\)</td><td>Dimensão do elemento central (mm)</td></tr>
+          <tr><td>\(h_{sub}\)</td><td>Espessura do substrato (mm)</td></tr>
+          <tr><td>\(\varepsilon_r\)</td><td>Permissividade relativa do substrato</td></tr>
+        </table>
+
+        <h3>Passo 1 — Permissividade Efetiva (\(\varepsilon_{eff}\))</h3>
+        <div class="math-box">
+          <p>\[\varepsilon_{eff} = \varepsilon_r - (\varepsilon_r - 1) \cdot e^{-M \cdot 10 \cdot h_{sub} / p}\]</p>
+          <p>Onde \(M = 1.9\) (fator empírico — Mamedes, 2024).</p>
+        </div>
+
+        <h3>Passo 2 — Frequência Analítica de Ressonância</h3>
+        <div class="math-box">
+          <span class="eq-label">(Eq. 2.1)</span>
+          <p>\[f_{\text{analítico}} = \frac{0.3}{2 \cdot (a / 1000) \cdot \sqrt{\varepsilon_{eff}}} \quad [\text{GHz}]\]</p>
+        </div>
+        <div class="info-note">
+          <i class="fa-solid fa-circle-info icon-margin"></i>
+          <strong>Nota:</strong> Aqui \(a\) é convertido diretamente de mm para metros (\(a/1000\)),
+          e a velocidade da luz aparece como \(0.3\) (em unidades de \(10^9\) m/s × GHz).
+        </div>
+
+        <h3>Passo 3 — Gaps Geométricos (em cm)</h3>
+        <div class="math-box">
+          <p>\[g_{f1} = \frac{p - a}{10}, \quad g_{f2} = \frac{p - b}{10}, \quad g_{f3} = \frac{p - s}{10}\]</p>
+        </div>
+
+        <h3>Passo 4 — Reatância Indutiva Normalizada</h3>
+        <div class="math-box">
+          <p>\[X_{Lf} = \frac{1.5 \cdot a}{p} \cdot FF\!\left(p_{cm}, b_{cm}, \lambda, 0\right)\]</p>
+        </div>
+
+        <h3>Passo 5 — Susceptâncias Capacitivas Normalizadas</h3>
+        <p>São calculadas com um fator de calibração \(K_L\) (determinado automaticamente para bater na ressonância de referência do livro):</p>
+        <div class="math-box">
+          <p>\[BC_{gf} = K_L \cdot \frac{4b}{1.5p} \cdot FF\!\left(p_{cm}, g_{f1}, \lambda, 0\right)\]</p>
+          <p>\[BC_{a1f} = K_L \cdot \frac{4(p - b)}{1.5p} \cdot FF\!\left(p_{cm}, g_{f2}, \lambda, 0\right)\]</p>
+          <p>\[BC_{a2f} = K_L \cdot \frac{4(p - s)}{p} \cdot FF\!\left(p_{cm}, g_{f3}, \lambda, 0\right)\]</p>
+        </div>
+        <p>As susceptâncias compostas (com \(\varepsilon_{eff}\)):</p>
+        <div class="math-box">
+          <p>\[BC_1 = (BC_{a1f} + BC_{gf}) \cdot \varepsilon_{eff}\]</p>
+          <p>\[BC_2 = 0.25 \cdot (BC_{a2f} + BC_{gf}) \cdot \varepsilon_{eff}\]</p>
+        </div>
+
+        <h3>Passo 6 — Valores Físicos</h3>
+        <div class="math-box-green">
+          <p>\[L \ [\text{nH}] = \frac{X_{Lf} \cdot Z_0}{\omega} \times 10^9\]</p>
+          <p>\[C \ [\text{pF}] = \frac{(BC_1 + BC_2)}{\omega \cdot Z_0} \times 10^{12}\]</p>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 3. ANEL QUASE QUADRADO -->
+      <!-- ============================================================ -->
+      <hr />
+      <section>
+        <div class="topo-header">
+          <div class="topo-number">3</div>
+          <h2>Anel Quase Quadrado (Quasi-Square Loop)</h2>
+        </div>
+
+        <h3>Parâmetros de Entrada</h3>
+        <table>
+          <tr><th>Símbolo</th><th>Descrição</th></tr>
+          <tr><td>\(p\)</td><td>Período da célula unitária (mm)</td></tr>
+          <tr><td>\(w\)</td><td>Espessura da fita metálica (mm)</td></tr>
+          <tr><td>\(g_1\)</td><td>Gap físico 1 (mm)</td></tr>
+          <tr><td>\(h_{sub}\)</td><td>Espessura do substrato (mm)</td></tr>
+          <tr><td>\(\varepsilon_r\)</td><td>Permissividade relativa do substrato</td></tr>
+        </table>
+        <p><strong>Derivado:</strong> \(g_2 = p - 2w\)</p>
+
+        <h3>Passo 1 — Permissividade Efetiva (\(\varepsilon_{eff}\))</h3>
+        <p>Modelo exponencial com \(M = 1.5\):</p>
+        <div class="math-box">
+          <p>\[c_{val} = \frac{10 \cdot h_{sub}}{p}, \quad z_{factor} = e^{c_{val}^{M}}\]</p>
+          <p>\[\varepsilon_{eff} = \varepsilon_r - \frac{\varepsilon_r - 1}{z_{factor}}\]</p>
+        </div>
+
+        <h3>Passo 2 — Frequência Analítica de Ressonância</h3>
+        <div class="math-box">
+          <span class="eq-label">(Eq. 3.1)</span>
+          <p>\[f_{\text{analítico}} = \frac{30}{2 \cdot p_{cm} \cdot \sqrt{\varepsilon_{eff}}} \quad [\text{GHz}]\]</p>
+        </div>
+
+        <h3>Passo 3 — Reatância Indutiva Normalizada</h3>
+        <div class="math-box">
+          <p>\[X_{Ls} = \frac{0.5 \cdot (p - w)}{p} \cdot FF\!\left(p_{cm}, w_{cm}, \lambda, 0\right)\]</p>
+        </div>
+
+        <h3>Passo 4 — Susceptâncias Capacitivas Normalizadas</h3>
+        <div class="math-box">
+          <p>\[BC_{sg1} = K_L \cdot \frac{4w}{p} \cdot FF\!\left(p_{cm}, g_{1\,cm}, \lambda, 0\right)\]</p>
+          <p>\[BC_{sg2} = K_L \cdot \frac{4(p - w)}{p} \cdot FF\!\left(p_{cm}, g_{2\,cm}, \lambda, 0\right)\]</p>
+        </div>
+        <p>As susceptâncias compostas (com \(\varepsilon_{eff}\)):</p>
+        <div class="math-box">
+          <p>\[BC_{1s} = 0.5 \cdot BC_{sg1} \cdot \varepsilon_{eff}\]</p>
+          <p>\[BC_{2s} = 0.25 \cdot (BC_{sg2} + BC_{sg1}) \cdot \varepsilon_{eff}\]</p>
+        </div>
+
+        <h3>Passo 5 — Valores Físicos</h3>
+        <div class="math-box-green">
+          <p>\[L \ [\text{nH}] = \frac{X_{Ls} \cdot Z_0}{\omega} \times 10^9\]</p>
+          <p>\[C \ [\text{pF}] = \frac{(BC_{1s} + BC_{2s})}{\omega \cdot Z_0} \times 10^{12}\]</p>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 4. CRUZ DE JERUSALÉM -->
+      <!-- ============================================================ -->
+      <hr />
+      <section>
+        <div class="topo-header">
+          <div class="topo-number">4</div>
+          <h2>Cruz de Jerusalém (Jerusalem Cross)</h2>
+        </div>
+
+        <h3>Parâmetros de Entrada</h3>
+        <table>
+          <tr><th>Símbolo</th><th>Descrição</th></tr>
+          <tr><td>\(p\)</td><td>Período da célula unitária (mm)</td></tr>
+          <tr><td>\(d\)</td><td>Tamanho do chapéu (comprimento total da cruz) (mm)</td></tr>
+          <tr><td>\(w\)</td><td>Largura da fita / braço interno (mm)</td></tr>
+          <tr><td>\(h\)</td><td>Espessura do chapéu (braço principal) (mm)</td></tr>
+          <tr><td>\(g\)</td><td>Gap entre cruzes (mm)</td></tr>
+          <tr><td>\(h_{sub}\)</td><td>Espessura do substrato (mm)</td></tr>
+          <tr><td>\(\varepsilon_r\)</td><td>Permissividade relativa do substrato</td></tr>
+        </table>
+
+        <h3>Passo 1 — Permissividade Efetiva (\(\varepsilon_{eff}\)) — Modelo Costa</h3>
+        <div class="math-box">
+          <p>\[\text{ratio}_{hp} = \frac{h_{sub}}{p}\]</p>
+          <p>\[\alpha = 22 - \frac{(\text{ratio}_{hp} - 0.05) \times (22 - 17)}{0.2 - 0.05} \quad \text{(limitado a } [17, 22]\text{)}\]</p>
+          <p>\[\varepsilon_{eff} = 1 + \frac{\varepsilon_r - 1}{2} \left(1 - e^{-\alpha \cdot h_{sub}/p}\right)\]</p>
+        </div>
+
+        <h3>Passo 2 — Frequência Analítica de Ressonância</h3>
+        <div class="math-box">
+          <span class="eq-label">(Eq. 4.1)</span>
+          <p>\[f_{\text{analítico}} = \frac{30}{2 \cdot d_{cm} \cdot \sqrt{\varepsilon_{eff}}} \quad [\text{GHz}]\]</p>
+        </div>
+
+        <h3>Passo 3 — Reatância Indutiva Normalizada</h3>
+        <p>A indutância do braço central:</p>
+        <div class="math-box">
+          <p>\[X_{L1} = FF\!\left(p_{cm}, w_{cm}, \lambda, 0\right)\]</p>
+        </div>
+
+        <h3>Passo 4 — Susceptância Capacitiva Total</h3>
+        <p>A Cruz de Jerusalém tem duas contribuições capacitivas: do <strong>gap</strong> e do <strong>chapéu</strong>:</p>
+        <div class="math-box">
+          <p>\[B_g = \frac{4 \cdot d_{cm}}{p_{cm}} \cdot FF\!\left(p_{cm}, g_{cm}, \lambda, 0\right)\]</p>
+          <p>\[B_d = \frac{4 \cdot (2h_{cm} + g_{cm})}{p_{cm}} \cdot FF\!\left(p_{cm}, (p_{cm} - d_{cm}), \lambda, 0\right)\]</p>
+          <p>\[C_{total\,base} = B_g + B_d\]</p>
+          <p>\[BC_1 = \varepsilon_{eff} \cdot C_{total\,base}\]</p>
+        </div>
+
+        <h3>Passo 5 — Valores Físicos</h3>
+        <div class="math-box-green">
+          <p>\[L \ [\text{nH}] = \frac{X_{L1} \cdot Z_0}{\omega} \times 10^9\]</p>
+          <p>\[C \ [\text{pF}] = \frac{BC_1}{\omega \cdot Z_0} \times 10^{12}\]</p>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 5. ANEL CIRCULAR -->
+      <!-- ============================================================ -->
+      <hr />
+      <section>
+        <div class="topo-header">
+          <div class="topo-number">5</div>
+          <h2>Anel Circular (Circular Ring)</h2>
+        </div>
+
+        <h3>Parâmetros de Entrada</h3>
+        <table>
+          <tr><th>Símbolo</th><th>Descrição</th></tr>
+          <tr><td>\(p\)</td><td>Período da célula unitária (mm)</td></tr>
+          <tr><td>\(r\)</td><td>Raio médio do anel (mm)</td></tr>
+          <tr><td>\(w\)</td><td>Espessura da fita metálica do anel (mm)</td></tr>
+          <tr><td>\(h_{sub}\)</td><td>Espessura do substrato (mm)</td></tr>
+          <tr><td>\(\varepsilon_r\)</td><td>Permissividade relativa do substrato</td></tr>
+        </table>
+
+        <h3>Passo 1 — Permissividade Efetiva (\(\varepsilon_{eff}\)) — Modelo Ana Luiza (2023)</h3>
+        <div class="math-box">
+          <p>\[c_{factor} = \frac{10 \cdot h_{sub}}{p}, \quad z_{factor} = e^{c_{factor}}\]</p>
+          <p>\[\varepsilon_{eff} = \varepsilon_r + (\varepsilon_r - 1) \cdot \left(\frac{-1}{z_{factor}^N}\right)\]</p>
+          <p>Onde \(N = 1.8\) é o fator de ajuste.</p>
+        </div>
+
+        <h3>Passo 2 — Dimensões Equivalentes</h3>
+        <p>O anel circular é mapeado para uma espira quadrada equivalente:</p>
+        <div class="math-box">
+          <p>\[d_{ext} = 2r + w \quad [\text{mm}]\]</p>
+          <p><strong>Gap projetado</strong> (projeção circular → retangular):</p>
+          <p>\[g_{1\,cm} = p_{cm} - \frac{\pi \cdot d_{ext\,cm}}{4}\]</p>
+          <p><strong>Lado equivalente</strong> (transformação do perímetro circular):</p>
+          <p>\[d_{eq\,cm} = \frac{\pi \cdot r_{cm}}{2}\]</p>
+        </div>
+
+        <h3>Passo 3 — Frequência Analítica de Ressonância</h3>
+        <div class="math-box">
+          <span class="eq-label">(Eq. 5.1)</span>
+          <p>\[f_{\text{analítico}} = \frac{30}{2 \cdot d_{eq\,cm} \cdot \sqrt{\varepsilon_{eff}}} \quad [\text{GHz}]\]</p>
+        </div>
+
+        <h3>Passo 4 — Reatâncias Normalizadas</h3>
+        <div class="math-box">
+          <p>\[X_L = \frac{d_{eq\,cm}}{p_{cm}} \cdot FF\!\left(p_{cm}, 2w_{cm}, \lambda, 0\right)\]</p>
+          <p>\[B_C = \varepsilon_{eff} \cdot 4 \cdot \frac{d_{eq\,cm}}{p_{cm}} \cdot FF\!\left(p_{cm}, g_{1\,cm}, \lambda, 0\right)\]</p>
+        </div>
+
+        <h3>Passo 5 — Valores Físicos</h3>
+        <div class="math-box-green">
+          <p>\[L \ [\text{nH}] = \frac{X_L \cdot Z_0}{\omega} \times 10^9\]</p>
+          <p>\[C \ [\text{pF}] = \frac{B_C}{\omega \cdot Z_0} \times 10^{12}\]</p>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- RESUMO COMPARATIVO -->
+      <!-- ============================================================ -->
+      <hr />
+      <section>
+        <h2><i class="fa-solid fa-table icon-margin"></i>Resumo Comparativo</h2>
+        <table>
+          <tr>
+            <th>Topologia</th>
+            <th>\(f_{\text{analítico}}\)</th>
+            <th>Modelo \(\varepsilon_{eff}\)</th>
+            <th>\(X_L\) usa</th>
+            <th>\(B_C\) usa</th>
+          </tr>
+          <tr>
+            <td><strong>Espira Quadrada</strong></td>
+            <td>\(\frac{30}{2 d_{cm} \sqrt{\varepsilon_{eff}}}\)</td>
+            <td>Costa (α por \(w/p\))</td>
+            <td>\(FF(p, 2w)\)</td>
+            <td>\(FF(p, g) \times \varepsilon_{eff}\)</td>
+          </tr>
+          <tr>
+            <td><strong>Estrela 4 Pontas</strong></td>
+            <td>\(\frac{0.3}{2 a_m \sqrt{\varepsilon_{eff}}}\)</td>
+            <td>Exponencial (\(M\!=\!1.9\))</td>
+            <td>\(FF(p, b)\)</td>
+            <td>\(K_L\) × 3 termos × \(\varepsilon_{eff}\)</td>
+          </tr>
+          <tr>
+            <td><strong>Quase Quadrado</strong></td>
+            <td>\(\frac{30}{2 p_{cm} \sqrt{\varepsilon_{eff}}}\)</td>
+            <td>Exp. c/ potência (\(M\!=\!1.5\))</td>
+            <td>\(FF(p, w)\)</td>
+            <td>\(K_L\) × 2 gaps × \(\varepsilon_{eff}\)</td>
+          </tr>
+          <tr>
+            <td><strong>Cruz Jerusalém</strong></td>
+            <td>\(\frac{30}{2 d_{cm} \sqrt{\varepsilon_{eff}}}\)</td>
+            <td>Costa (α por \(h_{sub}/p\))</td>
+            <td>\(FF(p, w)\)</td>
+            <td>\((B_g + B_d) \times \varepsilon_{eff}\)</td>
+          </tr>
+          <tr>
+            <td><strong>Anel Circular</strong></td>
+            <td>\(\frac{30}{2 d_{eq} \sqrt{\varepsilon_{eff}}}\)</td>
+            <td>Ana Luiza (\(N\!=\!1.8\))</td>
+            <td>\(FF(p, 2w)\)</td>
+            <td>\(FF(p, g_{proj}) \times \varepsilon_{eff}\)</td>
+          </tr>
+        </table>
+
+        <div class="info-note">
+          <i class="fa-solid fa-lightbulb icon-margin"></i>
+          <strong>Dica:</strong> Em todas as topologias, a fórmula final de conversão é <strong>idêntica</strong>:
+          divide-se a reatância normalizada por \(\omega\) e multiplica-se por \(Z_0\) (para L) ou divide-se
+          por \(\omega \cdot Z_0\) (para C). O que varia entre topologias é <strong>como as reatâncias normalizadas
+          são compostas</strong> a partir da geometria e <strong>qual frequência analítica</strong> é utilizada.
+        </div>
+      </section>
+
+      <a href="../../../index.html" class="nav-btn">
+        <i class="fa-solid fa-house icon-margin"></i> Voltar ao Dashboard Principal
+      </a>
+
+      <p style="margin-top: 50px; text-align: center; color: #a0aec0; font-size: 0.9em; border-top: 1px solid #edf2f7; padding-top: 20px;">
+        Memorial Técnico — Modelo Físico de Indutância e Capacitância Equivalente.<br />
+        FSS Design Lab — Simulador Educacional de Superfícies Seletivas de Frequência.
+      </p>
+    </div>
+  </body>
+</html>
