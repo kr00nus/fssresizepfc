@@ -260,7 +260,16 @@ function calculateLC(simState) {
   if (!currentConfig || !currentConfig.calculateLC) {
     return { L_nH: null, C_pF: null };
   }
-  return currentConfig.calculateLC(simState);
+  try {
+    const result = currentConfig.calculateLC(simState);
+    // Proteger contra NaN/Infinity
+    const L = (result && isFinite(result.L_nH)) ? result.L_nH : null;
+    const C = (result && isFinite(result.C_pF)) ? result.C_pF : null;
+    return { L_nH: L, C_pF: C };
+  } catch (e) {
+    console.warn('calculateLC error:', e.message);
+    return { L_nH: null, C_pF: null };
+  }
 }
 
 function runAnalysis() {
@@ -472,6 +481,10 @@ function renderChart() {
       if (r.L_nH != null && r.C_pF != null) return r.L_nH * r.C_pF;
       return null;
     });
+
+    console.log('[Parametric] FR mode - lastResults sample:', lastResults.slice(0, 3));
+    console.log('[Parametric] yLC values:', yLC);
+    console.log('[Parametric] yFr values:', yFr);
 
     parametricChart = new Chart(ctx, {
       type: 'line',
