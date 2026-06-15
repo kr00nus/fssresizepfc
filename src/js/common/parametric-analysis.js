@@ -482,10 +482,6 @@ function renderChart() {
       return null;
     });
 
-    console.log('[Parametric] FR mode - lastResults sample:', lastResults.slice(0, 3));
-    console.log('[Parametric] yLC values:', yLC);
-    console.log('[Parametric] yFr values:', yFr);
-
     parametricChart = new Chart(ctx, {
       type: 'line',
       data: {
@@ -499,7 +495,7 @@ function renderChart() {
             borderWidth: 2.5,
             pointRadius: 4,
             pointHoverRadius: 6,
-            fill: true,
+            fill: false,
             tension: 0.3,
             yAxisID: 'yFr'
           },
@@ -578,7 +574,7 @@ function renderChart() {
         borderWidth: 2,
         pointRadius: 4,
         pointHoverRadius: 6,
-        fill: true,
+        fill: false,
         tension: 0.3
       }]
     },
