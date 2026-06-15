@@ -465,11 +465,93 @@ function renderChart() {
     return;
   }
 
-  // === MODO PADRÃO: FR ou BW ===
-  const yData = lastResults.map(r => plotType === 'fr' ? r.fr : r.bw);
+  // === MODO FR: DUAL AXIS com L×C ===
+  if (plotType === 'fr') {
+    const yFr = lastResults.map(r => r.fr);
+    const yLC = lastResults.map(r => {
+      if (r.L_nH != null && r.C_pF != null) return r.L_nH * r.C_pF;
+      return null;
+    });
 
-  const label = plotType === 'fr' ? 'Frequência de Ressonância (GHz)' : 'Largura de Banda (-10 dB) (GHz)';
-  const color = plotType === 'fr' ? '#e53935' : '#1e88e5';
+    parametricChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: xData.map(v => v.toFixed(2)),
+        datasets: [
+          {
+            label: 'Freq. Ressonância (GHz)',
+            data: yFr,
+            borderColor: '#e53935',
+            backgroundColor: '#e5393533',
+            borderWidth: 2.5,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            fill: true,
+            tension: 0.3,
+            yAxisID: 'yFr'
+          },
+          {
+            label: 'Produto L×C (nH·pF)',
+            data: yLC,
+            borderColor: '#6a1b9a',
+            backgroundColor: '#6a1b9a33',
+            borderWidth: 2.5,
+            borderDash: [6, 3],
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointStyle: 'rectRot',
+            fill: false,
+            tension: 0.3,
+            yAxisID: 'yLC'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top' },
+          tooltip: {
+            callbacks: {
+              title: (items) => `${lastParamName}: ${items[0].label}`,
+              label: (item) => {
+                if (item.datasetIndex === 0) {
+                  return `fr: ${item.raw ? item.raw.toFixed(3) : 'N/A'} GHz`;
+                } else {
+                  return `L×C: ${item.raw ? item.raw.toFixed(4) : 'N/A'} nH·pF`;
+                }
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: { display: true, text: lastParamName, font: { weight: 'bold' } }
+          },
+          yFr: {
+            type: 'linear',
+            position: 'left',
+            title: { display: true, text: 'Freq. Ressonância (GHz)', font: { weight: 'bold' }, color: '#e53935' },
+            ticks: { color: '#e53935' },
+            grid: { drawOnChartArea: true }
+          },
+          yLC: {
+            type: 'linear',
+            position: 'right',
+            title: { display: true, text: 'Produto L×C (nH·pF)', font: { weight: 'bold' }, color: '#6a1b9a' },
+            ticks: { color: '#6a1b9a' },
+            grid: { drawOnChartArea: false }
+          }
+        }
+      }
+    });
+    return;
+  }
+
+  // === MODO BW ===
+  const yData = lastResults.map(r => r.bw);
+  const label = 'Largura de Banda (-10 dB) (GHz)';
+  const color = '#1e88e5';
 
   parametricChart = new Chart(ctx, {
     type: 'line',
