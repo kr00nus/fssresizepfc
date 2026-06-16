@@ -100,8 +100,9 @@ function createModal() {
           <div id="fixedParamsContainer" style="display:flex; gap:15px; flex-wrap:wrap;"></div>
         </div>
 
-        <div style="display:flex; gap:20px; align-items:center; margin-bottom:20px;">
+        <div style="display:flex; gap:20px; align-items:center; margin-bottom:20px; flex-wrap:wrap;">
           <button id="runParametricBtn" style="background:#1976d2; color:white; border:none; padding:10px 20px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:14px;">▶ Simular Curva</button>
+          <button id="exportParametricBtn" style="background:#2e7d32; color:white; border:none; padding:10px 20px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:14px; display:none;">📥 Exportar TXT</button>
           
           <div style="flex:1;">
              <label style="font-size:12px; font-weight:bold; margin-right:10px;">Eixo Y:</label>
@@ -129,6 +130,7 @@ function createModal() {
   };
 
   document.getElementById("runParametricBtn").onclick = runAnalysis;
+  document.getElementById("exportParametricBtn").onclick = exportParametricTXT;
   document.getElementById("plotTypeSelect").onchange = renderChart; // re-render on toggle
 }
 
@@ -335,6 +337,9 @@ function runAnalysis() {
 
     statusEl.textContent = "Concluído.";
     statusEl.style.color = "green";
+    // Mostra o botão de exportar após a simulação concluir
+    const exportBtn = document.getElementById("exportParametricBtn");
+    if (exportBtn) exportBtn.style.display = "inline-block";
     renderChart();
   }, 50);
 }
@@ -646,4 +651,54 @@ function renderChart() {
       }
     }
   });
+}
+
+// ==========================================
+// FUNÇÃO: exportParametricTXT()
+// Exporta os dados da análise paramétrica para um arquivo .txt
+// Formato: colunas separadas por tabulação, decimais com vírgula (padrão BR)
+// ==========================================
+function exportParametricTXT() {
+  if (!lastResults || lastResults.length === 0) {
+    alert("Nenhum dado para exportar. Execute a simulação primeiro.");
+    return;
+  }
+
+  const topologyName = currentConfig ? currentConfig.topologyName : "Topologia";
+  
+  // Formata número para padrão brasileiro (vírgula como separador decimal)
+  const fmtBR = (val, decimals = 4) => {
+    if (val === null || val === undefined || !isFinite(val)) return "N/A";
+    return val.toFixed(decimals).replace(".", ",");
+  };
+
+  // Cabeçalho do arquivo
+  let txt = "";
+  txt += `Análise Paramétrica - ${topologyName}\r\n`;
+  txt += `Parâmetro Varrido: ${lastParamName}\r\n`;
+  txt += `Data: ${new Date().toLocaleString("pt-BR")}\r\n`;
+  txt += `\r\n`;
+
+  // Cabeçalho das colunas
+  txt += `${lastParamName}\tfr (GHz)\tBW -10dB (GHz)\tL (nH)\tC (pF)\r\n`;
+
+  // Dados
+  for (const r of lastResults) {
+    const paramStr = fmtBR(r.paramVal, 3);
+    const frStr = fmtBR(r.fr, 4);
+    const bwStr = fmtBR(r.bw, 4);
+    const lStr = fmtBR(r.L_nH, 4);
+    const cStr = fmtBR(r.C_pF, 4);
+
+    txt += `${paramStr}\t${frStr}\t${bwStr}\t${lStr}\t${cStr}\r\n`;
+  }
+
+  // Cria e baixa o arquivo
+  const blob = new Blob(["\uFEFF" + txt], { type: "text/plain;charset=utf-8;" });
+  const link = document.createElement("a");
+  const safeName = topologyName.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase();
+  const safeParam = lastParamName.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase();
+  link.href = URL.createObjectURL(blob);
+  link.download = `analise_parametrica_${safeName}_${safeParam}.txt`;
+  link.click();
 }
