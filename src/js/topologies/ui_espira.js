@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ? 1 // Frequências: 1 casa decimal
           : idPrefix === "er" || idPrefix === "h_sub"
             ? 2 // Permissividade e altura: 2 casas
-            : 3; // Outras dimensões: 3 casas
+            : 1; // Outras dimensões: 1 casa
       // Copia o valor do slider para o campo numérico com as casas corretas
       num.value = parseFloat(e.target.value).toFixed(decimals);
       updateAll(); // Recalcula tudo

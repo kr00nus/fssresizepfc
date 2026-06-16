@@ -342,14 +342,53 @@ function runAnalysis() {
 function extractMetrics(curve) {
   if (!curve || curve.length === 0) return { fr: null, bw: null };
 
+  // === ENCONTRAR A PRIMEIRA RESSONÂNCIA (primeiro mínimo local) ===
+  // Topologias como a Cruz de Jerusalém possuem 2 frequências de ressonância.
+  // Precisamos considerar apenas a primeira para a análise paramétrica.
+  
   let minS21 = Infinity;
   let minF = null;
+  let minIdx = -1;
 
-  // Find resonant frequency (fr)
-  for (let pt of curve) {
-    if (pt.s21 < minS21) {
-      minS21 = pt.s21;
-      minF = pt.f;
+  // Estratégia: percorrer a curva e encontrar o primeiro mínimo local.
+  // Um mínimo local ocorre quando a curva para de descer e começa a subir.
+  // Usamos uma tolerância para evitar falsos mínimos por ruído numérico.
+  const NOISE_TOLERANCE = 0.5; // dB - ignora oscilações menores que isso
+
+  for (let i = 1; i < curve.length - 1; i++) {
+    if (curve[i].s21 <= curve[i - 1].s21 && curve[i].s21 <= curve[i + 1].s21) {
+      // Ponto i é um candidato a mínimo local.
+      // Verificar se é um mínimo significativo: a curva deve subir pelo menos
+      // NOISE_TOLERANCE dB depois deste ponto para confirmar que é um mínimo real.
+      let confirmed = false;
+      for (let j = i + 1; j < curve.length; j++) {
+        if (curve[j].s21 > curve[i].s21 + NOISE_TOLERANCE) {
+          confirmed = true;
+          break;
+        }
+        // Se continua descendo significativamente, este não era o mínimo real
+        if (curve[j].s21 < curve[i].s21 - NOISE_TOLERANCE) {
+          break;
+        }
+      }
+      
+      if (confirmed && curve[i].s21 < minS21) {
+        minS21 = curve[i].s21;
+        minF = curve[i].f;
+        minIdx = i;
+        break; // Primeira ressonância encontrada — parar aqui
+      }
+    }
+  }
+
+  // Fallback: se nenhum mínimo local confirmado foi encontrado, usar o mínimo global
+  if (minF === null) {
+    for (let i = 0; i < curve.length; i++) {
+      if (curve[i].s21 < minS21) {
+        minS21 = curve[i].s21;
+        minF = curve[i].f;
+        minIdx = i;
+      }
     }
   }
 
@@ -358,20 +397,27 @@ function extractMetrics(curve) {
     return { fr: minF, bw: 0 };
   }
 
-  // Find Bandwidth at -10dB
+  // === BANDWIDTH: considerar apenas ao redor da primeira ressonância ===
+  // Encontra os cruzamentos de -10dB mais próximos do primeiro mínimo
   let fLow = null;
   let fHigh = null;
 
-  for (let i = 0; i < curve.length - 1; i++) {
+  // Busca fLow: cruzamento descendo ANTES do mínimo
+  for (let i = 0; i < minIdx; i++) {
     const p1 = curve[i];
-    const p2 = curve[i+1];
+    const p2 = curve[i + 1];
     if (p1.s21 >= -10 && p2.s21 <= -10) {
-      // Cruzamento descendo
       fLow = interpolate(p1.f, p1.s21, p2.f, p2.s21, -10);
     }
+  }
+
+  // Busca fHigh: primeiro cruzamento subindo DEPOIS do mínimo
+  for (let i = minIdx; i < curve.length - 1; i++) {
+    const p1 = curve[i];
+    const p2 = curve[i + 1];
     if (p1.s21 <= -10 && p2.s21 >= -10) {
-      // Cruzamento subindo
       fHigh = interpolate(p1.f, p1.s21, p2.f, p2.s21, -10);
+      break; // Pegar apenas o primeiro cruzamento subindo após o mínimo
     }
   }
 

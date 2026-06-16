@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ? 1
         : ["er", "h_sub"].includes(idPrefix)
           ? 2
-          : 3;
+          : 1;
       // Converte o valor do slider para número e formata com as casas decimais corretas
       num.value = parseFloat(e.target.value).toFixed(decimals);
       // Recalcula e atualiza todos os gráficos

@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ? 1
         : ["er", "h_sub"].includes(idPrefix)
           ? 2
-          : 3;
+          : 1;
       num.value = parseFloat(e.target.value).toFixed(decimals);
       handleGeometry(idPrefix);
       updateAll();
