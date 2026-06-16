@@ -102,7 +102,7 @@ function createModal() {
 
         <div style="display:flex; gap:20px; align-items:center; margin-bottom:20px; flex-wrap:wrap;">
           <button id="runParametricBtn" style="background:#1976d2; color:white; border:none; padding:10px 20px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:14px;">▶ Simular Curva</button>
-          <button id="exportParametricBtn" style="background:#2e7d32; color:white; border:none; padding:10px 20px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:14px; display:none;">📥 Exportar TXT</button>
+          <button id="exportParametricBtn" style="background:#2e7d32; color:white; border:none; padding:10px 20px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:14px; display:none;">📥 Exportar CSV</button>
           
           <div style="flex:1;">
              <label style="font-size:12px; font-weight:bold; margin-right:10px;">Eixo Y:</label>
@@ -130,7 +130,7 @@ function createModal() {
   };
 
   document.getElementById("runParametricBtn").onclick = runAnalysis;
-  document.getElementById("exportParametricBtn").onclick = exportParametricTXT;
+  document.getElementById("exportParametricBtn").onclick = exportParametricCSV;
   document.getElementById("plotTypeSelect").onchange = renderChart; // re-render on toggle
 }
 
@@ -654,51 +654,128 @@ function renderChart() {
 }
 
 // ==========================================
-// FUNÇÃO: exportParametricTXT()
-// Exporta os dados da análise paramétrica para um arquivo .txt
-// Formato: colunas separadas por tabulação, decimais com vírgula (padrão BR)
+// FUNÇÃO: exportParametricCSV()
+// Exporta os dados da análise paramétrica em 2 arquivos CSV separados:
+//   (a) Frequência de Ressonância + Produto L×C
+//   (b) Indutância L + Capacitância C
+// Formato: separador de colunas = ponto-e-vírgula (;)
+//          separador decimal = vírgula (,) — padrão BR para Excel
 // ==========================================
-function exportParametricTXT() {
+function exportParametricCSV() {
   if (!lastResults || lastResults.length === 0) {
     alert("Nenhum dado para exportar. Execute a simulação primeiro.");
     return;
   }
 
   const topologyName = currentConfig ? currentConfig.topologyName : "Topologia";
-  
+  const safeName = topologyName.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase();
+  const safeParam = lastParamName.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase();
+
   // Formata número para padrão brasileiro (vírgula como separador decimal)
   const fmtBR = (val, decimals = 4) => {
     if (val === null || val === undefined || !isFinite(val)) return "N/A";
     return val.toFixed(decimals).replace(".", ",");
   };
 
-  // Cabeçalho do arquivo
-  let txt = "";
-  txt += `Análise Paramétrica - ${topologyName}\r\n`;
-  txt += `Parâmetro Varrido: ${lastParamName}\r\n`;
-  txt += `Data: ${new Date().toLocaleString("pt-BR")}\r\n`;
-  txt += `\r\n`;
+  // ==============================
+  // CSV (a) — Frequência e L×C
+  // ==============================
+  let csvA = "\uFEFF"; // BOM UTF-8
+  csvA += `${lastParamName};fr (GHz);L x C (nH.pF)\r\n`;
 
-  // Cabeçalho das colunas
-  txt += `${lastParamName}\tfr (GHz)\tBW -10dB (GHz)\tL (nH)\tC (pF)\r\n`;
-
-  // Dados
   for (const r of lastResults) {
     const paramStr = fmtBR(r.paramVal, 3);
     const frStr = fmtBR(r.fr, 4);
-    const bwStr = fmtBR(r.bw, 4);
-    const lStr = fmtBR(r.L_nH, 4);
-    const cStr = fmtBR(r.C_pF, 4);
-
-    txt += `${paramStr}\t${frStr}\t${bwStr}\t${lStr}\t${cStr}\r\n`;
+    let lcProduct = "N/A";
+    if (r.L_nH != null && r.C_pF != null && isFinite(r.L_nH) && isFinite(r.C_pF)) {
+      lcProduct = fmtBR(r.L_nH * r.C_pF, 4);
+    }
+    csvA += `${paramStr};${frStr};${lcProduct}\r\n`;
   }
 
-  // Cria e baixa o arquivo
-  const blob = new Blob(["\uFEFF" + txt], { type: "text/plain;charset=utf-8;" });
-  const link = document.createElement("a");
-  const safeName = topologyName.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase();
-  const safeParam = lastParamName.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase();
-  link.href = URL.createObjectURL(blob);
-  link.download = `analise_parametrica_${safeName}_${safeParam}.txt`;
-  link.click();
+  // ==============================
+  // CSV (b) — Indutância L e Capacitância C
+  // ==============================
+  let csvB = "\uFEFF"; // BOM UTF-8
+  csvB += `${lastParamName};L (nH);C (pF)\r\n`;
+
+  for (const r of lastResults) {
+    const paramStr = fmtBR(r.paramVal, 3);
+    const lStr = fmtBR(r.L_nH, 4);
+    const cStr = fmtBR(r.C_pF, 4);
+  const defaultBaseName = `parametrica_${safeName}_${safeParam}`;
+  const defaultNameA = `${defaultBaseName}_fr_LxC.csv`;
+  const defaultNameB = `${defaultBaseName}_L_C.csv`;
+
+  // ==============================
+  // Modal de Exportação Bonito
+  // ==============================
+  const exportModalOverlay = document.createElement("div");
+  exportModalOverlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:10000; display:flex; align-items:center; justify-content:center;";
+  
+  exportModalOverlay.innerHTML = `
+    <div style="background:white; padding:25px; border-radius:8px; width:100%; max-width:450px; box-shadow:0 4px 20px rgba(0,0,0,0.3); font-family:Arial,sans-serif;">
+      <h3 style="margin-top:0; color:#333; border-bottom:1px solid #eee; padding-bottom:10px;">Exportar Dados CSV</h3>
+      <p style="font-size:14px; color:#555; margin-bottom:20px;">Defina os nomes dos arquivos que serão gerados:</p>
+      
+      <div style="margin-bottom:15px;">
+        <label style="display:block; font-size:12px; font-weight:bold; margin-bottom:5px; color:#1976d2;">Arquivo (a) - Frequência e L×C:</label>
+        <input type="text" id="csvFilenameA" value="${defaultNameA}" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box; font-size:13px;">
+      </div>
+      
+      <div style="margin-bottom:25px;">
+        <label style="display:block; font-size:12px; font-weight:bold; margin-bottom:5px; color:#1976d2;">Arquivo (b) - Indutância e Capacitância:</label>
+        <input type="text" id="csvFilenameB" value="${defaultNameB}" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box; font-size:13px;">
+      </div>
+      
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button id="cancelExportBtn" style="padding:10px 15px; border:1px solid #ccc; background:#f9f9f9; color:#333; border-radius:4px; cursor:pointer; font-weight:bold; transition: background 0.2s;">Cancelar</button>
+        <button id="confirmExportBtn" style="padding:10px 15px; border:none; background:#2e7d32; color:white; border-radius:4px; cursor:pointer; font-weight:bold; transition: background 0.2s;">📥 Baixar Arquivos</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(exportModalOverlay);
+
+  // Efeitos hover simples pros botões
+  const cancelBtn = document.getElementById("cancelExportBtn");
+  const confirmBtn = document.getElementById("confirmExportBtn");
+  
+  cancelBtn.onmouseover = () => cancelBtn.style.background = "#ececec";
+  cancelBtn.onmouseout = () => cancelBtn.style.background = "#f9f9f9";
+  
+  confirmBtn.onmouseover = () => confirmBtn.style.background = "#1b5e20";
+  confirmBtn.onmouseout = () => confirmBtn.style.background = "#2e7d32";
+
+  // Função interna para download real
+  function downloadCSV(content, filename) {
+    const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+  }
+
+  // Ações dos botões
+  cancelBtn.onclick = () => {
+    document.body.removeChild(exportModalOverlay);
+  };
+
+  confirmBtn.onclick = () => {
+    const filenameA = document.getElementById("csvFilenameA").value.trim() || defaultNameA;
+    const filenameB = document.getElementById("csvFilenameB").value.trim() || defaultNameB;
+    
+    // Garante a extensão .csv
+    const finalA = filenameA.toLowerCase().endsWith(".csv") ? filenameA : filenameA + ".csv";
+    const finalB = filenameB.toLowerCase().endsWith(".csv") ? filenameB : filenameB + ".csv";
+
+    // Inicia downloads
+    downloadCSV(csvA, finalA);
+
+    setTimeout(() => {
+      downloadCSV(csvB, finalB);
+    }, 300);
+
+    document.body.removeChild(exportModalOverlay);
+  };
 }
