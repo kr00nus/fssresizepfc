@@ -703,6 +703,9 @@ function exportParametricCSV() {
     const paramStr = fmtBR(r.paramVal, 3);
     const lStr = fmtBR(r.L_nH, 4);
     const cStr = fmtBR(r.C_pF, 4);
+    csvB += `${paramStr};${lStr};${cStr}\r\n`;
+  }
+
   const defaultBaseName = `parametrica_${safeName}_${safeParam}`;
   const defaultNameA = `${defaultBaseName}_fr_LxC.csv`;
   const defaultNameB = `${defaultBaseName}_L_C.csv`;
