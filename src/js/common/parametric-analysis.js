@@ -256,14 +256,15 @@ let lastParamName = "";
 
 /**
  * Calcula L (nH) e C (pF) a partir do estado geométrico.
- * Usa a frequência analítica derivada da geometria (independente do sweep).
+ * Usa a fr real da curva S21 para desnormalizar XL e BC.
+ * Se fr não for fornecido, a função da topologia encontra internamente.
  */
-function calculateLC(simState) {
+function calculateLC(simState, fr) {
   if (!currentConfig || !currentConfig.calculateLC) {
     return { L_nH: null, C_pF: null };
   }
   try {
-    const result = currentConfig.calculateLC(simState);
+    const result = currentConfig.calculateLC(simState, fr);
     // Proteger contra NaN/Infinity
     const L = (result && isFinite(result.L_nH)) ? result.L_nH : null;
     const C = (result && isFinite(result.C_pF)) ? result.C_pF : null;
@@ -323,8 +324,8 @@ function runAnalysis() {
       // Extrair fr e bw
       const metrics = extractMetrics(curve);
 
-      // Calcular L e C
-      const lc = calculateLC(simState);
+      // Calcular L e C usando a fr real da curva
+      const lc = calculateLC(simState, metrics.fr);
 
       lastResults.push({
         paramVal: val,

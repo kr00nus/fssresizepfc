@@ -228,7 +228,7 @@ export function calculateS21QuaseQuadrado(state) {
   return curve;
 }
 
-function calculateLCQuaseQuadrado(state) {
+function calculateLCQuaseQuadrado(state, fr) {
   let { p, w, g1, h_sub, er_real } = state;
   const g2 = p - 2 * w;
 
@@ -238,16 +238,23 @@ function calculateLCQuaseQuadrado(state) {
   const er_eff = er_real - (er_real - 1) / z_factor;
 
   const pCm = mmToCm(p);
-  // Frequência analítica baseada no comprimento médio do anel, que se aproxima de p.
-  const f_analitico = 30 / (2 * pCm * Math.sqrt(er_eff)); // GHz
-
   const w_cm = mmToCm(w);
   const g1_cm = mmToCm(g1);
   const g2_cm = mmToCm(g2);
 
+  // Se fr não foi fornecido, encontrar a fr da curva S21
+  if (!fr || !isFinite(fr)) {
+    const curve = calculateS21QuaseQuadrado(state);
+    let minS21 = 0;
+    for (const pt of curve) {
+      if (pt.s21 < minS21) { minS21 = pt.s21; fr = pt.f; }
+    }
+    if (!fr) fr = 30 / (2 * pCm * Math.sqrt(er_eff)); // fallback
+  }
+
   const Z0 = 376.73;
-  const lamb = 30 / f_analitico;
-  const omega = 2 * Math.PI * f_analitico * 1e9;
+  const lamb = 30 / fr;
+  const omega = 2 * Math.PI * fr * 1e9;
 
   const FL = FF(pCm, w_cm, lamb, 0);
   const FC_g1 = FF(pCm, g1_cm, lamb, 0);
@@ -618,28 +625,31 @@ function updateAll() {
   }
 
   // === MODELO FÍSICO: L & C EQUIVALENTE ===
-  const f_analitico = 30 / (2 * pCm * Math.sqrt(er_eff)); // GHz
-  const Z0 = 376.73;
-  const lamb_lc = 30 / f_analitico;
-  const omega_lc = 2 * Math.PI * f_analitico * 1e9;
+  // Usa a fr REAL do gráfico (mínimo da curva S21) para desnormalizar
+  // XL e BC em L (nH) e C (pF). Assim fr = 1/(2π√LC) é sempre consistente.
+  if (!isNaN(frFreq) && frFreq > 0) {
+    const Z0 = 376.73;
+    const lamb_lc = 30 / frFreq;
+    const omega_lc = 2 * Math.PI * frFreq * 1e9;
 
-  const FL_lc = FF(pCm, w_cm, lamb_lc, 0);
-  const FC_g1_lc = FF(pCm, g1_cm, lamb_lc, 0);
-  const FC_g2_lc = FF(pCm, g2_cm, lamb_lc, 0);
+    const FL_lc = FF(pCm, w_cm, lamb_lc, 0);
+    const FC_g1_lc = FF(pCm, g1_cm, lamb_lc, 0);
+    const FC_g2_lc = FF(pCm, g2_cm, lamb_lc, 0);
 
-  const XLs_lc = ((0.5 * (p - w)) / p) * FL_lc;
-  const BCsg1_lc = KL_AUTO * ((4 * w) / p) * FC_g1_lc;
-  const BCsg2_lc = KL_AUTO * ((4 * (p - w)) / p) * FC_g2_lc;
+    const XLs_lc = ((0.5 * (p - w)) / p) * FL_lc;
+    const BCsg1_lc = KL_AUTO * ((4 * w) / p) * FC_g1_lc;
+    const BCsg2_lc = KL_AUTO * ((4 * (p - w)) / p) * FC_g2_lc;
 
-  const BC1s_lc = 0.5 * BCsg1_lc * er_eff;
-  const BC2s_lc = 0.25 * (BCsg2_lc + BCsg1_lc) * er_eff;
+    const BC1s_lc = 0.5 * BCsg1_lc * er_eff;
+    const BC2s_lc = 0.25 * (BCsg2_lc + BCsg1_lc) * er_eff;
 
-  const L_total_nH = ((XLs_lc * Z0) / omega_lc) * 1e9;
-  const C_total_pF = ((BC1s_lc + BC2s_lc) / (omega_lc * Z0)) * 1e12;
+    const L_total_nH = ((XLs_lc * Z0) / omega_lc) * 1e9;
+    const C_total_pF = ((BC1s_lc + BC2s_lc) / (omega_lc * Z0)) * 1e12;
 
-  const setLCVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
-  setLCVal("val_L_total", L_total_nH.toFixed(4));
-  setLCVal("val_C_total", C_total_pF.toFixed(4));
+    const setLCVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+    setLCVal("val_L_total", L_total_nH.toFixed(4));
+    setLCVal("val_C_total", C_total_pF.toFixed(4));
+  }
 }
 
 function updateChart(labels, data_modelo, hfssPlotData) {

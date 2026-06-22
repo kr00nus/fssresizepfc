@@ -161,7 +161,7 @@ export function calculateS21Espira(state) {
   return curve;
 }
 
-function calculateLCEspira(state) {
+function calculateLCEspira(state, fr) {
   let { p, d, w, h_sub, er_real } = state;
   if (d >= p) d = p - 0.001;
 
@@ -176,9 +176,18 @@ function calculateLCEspira(state) {
   alpha = Math.max(12.5, Math.min(16, alpha));
   const er_nova = 1 + ((er_real - 1) / 2) * (1 - Math.exp(-alpha * (h_sub / p)));
 
-  const f_analitico = 30 / (2 * dCm * Math.sqrt(er_nova)); // GHz
-  const lamb = 30 / f_analitico;
-  const omega = 2 * Math.PI * f_analitico * 1e9;
+  // Se fr não foi fornecido, encontrar a fr da curva S21
+  if (!fr || !isFinite(fr)) {
+    const curve = calculateS21Espira(state);
+    let minS21 = 0;
+    for (const pt of curve) {
+      if (pt.s21 < minS21) { minS21 = pt.s21; fr = pt.f; }
+    }
+    if (!fr) fr = 30 / (2 * dCm * Math.sqrt(er_nova)); // fallback
+  }
+
+  const lamb = 30 / fr;
+  const omega = 2 * Math.PI * fr * 1e9;
 
   const XL = (dCm / pCm) * FF(pCm, 2 * wCm, lamb, 0);
   const C_base = 4 * (dCm / pCm) * FF(pCm, gCm, lamb, 0);
@@ -711,23 +720,24 @@ function updateAll() {
   }
 
   // === MODELO FÍSICO: L & C EQUIVALENTE ===
-  // Usa frequência analítica derivada da geometria para que L e C
-  // sejam constantes independentes da faixa de frequência (fStart/fEnd).
-  const f_analitico = 30 / (2 * dCm * Math.sqrt(er_nova)); // GHz
-  const Z0 = 376.73;
-  const lamb_lc = 30 / f_analitico;
-  const omega_lc = 2 * Math.PI * f_analitico * 1e9;
+  // Usa a fr REAL do gráfico (mínimo da curva S21) para desnormalizar
+  // XL e BC em L (nH) e C (pF). Assim fr = 1/(2π√LC) é sempre consistente.
+  if (!isNaN(frFreq) && frFreq > 0) {
+    const Z0 = 376.73;
+    const lamb_lc = 30 / frFreq;
+    const omega_lc = 2 * Math.PI * frFreq * 1e9;
 
-  const XL_lc = (dCm / pCm) * FF(pCm, 2 * wCm, lamb_lc, 0);
-  const C_base_lc = 4 * (dCm / pCm) * FF(pCm, gCm, lamb_lc, 0);
-  const BC_lc = er_nova * C_base_lc;
+    const XL_lc = (dCm / pCm) * FF(pCm, 2 * wCm, lamb_lc, 0);
+    const C_base_lc = 4 * (dCm / pCm) * FF(pCm, gCm, lamb_lc, 0);
+    const BC_lc = er_nova * C_base_lc;
 
-  const L_total_nH = ((XL_lc * Z0) / omega_lc) * 1e9;
-  const C_total_pF = ((BC_lc) / (omega_lc * Z0)) * 1e12;
+    const L_total_nH = ((XL_lc * Z0) / omega_lc) * 1e9;
+    const C_total_pF = ((BC_lc) / (omega_lc * Z0)) * 1e12;
 
-  const setLCVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
-  setLCVal("val_L_total", L_total_nH.toFixed(4));
-  setLCVal("val_C_total", C_total_pF.toFixed(4));
+    const setLCVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+    setLCVal("val_L_total", L_total_nH.toFixed(4));
+    setLCVal("val_C_total", C_total_pF.toFixed(4));
+  }
 }
 
 // Função que atualiza o gráfico com os dados calculados

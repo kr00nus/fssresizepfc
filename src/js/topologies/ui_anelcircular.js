@@ -221,7 +221,7 @@ export function calculateS21AnelCircular(state) {
   return curve;
 }
 
-function calculateLCAnelCircular(state) {
+function calculateLCAnelCircular(state, fr) {
   let { p, r, w, h_sub, er_real } = state;
   const d_ext = 2 * r + w;
   if (d_ext >= p) {
@@ -239,11 +239,19 @@ function calculateLCAnelCircular(state) {
   const g1_cm = pCm - (Math.PI * d_ext_cm) / 4;
   const d_eq_cm = (Math.PI * mmToCm(r)) / 2;
 
-  // Frequência analítica baseada no diâmetro equivalente
-  const f_analitico = 30 / (2 * d_eq_cm * Math.sqrt(er_eff)); // GHz
+  // Se fr não foi fornecido, encontrar a fr da curva S21
+  if (!fr || !isFinite(fr)) {
+    const curve = calculateS21AnelCircular(state);
+    let minS21 = 0;
+    for (const pt of curve) {
+      if (pt.s21 < minS21) { minS21 = pt.s21; fr = pt.f; }
+    }
+    if (!fr) fr = 30 / (2 * d_eq_cm * Math.sqrt(er_eff)); // fallback
+  }
+
   const Z0 = 376.73;
-  const lamb = 30 / f_analitico;
-  const omega = 2 * Math.PI * f_analitico * 1e9;
+  const lamb = 30 / fr;
+  const omega = 2 * Math.PI * fr * 1e9;
 
   const F_L = FF(pCm, 2 * wCm, lamb, 0);
   const F_C = FF(pCm, g1_cm, lamb, 0);
@@ -667,24 +675,27 @@ function updateAll() {
   }
 
   // === MODELO FÍSICO: L & C EQUIVALENTE ===
-  const f_analitico = 30 / (2 * d_eq_cm * Math.sqrt(er_eff)); // GHz
-  const Z0 = 376.73;
-  const lamb_lc = 30 / f_analitico;
-  const omega_lc = 2 * Math.PI * f_analitico * 1e9;
+  // Usa a fr REAL do gráfico (mínimo da curva S21) para desnormalizar
+  // XL e BC em L (nH) e C (pF). Assim fr = 1/(2π√LC) é sempre consistente.
+  if (!isNaN(frFreq) && frFreq > 0) {
+    const Z0 = 376.73;
+    const lamb_lc = 30 / frFreq;
+    const omega_lc = 2 * Math.PI * frFreq * 1e9;
 
-  const F_L_lc = FF(pCm, 2 * wCm, lamb_lc, 0);
-  const F_C_lc = FF(pCm, g1_cm, lamb_lc, 0);
+    const F_L_lc = FF(pCm, 2 * wCm, lamb_lc, 0);
+    const F_C_lc = FF(pCm, g1_cm, lamb_lc, 0);
 
-  const XL_lc = (d_eq_cm / pCm) * F_L_lc;
-  const C_base_lc = 4 * (d_eq_cm / pCm) * F_C_lc;
-  const BC_lc = er_eff * C_base_lc;
+    const XL_lc = (d_eq_cm / pCm) * F_L_lc;
+    const C_base_lc = 4 * (d_eq_cm / pCm) * F_C_lc;
+    const BC_lc = er_eff * C_base_lc;
 
-  const L_total_nH = ((XL_lc * Z0) / omega_lc) * 1e9;
-  const C_total_pF = ((BC_lc) / (omega_lc * Z0)) * 1e12;
+    const L_total_nH = ((XL_lc * Z0) / omega_lc) * 1e9;
+    const C_total_pF = ((BC_lc) / (omega_lc * Z0)) * 1e12;
 
-  const setLCVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
-  setLCVal("val_L_total", L_total_nH.toFixed(4));
-  setLCVal("val_C_total", C_total_pF.toFixed(4));
+    const setLCVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+    setLCVal("val_L_total", L_total_nH.toFixed(4));
+    setLCVal("val_C_total", C_total_pF.toFixed(4));
+  }
 }
 
 function updateChart(

@@ -192,7 +192,7 @@ export function calculateS21CruzJeru(state) {
   return curve;
 }
 
-function calculateLCCruzJeru(state) {
+function calculateLCCruzJeru(state, fr) {
   let { p, d, w, h, g, h_sub, er_real } = state;
   if (g >= p) g = p - 0.001;
   if (d > p - g) d = p - g;
@@ -208,10 +208,19 @@ function calculateLCCruzJeru(state) {
   const hCm = mmToCm(h);
   const gCm = mmToCm(g);
 
-  const f_analitico = 30 / (2 * dCm * Math.sqrt(er_nova)); // GHz
+  // Se fr não foi fornecido, encontrar a fr da curva S21
+  if (!fr || !isFinite(fr)) {
+    const curve = calculateS21CruzJeru(state);
+    let minS21 = 0;
+    for (const pt of curve) {
+      if (pt.s21 < minS21) { minS21 = pt.s21; fr = pt.f; }
+    }
+    if (!fr) fr = 30 / (2 * dCm * Math.sqrt(er_nova)); // fallback
+  }
+
   const Z0 = 376.73;
-  const lamb = 30 / f_analitico;
-  const omega = 2 * Math.PI * f_analitico * 1e9;
+  const lamb = 30 / fr;
+  const omega = 2 * Math.PI * fr * 1e9;
 
   const XL1 = FF(pCm, wCm, lamb, 0);
   const Bg_base = ((4 * dCm) / pCm) * FF(pCm, gCm, lamb, 0);
@@ -924,23 +933,26 @@ function updateAll() {
   }
 
   // === MODELO FÍSICO: L & C EQUIVALENTE ===
-  const f_analitico = 30 / (2 * dCm * Math.sqrt(er_nova)); // GHz
-  const Z0 = 376.73;
-  const lamb_lc = 30 / f_analitico;
-  const omega_lc = 2 * Math.PI * f_analitico * 1e9;
+  // Usa a fr REAL do gráfico (mínimo da curva S21) para desnormalizar
+  // XL e BC em L (nH) e C (pF). Assim fr = 1/(2π√LC) é sempre consistente.
+  if (!isNaN(frFreq) && frFreq > 0) {
+    const Z0 = 376.73;
+    const lamb_lc = 30 / frFreq;
+    const omega_lc = 2 * Math.PI * frFreq * 1e9;
 
-  const XL1_lc = FF(pCm, wCm, lamb_lc, 0);
-  const Bg_base_lc = ((4 * dCm) / pCm) * FF(pCm, gCm, lamb_lc, 0);
-  const Bd_base_lc = ((4 * (2 * hCm + gCm)) / pCm) * FF(pCm, pCm - dCm, lamb_lc, 0);
-  const C_total_base_lc = Bg_base_lc + Bd_base_lc;
-  const BC1_lc = er_nova * C_total_base_lc;
+    const XL1_lc = FF(pCm, wCm, lamb_lc, 0);
+    const Bg_base_lc = ((4 * dCm) / pCm) * FF(pCm, gCm, lamb_lc, 0);
+    const Bd_base_lc = ((4 * (2 * hCm + gCm)) / pCm) * FF(pCm, pCm - dCm, lamb_lc, 0);
+    const C_total_base_lc = Bg_base_lc + Bd_base_lc;
+    const BC1_lc = er_nova * C_total_base_lc;
 
-  const L_total_nH = ((XL1_lc * Z0) / omega_lc) * 1e9;
-  const C_total_pF = ((BC1_lc) / (omega_lc * Z0)) * 1e12;
+    const L_total_nH = ((XL1_lc * Z0) / omega_lc) * 1e9;
+    const C_total_pF = ((BC1_lc) / (omega_lc * Z0)) * 1e12;
 
-  const setLCVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
-  setLCVal("val_L_total", L_total_nH.toFixed(4));
-  setLCVal("val_C_total", C_total_pF.toFixed(4));
+    const setLCVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+    setLCVal("val_L_total", L_total_nH.toFixed(4));
+    setLCVal("val_C_total", C_total_pF.toFixed(4));
+  }
 }
 
 // Função que atualiza o gráfico Chart.js com todos os dados calculados
