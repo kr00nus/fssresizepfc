@@ -195,8 +195,9 @@
       <p>
         Este documento descreve, passo a passo, como o simulador extrai os valores físicos de
         <strong>Indutância (L)</strong> e <strong>Capacitância (C)</strong> equivalentes para cada
-        topologia de Superfície Seletiva de Frequência (FSS). Estes valores são independentes da
-        frequência e dependem <strong>apenas da geometria</strong> e do substrato.
+        topologia de Superfície Seletiva de Frequência (FSS). Os valores de L e C são obtidos
+        a partir das reatâncias normalizadas avaliadas na <strong>frequência de ressonância real
+        (\(f_r\))</strong>, extraída do mínimo da curva S21 do gráfico principal.
       </p>
 
       <!-- ============================================================ -->
@@ -240,15 +241,15 @@
           <span class="eq-label">(Eq. 0.2)</span>
           <p>\[ L \ [\text{nH}] = \frac{X_L \cdot Z_0}{\omega} \times 10^9 \]</p>
           <p>\[ C \ [\text{pF}] = \frac{B_C}{\omega \cdot Z_0} \times 10^{12} \]</p>
-          <p>Onde \(\omega = 2\pi f_{\text{analítico}} \times 10^9\) (rad/s).</p>
+          <p>Onde \(\omega = 2\pi f_r \times 10^9\) (rad/s) e \(f_r\) é a frequência de ressonância do gráfico S21.</p>
         </div>
 
-        <div class="tech-note">
-          <i class="fa-solid fa-triangle-exclamation icon-margin"></i>
-          <strong>Importante:</strong> A frequência utilizada é a <strong>frequência analítica</strong>
-          (\(f_{\text{analítico}}\)), derivada exclusivamente da geometria, e <strong>não</strong> a
-          frequência numérica do mínimo da curva S21. Isso garante que L e C sejam invariantes à faixa
-          de varrimento de frequência.
+        <div class="info-note">
+          <i class="fa-solid fa-circle-info icon-margin"></i>
+          <strong>Frequência utilizada:</strong> A frequência \(f_r\) é a <strong>frequência de ressonância
+          real</strong> extraída do mínimo da curva S21 (o ponto de maior atenuação no gráfico principal).
+          Isso garante a consistência física: \(f_r = \frac{1}{2\pi\sqrt{LC}}\). As reatâncias normalizadas
+          \(X_L\) e \(B_C\) são avaliadas em \(\lambda = 30/f_r\).
         </div>
       </section>
 
@@ -280,11 +281,12 @@
           <p>\[\varepsilon_{eff} = 1 + \frac{\varepsilon_r - 1}{2} \left(1 - e^{-\alpha \cdot h_{sub}/p}\right)\]</p>
         </div>
 
-        <h3>Passo 2 — Frequência Analítica de Ressonância</h3>
+        <h3>Passo 2 — Frequência de Ressonância (\(f_r\))</h3>
+        <p>A frequência de ressonância \(f_r\) é obtida do <strong>mínimo da curva S21</strong> do gráfico principal (ponto de máxima atenuação).</p>
         <div class="math-box">
           <span class="eq-label">(Eq. 1.1)</span>
-          <p>\[f_{\text{analítico}} = \frac{30}{2 \cdot d_{cm} \cdot \sqrt{\varepsilon_{eff}}} \quad [\text{GHz}]\]</p>
-          <p>Onde \(d_{cm} = d / 10\).</p>
+          <p>\[f_r = \text{argmin}_{f} \, S_{21}(f) \quad [\text{GHz}]\]</p>
+          <p>\[\lambda = \frac{30}{f_r} \quad [\text{cm}], \quad \omega = 2\pi f_r \times 10^9 \quad [\text{rad/s}]\]</p>
         </div>
 
         <h3>Passo 3 — Reatâncias Normalizadas</h3>
@@ -328,15 +330,12 @@
           <p>Onde \(M = 1.9\) (fator empírico — Mamedes, 2024).</p>
         </div>
 
-        <h3>Passo 2 — Frequência Analítica de Ressonância</h3>
+        <h3>Passo 2 — Frequência de Ressonância (\(f_r\))</h3>
+        <p>A frequência de ressonância \(f_r\) é obtida do <strong>mínimo da curva S21</strong> do gráfico principal.</p>
         <div class="math-box">
           <span class="eq-label">(Eq. 2.1)</span>
-          <p>\[f_{\text{analítico}} = \frac{0.3}{2 \cdot (a / 1000) \cdot \sqrt{\varepsilon_{eff}}} \quad [\text{GHz}]\]</p>
-        </div>
-        <div class="info-note">
-          <i class="fa-solid fa-circle-info icon-margin"></i>
-          <strong>Nota:</strong> Aqui \(a\) é convertido diretamente de mm para metros (\(a/1000\)),
-          e a velocidade da luz aparece como \(0.3\) (em unidades de \(10^9\) m/s × GHz).
+          <p>\[f_r = \text{argmin}_{f} \, S_{21}(f) \quad [\text{GHz}]\]</p>
+          <p>\[\lambda = \frac{30}{f_r} \quad [\text{cm}], \quad \omega = 2\pi f_r \times 10^9 \quad [\text{rad/s}]\]</p>
         </div>
 
         <h3>Passo 3 — Gaps Geométricos (em cm)</h3>
@@ -397,10 +396,12 @@
           <p>\[\varepsilon_{eff} = \varepsilon_r - \frac{\varepsilon_r - 1}{z_{factor}}\]</p>
         </div>
 
-        <h3>Passo 2 — Frequência Analítica de Ressonância</h3>
+        <h3>Passo 2 — Frequência de Ressonância (\(f_r\))</h3>
+        <p>A frequência de ressonância \(f_r\) é obtida do <strong>mínimo da curva S21</strong> do gráfico principal.</p>
         <div class="math-box">
           <span class="eq-label">(Eq. 3.1)</span>
-          <p>\[f_{\text{analítico}} = \frac{30}{2 \cdot p_{cm} \cdot \sqrt{\varepsilon_{eff}}} \quad [\text{GHz}]\]</p>
+          <p>\[f_r = \text{argmin}_{f} \, S_{21}(f) \quad [\text{GHz}]\]</p>
+          <p>\[\lambda = \frac{30}{f_r} \quad [\text{cm}], \quad \omega = 2\pi f_r \times 10^9 \quad [\text{rad/s}]\]</p>
         </div>
 
         <h3>Passo 3 — Reatância Indutiva Normalizada</h3>
@@ -455,10 +456,12 @@
           <p>\[\varepsilon_{eff} = 1 + \frac{\varepsilon_r - 1}{2} \left(1 - e^{-\alpha \cdot h_{sub}/p}\right)\]</p>
         </div>
 
-        <h3>Passo 2 — Frequência Analítica de Ressonância</h3>
+        <h3>Passo 2 — Frequência de Ressonância (\(f_r\))</h3>
+        <p>A frequência de ressonância \(f_r\) é obtida do <strong>mínimo da curva S21</strong> do gráfico principal.</p>
         <div class="math-box">
           <span class="eq-label">(Eq. 4.1)</span>
-          <p>\[f_{\text{analítico}} = \frac{30}{2 \cdot d_{cm} \cdot \sqrt{\varepsilon_{eff}}} \quad [\text{GHz}]\]</p>
+          <p>\[f_r = \text{argmin}_{f} \, S_{21}(f) \quad [\text{GHz}]\]</p>
+          <p>\[\lambda = \frac{30}{f_r} \quad [\text{cm}], \quad \omega = 2\pi f_r \times 10^9 \quad [\text{rad/s}]\]</p>
         </div>
 
         <h3>Passo 3 — Reatância Indutiva Normalizada</h3>
@@ -520,10 +523,12 @@
           <p>\[d_{eq\,cm} = \frac{\pi \cdot r_{cm}}{2}\]</p>
         </div>
 
-        <h3>Passo 3 — Frequência Analítica de Ressonância</h3>
+        <h3>Passo 3 — Frequência de Ressonância (\(f_r\))</h3>
+        <p>A frequência de ressonância \(f_r\) é obtida do <strong>mínimo da curva S21</strong> do gráfico principal.</p>
         <div class="math-box">
           <span class="eq-label">(Eq. 5.1)</span>
-          <p>\[f_{\text{analítico}} = \frac{30}{2 \cdot d_{eq\,cm} \cdot \sqrt{\varepsilon_{eff}}} \quad [\text{GHz}]\]</p>
+          <p>\[f_r = \text{argmin}_{f} \, S_{21}(f) \quad [\text{GHz}]\]</p>
+          <p>\[\lambda = \frac{30}{f_r} \quad [\text{cm}], \quad \omega = 2\pi f_r \times 10^9 \quad [\text{rad/s}]\]</p>
         </div>
 
         <h3>Passo 4 — Reatâncias Normalizadas</h3>
@@ -548,42 +553,42 @@
         <table>
           <tr>
             <th>Topologia</th>
-            <th>\(f_{\text{analítico}}\)</th>
+            <th>Frequência usada</th>
             <th>Modelo \(\varepsilon_{eff}\)</th>
             <th>\(X_L\) usa</th>
             <th>\(B_C\) usa</th>
           </tr>
           <tr>
             <td><strong>Espira Quadrada</strong></td>
-            <td>\(\frac{30}{2 d_{cm} \sqrt{\varepsilon_{eff}}}\)</td>
+            <td>\(f_r\) do gráfico S21</td>
             <td>Costa (α por \(w/p\))</td>
             <td>\(FF(p, 2w)\)</td>
             <td>\(FF(p, g) \times \varepsilon_{eff}\)</td>
           </tr>
           <tr>
             <td><strong>Estrela 4 Pontas</strong></td>
-            <td>\(\frac{0.3}{2 a_m \sqrt{\varepsilon_{eff}}}\)</td>
+            <td>\(f_r\) do gráfico S21</td>
             <td>Exponencial (\(M\!=\!1.9\))</td>
             <td>\(FF(p, b)\)</td>
             <td>\(K_L\) × 3 termos × \(\varepsilon_{eff}\)</td>
           </tr>
           <tr>
             <td><strong>Quase Quadrado</strong></td>
-            <td>\(\frac{30}{2 p_{cm} \sqrt{\varepsilon_{eff}}}\)</td>
+            <td>\(f_r\) do gráfico S21</td>
             <td>Exp. c/ potência (\(M\!=\!1.5\))</td>
             <td>\(FF(p, w)\)</td>
             <td>\(K_L\) × 2 gaps × \(\varepsilon_{eff}\)</td>
           </tr>
           <tr>
             <td><strong>Cruz Jerusalém</strong></td>
-            <td>\(\frac{30}{2 d_{cm} \sqrt{\varepsilon_{eff}}}\)</td>
+            <td>\(f_r\) do gráfico S21</td>
             <td>Costa (α por \(h_{sub}/p\))</td>
             <td>\(FF(p, w)\)</td>
             <td>\((B_g + B_d) \times \varepsilon_{eff}\)</td>
           </tr>
           <tr>
             <td><strong>Anel Circular</strong></td>
-            <td>\(\frac{30}{2 d_{eq} \sqrt{\varepsilon_{eff}}}\)</td>
+            <td>\(f_r\) do gráfico S21</td>
             <td>Ana Luiza (\(N\!=\!1.8\))</td>
             <td>\(FF(p, 2w)\)</td>
             <td>\(FF(p, g_{proj}) \times \varepsilon_{eff}\)</td>
@@ -595,7 +600,8 @@
           <strong>Dica:</strong> Em todas as topologias, a fórmula final de conversão é <strong>idêntica</strong>:
           divide-se a reatância normalizada por \(\omega\) e multiplica-se por \(Z_0\) (para L) ou divide-se
           por \(\omega \cdot Z_0\) (para C). O que varia entre topologias é <strong>como as reatâncias normalizadas
-          são compostas</strong> a partir da geometria e <strong>qual frequência analítica</strong> é utilizada.
+          são compostas</strong> a partir da geometria. A frequência \(f_r\) utilizada é sempre o <strong>mínimo
+          da curva S21</strong>, garantindo que \(f_r = \frac{1}{2\pi\sqrt{LC}}\).
         </div>
       </section>
 
