@@ -1,511 +1,212 @@
-def generate_html(): html_content = r"""<!doctype html>
+<!doctype html>
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Memorial de Cálculo Eletromagnético - FSS Explorer</title>
-
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
+    <title>Fundamentação Teórica — FSS Explorer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script
-      id="MathJax-script"
-      async
-      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
-    ></script>
-
-    <style>
-      :root {
-        --primary-color: #1a365d;
-        --secondary-color: #2b6cb0;
-        --accent-color: #e2e8f0;
-        --text-color: #2d3748;
-        --bg-color: #f7fafc;
-        --border-color: #cbd5e0;
-      }
-
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-
-      body {
-        font-family: "Georgia", "Times New Roman", serif;
-        line-height: 1.8;
-        color: var(--text-color);
-        background-color: var(--bg-color);
-        padding: 40px 20px;
-      }
-
-      .container {
-        max-width: 1000px;
-        margin: 0 auto;
-        background-color: #ffffff;
-        padding: 60px;
-        border-radius: 8px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-        border-top: 8px solid var(--primary-color);
-      }
-
-      /* Tipografia de Cabeçalhos */
-      h1 {
-        font-family: "Segoe UI", system-ui, sans-serif;
-        color: var(--primary-color);
-        font-size: 2.5em;
-        margin-bottom: 20px;
-        text-align: center;
-        border-bottom: 2px solid var(--accent-color);
-        padding-bottom: 15px;
-      }
-
-      h2 {
-        font-family: "Segoe UI", system-ui, sans-serif;
-        color: var(--primary-color);
-        font-size: 1.8em;
-        margin-top: 50px;
-        margin-bottom: 20px;
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 10px;
-      }
-
-      h3 {
-        font-family: "Segoe UI", system-ui, sans-serif;
-        color: var(--secondary-color);
-        font-size: 1.4em;
-        margin-top: 30px;
-        margin-bottom: 15px;
-      }
-
-      p {
-        margin-bottom: 20px;
-        font-size: 1.1em;
-        text-align: justify;
-      }
-
-      /* Caixas de Destaque Matemático */
-      .math-box {
-        background-color: #f8fafc;
-        border-left: 4px solid var(--secondary-color);
-        padding: 25px;
-        margin: 30px 0;
-        border-radius: 0 8px 8px 0;
-        overflow-x: auto;
-      }
-
-      .math-box p {
-        margin-bottom: 10px;
-        font-size: 1.05em;
-      }
-
-      .equation-label {
-        float: right;
-        color: #718096;
-        font-weight: bold;
-        font-family: "Segoe UI", sans-serif;
-      }
-
-      /* Listas e Tabelas */
-      ul {
-        margin-left: 30px;
-        margin-bottom: 20px;
-      }
-
-      li {
-        margin-bottom: 10px;
-        font-size: 1.1em;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 30px 0;
-        font-family: "Segoe UI", system-ui, sans-serif;
-      }
-
-      th,
-      td {
-        border: 1px solid var(--border-color);
-        padding: 15px;
-        text-align: left;
-      }
-
-      th {
-        background-color: var(--primary-color);
-        color: white;
-        font-weight: 600;
-      }
-
-      tr:nth-child(even) {
-        background-color: var(--bg-color);
-      }
-
-      /* Blocos de Observação Técnica */
-      .tech-note {
-        background-color: #fffaf0;
-        border: 1px solid #feebc8;
-        border-left: 4px solid #dd6b20;
-        padding: 20px;
-        margin: 20px 0;
-        border-radius: 4px;
-        font-size: 0.95em;
-      }
-
-      .tech-note strong {
-        color: #dd6b20;
-        font-family: "Segoe UI", sans-serif;
-      }
-
-      /* Navegação */
-      .nav-btn {
-        display: inline-block;
-        background-color: var(--primary-color);
-        color: white;
-        padding: 12px 25px;
-        text-decoration: none;
-        border-radius: 5px;
-        font-family: "Segoe UI", sans-serif;
-        font-weight: bold;
-        margin-top: 40px;
-        transition: background-color 0.3s;
-      }
-
-      .nav-btn:hover {
-        background-color: var(--secondary-color);
-      }
-
-      .icon-margin {
-        margin-right: 10px;
-      }
-    </style>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="../../css/docs.css" />
   </head>
   <body>
-    <div class="container">
-      <h1>
-        <i class="fa-solid fa-calculator icon-margin"></i>Memorial de Design e
-        Cálculo Eletromagnético FSS
-      </h1>
-      <p>
-        Este documento apresenta o referencial matemático completo utilizado no
-        motor de cálculo do <strong>FSS Explorer</strong>. As formulações
-        detalhadas aqui traduzem geometrias físicas complexas em Modelos de
-        Circuito Equivalente (ECM), permitindo a predição precisa de
-        ressonâncias em radiofrequência, validadas contra simulações de onda
-        completa (Ansys HFSS) para a banda 5G (n78).
-      </p>
 
-      <section>
-        <h2>
-          <i class="fa-solid fa-layer-group icon-margin"></i> 1. Correções de
-          Permissividade Efetiva
-        </h2>
-        <p>
-          Quando uma FSS é impressa sobre um substrato dielétrico (ex: RO3003,
-          FR-4), as linhas de campo elétrico dividem-se entre o ar
-          (\(\epsilon_0\)) e o material dielétrico (\(\epsilon_r\)). A
-          permissividade efetiva (\(\epsilon_{eff}\)) sentida pela onda não é
-          simplesmente a média dos dois meios, mas depende fortemente da
-          espessura do substrato (\(h\)) em relação à periodicidade (\(p\)) da
-          célula.
-        </p>
+    <!-- ===== TOP BAR ===== -->
+    <header class="topbar">
+      <a href="../../../index.html" class="topbar-brand">
+        <div class="brand-icon"><i class="fa-solid fa-signal"></i></div>
+        FSS Explorer
+      </a>
+      <span class="topbar-sep">/</span>
+      <span class="topbar-title">Fundamentação Teórica</span>
+      <div class="topbar-spacer"></div>
+      <a href="../../../index.html" class="topbar-back">
+        <i class="fa-solid fa-arrow-left"></i> Voltar ao início
+      </a>
+    </header>
 
-        <h3>1.1. Formulação Clássica e o Modelo de Costa</h3>
-        <p>
-          O modelo clássico propõe uma transição exponencial. Costa introduziu
-          um fator de forma dinâmico (\(\alpha\)) para corrigir desvios em tiras
-          estreitas, onde o confinamento de campo é menor:
-        </p>
-        <div class="math-box">
-          <span class="equation-label">(Eq. 1.1)</span>
-          <p>
-            \[ \epsilon_{eff} = 1 + \frac{\epsilon_r - 1}{2} \cdot \left[ 1 -
-            \exp\left(-\alpha \frac{h}{p}\right) \right] \]
-          </p>
-          <p>
-            Onde \(\alpha\) varia linearmente entre 12.5 e 16, dependendo da
-            razão da largura da fita pelo período (\(w/p\)).
-          </p>
+    <div class="docs-layout">
+
+      <!-- ===== SIDEBAR ===== -->
+      <aside class="sidebar">
+        <div class="sidebar-section-label">Nesta página</div>
+        <nav>
+          <ul>
+            <li><a href="#permissividade"><span class="nav-icon"><i class="fa-solid fa-layer-group"></i></span>1. Permissividade Efetiva</a></li>
+            <li><a href="#marcuvitz"><span class="nav-icon"><i class="fa-solid fa-wave-square"></i></span>2. Funções de Dispersão</a></li>
+            <li><a href="#anel-quadrado"><span class="nav-icon"><i class="fa-regular fa-square"></i></span>3. Anel Quadrado</a></li>
+            <li><a href="#anel-circular"><span class="nav-icon"><i class="fa-regular fa-circle"></i></span>4. Anel Circular</a></li>
+            <li><a href="#cruz-jeru"><span class="nav-icon"><i class="fa-solid fa-plus"></i></span>5. Cruz de Jerusalém</a></li>
+            <li><a href="#referencias"><span class="nav-icon"><i class="fa-solid fa-book-open"></i></span>6. Referências</a></li>
+          </ul>
+        </nav>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section-label">Outros guias</div>
+        <nav>
+          <ul>
+            <li><a href="guia_rapido.html"><span class="nav-icon"><i class="fa-solid fa-book"></i></span>Guia Rápido</a></li>
+            <li><a href="explicacao_leigos.html"><span class="nav-icon"><i class="fa-solid fa-graduation-cap"></i></span>Explicação para Leigos</a></li>
+            <li><a href="calculo_lc.html"><span class="nav-icon"><i class="fa-solid fa-calculator"></i></span>Cálculo de L &amp; C</a></li>
+            <li><a href="resumo_completo.html"><span class="nav-icon"><i class="fa-solid fa-file-lines"></i></span>Resumo Completo</a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- ===== MAIN CONTENT ===== -->
+      <main class="docs-main">
+
+        <div class="page-hero">
+          <div class="page-hero-tag"><i class="fa-solid fa-flask"></i> Referencial Matemático</div>
+          <h1>Memorial de Cálculo Eletromagnético</h1>
+          <p>Referencial matemático completo do motor de cálculo do FSS Explorer. Formulações que traduzem geometrias físicas em modelos de circuito equivalente (ECM), validadas contra simulações de onda completa (Ansys HFSS) para a banda 5G n78.</p>
         </div>
 
-        <h3>1.2. O Modelo Calibrado de Ana Luiza (2023)</h3>
-        <p>
-          Para geometrias curvas e fortemente acopladas, o modelo de Costa
-          subestima a capacitância parasita do dielétrico. Conforme demonstrado
-          por Oliveira (2023), uma correção mais agressiva do decaimento
-          dielétrico é necessária. O simulador implementa esta formulação exata:
-        </p>
-        <div class="math-box">
-          <span class="equation-label">(Eq. 1.2)</span>
-          <p>
-            \[ \epsilon_{eff} = \epsilon_r + (\epsilon_r - 1) \cdot \left(
-            \frac{-1}{z^N} \right) \]
-          </p>
-          <p>
-            Onde \( z = \exp\left(\frac{10 \cdot h}{p}\right) \) e o expoente
-            <strong>\(N = 1.8\)</strong> é um fator de calibração empírico.
-          </p>
-        </div>
-        <div class="tech-note">
-          <i class="fa-solid fa-circle-info icon-margin"></i>
-          <strong>Justificativa Física:</strong> O expoente 1.8 atua como um
-          fator de amortecimento severo. Em substratos eletricamente finos (como
-          \(h = 1.52\) mm para \(p = 20\) mm), o campo elétrico espalha-se
-          predominantemente pelo ar. Esta equação ajusta a velocidade de fase da
-          onda, fundamental para cravar as frequências de ressonância no
-          espectro de micro-ondas.
-        </div>
-      </section>
+        <!-- ===== SEÇÃO 1 ===== -->
+        <section class="docs-section" id="permissividade">
+          <h2><span class="section-icon"><i class="fa-solid fa-layer-group"></i></span>1. Correções de Permissividade Efetiva</h2>
 
-      <section>
-        <h2>
-          <i class="fa-solid fa-wave-square icon-margin"></i> 2. Funções de
-          Dispersão de Marcuvitz
-        </h2>
-        <p>
-          A espinha dorsal de qualquer modelo ECM para FSS baseia-se nas
-          equações deduzidas por N. Marcuvitz em 1951 para guias de onda. Elas
-          calculam a reatância indutiva (\(X_L\)) e a susceptância capacitiva
-          (\(B_C\)) de grades infinitas de tiras metálicas.
-        </p>
+          <p>Quando uma FSS é impressa sobre um substrato dielétrico (ex: RO3003, FR-4), as linhas de campo elétrico dividem-se entre o ar (\(\epsilon_0\)) e o material dielétrico (\(\epsilon_r\)). A permissividade efetiva (\(\epsilon_{eff}\)) sentida pela onda não é simplesmente a média dos dois meios, mas depende fortemente da espessura do substrato (\(h\)) em relação à periodicidade (\(p\)) da célula.</p>
 
-        <div class="math-box">
-          <span class="equation-label">(Eq. 2.1)</span>
-          <p><strong>Fator de Preenchimento Indutivo (\(F_L\)):</strong></p>
-          <p>
-            \[ F_L(p, w, \lambda) = \frac{p}{\lambda} \cos(\theta) \cdot
-            \ln\left[ \csc\left( \frac{\pi w}{2p} \right) \right] \]
-          </p>
+          <h3>1.1. Formulação Clássica e o Modelo de Costa</h3>
+          <p>O modelo clássico propõe uma transição exponencial. Costa introduziu um fator de forma dinâmico (\(\alpha\)) para corrigir desvios em tiras estreitas, onde o confinamento de campo é menor:</p>
 
-          <p><strong>Fator de Preenchimento Capacitivo (\(F_C\)):</strong></p>
-          <p>
-            \[ F_C(p, g, \lambda) = \frac{p}{\lambda} \sec(\theta) \cdot
-            \ln\left[ \csc\left( \frac{\pi g}{2p} \right) \right] \]
-          </p>
-        </div>
-        <p>
-          Onde \(w\) é a espessura da fita, \(g\) é a fresta (gap) entre
-          células, \(\lambda\) é o comprimento de onda e \(\theta\) é o ângulo
-          de incidência. A função cossecante (\(\csc\)) modela as singularidades
-          do campo eletromagnético nas bordas agudas do metal (efeito de borda).
-        </p>
-      </section>
+          <div class="math-box">
+            <span class="eq-label">(Eq. 1.1)</span>
+            \[ \epsilon_{eff} = 1 + \frac{\epsilon_r - 1}{2} \cdot \left[ 1 - \exp\left(-\alpha \frac{h}{p}\right) \right] \]
+            <p style="margin-top:10px; font-size:0.9rem; color:var(--muted);">Onde \(\alpha\) varia linearmente entre 12.5 e 16, dependendo da razão da largura da fita pelo período (\(w/p\)).</p>
+          </div>
 
-      <section>
-        <h2>
-          <i class="fa-regular fa-square icon-margin"></i> 3. Modelagem do Anel
-          Quadrado
-        </h2>
-        <p>
-          O Anel Quadrado foi consolidado por Langley e Parker. O modelo assume
-          que o anel atua como uma associação de indutores (as fitas paralelas à
-          polarização do campo elétrico) e capacitores (as frestas entre anéis
-          adjacentes).
-        </p>
+          <h3>1.2. O Modelo Calibrado de Ana Luiza (2023)</h3>
+          <p>Para geometrias curvas e fortemente acopladas, o modelo de Costa subestima a capacitância parasita. O simulador implementa esta formulação de Oliveira (2023):</p>
 
-        <div class="math-box">
-          <span class="equation-label">(Eq. 3.1)</span>
-          <p>
-            Para um anel de lado externo \(d\), largura de fita \(w\) e período
-            \(p\), o gap físico é rigidamente definido como \(g = p - d\). A
-            reatância equivalente da malha é:
-          </p>
-          <p>
-            \[ X_{total} = \left( \frac{d}{p} \right) X_L - \left( \frac{p}{d}
-            \right) \frac{1}{B_C \cdot \epsilon_{eff}} \]
-          </p>
-        </div>
-        <p>
-          O fator multiplicador \((d/p)\) é a
-          <strong>Escala Geométrica</strong>. Ele informa ao circuito que o
-          indutor não ocupa toda a célula unitária, mas apenas a fração
-          correspondente ao tamanho do anel.
-        </p>
-      </section>
+          <div class="math-box">
+            <span class="eq-label">(Eq. 1.2)</span>
+            \[ \epsilon_{eff} = \epsilon_r + (\epsilon_r - 1) \cdot \left( \frac{-1}{z^N} \right) \]
+            <p style="margin-top:10px; font-size:0.9rem; color:var(--muted);">Onde \( z = \exp\left(\frac{10 \cdot h}{p}\right) \) e o expoente <strong>\(N = 1.8\)</strong> é um fator de calibração empírico.</p>
+          </div>
 
-      <section>
-        <h2>
-          <i class="fa-regular fa-circle icon-margin"></i> 4. Modelagem do Anel
-          Circular
-        </h2>
-        <p>
-          Para o Anel Circular, aplica-se o
-          <strong>Princípio de Equivalência Geométrica</strong> de Langley. O
-          perímetro de um círculo (\(2\pi r\)) é igualado ao perímetro de um
-          quadrado (\(4d_{eq}\)), resultando em um lado equivalente \(d_{eq} =
-          \frac{\pi r}{2}\).
-        </p>
+          <div class="alert alert-note">
+            <span class="alert-icon"><i class="fa-solid fa-circle-info"></i></span>
+            <div><strong>Justificativa Física:</strong> O expoente 1.8 atua como um fator de amortecimento severo. Em substratos eletricamente finos (\(h = 1.52\) mm para \(p = 20\) mm), o campo elétrico espalha-se predominantemente pelo ar. Esta equação ajusta a velocidade de fase da onda, fundamental para cidades as frequências de ressonância no espectro de micro-ondas.</div>
+          </div>
+        </section>
 
-        <h3>4.1. O Problema da Curvatura e a Fresta Projetada</h3>
-        <p>
-          A grande inovação matemática empregada no simulador resolve a
-          limitação das equações de Marcuvitz em superfícies curvas. Como os
-          anéis são circulares, eles não possuem bordas paralelas,
-          encontrando-se apenas num ponto tangencial. Isso reduz drasticamente a
-          área efetiva do "capacitor" formado pelo gap.
-        </p>
-        <p>
-          Em vez de usar o gap físico estrito, o simulador implementa a
-          <strong>Fresta Equivalente Projetada</strong>:
-        </p>
-        <div class="math-box">
-          <span class="equation-label">(Eq. 4.1)</span>
-          <p>\[ g_{eq} = p - \frac{\pi \cdot d_{ext}}{4} \]</p>
-        </div>
-        <div class="tech-note">
-          <i class="fa-solid fa-check-double icon-margin"></i>
-          <strong>Validação HFSS (Banda n78):</strong> Esta projeção cria um gap
-          matemático maior que o físico. Isso simula a redução real de
-          capacitância causada pela curvatura das fitas. Foi exatamente esta
-          formulação (aliada ao \(\epsilon_{eff}\) de N=1.8) que permitiu ao
-          simulador alinhar a predição analítica com a ressonância exata obtida
-          na simulação de onda completa (Ansys HFSS) para a banda n78 do 5G.
-        </div>
-      </section>
+        <!-- ===== SEÇÃO 2 ===== -->
+        <section class="docs-section" id="marcuvitz">
+          <h2><span class="section-icon"><i class="fa-solid fa-wave-square"></i></span>2. Funções de Dispersão de Marcuvitz</h2>
 
-      <section>
-        <h2>
-          <i class="fa-solid fa-plus icon-margin"></i> 5. Modelagem da Cruz de
-          Jerusalém
-        </h2>
-        <p>
-          A Cruz de Jerusalém é uma estrutura complexa e multirressonante. A
-          estrutura é dividida em dois blocos: a cruz central interna (que
-          fornece a indutância principal) e as hastes nas extremidades
-          (End-Caps, que atuam como blocos capacitivos).
-        </p>
+          <p>A espinha dorsal de qualquer modelo ECM para FSS baseia-se nas equações deduzidas por N. Marcuvitz em 1951 para guias de onda. Elas calculam a reatância indutiva (\(X_L\)) e a susceptância capacitiva (\(B_C\)) de grades infinitas de tiras metálicas.</p>
 
-        <div class="info-block">
-          <p>
-            Na interface, a complexidade desse circuito equivalente é simplificada: o modelo matemático fornece os valores de Impedância/Reatância que extraem os parâmetros físicos diretos de Indutância ($L$ equivalente em nH) e Capacitância ($C$ equivalente em pF) das geometrias.
-          </p>
-        </div>
-        <p>
-          Devido à alta densidade capacitiva dos <em>End-Caps</em> (\(g\)), a
-          Cruz de Jerusalém atinge frequências de ressonância extremamente
-          baixas em células unitárias compactas (alto grau de miniaturização).
-        </p>
-      </section>
+          <div class="math-box">
+            <span class="eq-label">(Eq. 2.1)</span>
+            <p><strong>Fator de Preenchimento Indutivo (\(F_L\)):</strong></p>
+            \[ F_L(p, w, \lambda) = \frac{p}{\lambda} \cos(\theta) \cdot \ln\left[ \csc\left( \frac{\pi w}{2p} \right) \right] \]
+            <p style="margin-top: 16px;"><strong>Fator de Preenchimento Capacitivo (\(F_C\)):</strong></p>
+            \[ F_C(p, g, \lambda) = \frac{p}{\lambda} \sec(\theta) \cdot \ln\left[ \csc\left( \frac{\pi g}{2p} \right) \right] \]
+          </div>
 
-      <section>
-        <h2>
-          <i class="fa-solid fa-book-open icon-margin"></i> 6. Referências
-          Técnicas do Simulador
-        </h2>
-        <table>
-          <tr>
-            <th>Autor(es) / Ano</th>
-            <th>Título da Obra / Link do Arquivo</th>
-            <th>Aplicação Matemática no Simulador</th>
-          </tr>
-          <tr>
-            <td>R. J. Langley, E. A. Parker (1983)</td>
-            <td>
-              <a
-                href="https://ui.adsabs.harvard.edu/abs/1983ElL....19..675L/abstract"
-                target="_blank"
-                style="color: var(--secondary-color); font-weight: bold"
-                ><i
-                  class="fa-solid fa-arrow-up-right-from-square icon-margin"
-                ></i
-                >Double-square frequency-selective surfaces and their equivalent
-                circuit</a
-              >
-            </td>
-            <td>
-              Fornece o circuito RLC paralelo base e o fator de escala
-              geométrica \((d/p)\).
-            </td>
-          </tr>
-          <tr>
-            <td>N. Marcuvitz (1951)</td>
-            <td>
-              <a
-                href="https://ieeexplore.ieee.org/book/5267329"
-                target="_blank"
-                style="color: var(--secondary-color); font-weight: bold"
-                ><i class="fa-solid fa-arrow-up-right-from-square icon-margin"></i>Waveguide
-                Handbook</a
-              >
-            </td>
-            <td>
-              Fornece as equações originais de Função de Dispersão \(F_L\) e
-              \(F_C\) usando a função Cossecante.
-            </td>
-          </tr>
-          <tr>
-            <td>A. L. M. Oliveira (2023)</td>
-            <td>
-              <a
-                href="https://repositorio.ufrn.br/"
-                target="_blank"
-                style="color: var(--secondary-color); font-weight: bold"
-                ><i class="fa-solid fa-arrow-up-right-from-square icon-margin"></i>[2023] TCC Ana
-                Luiza</a
-              >
-            </td>
-            <td>
-              Dedução do Gap Equivalente Projetado e fator exponencial empírico
-              \(N=1.8\) para dielétricos finos.
-            </td>
-          </tr>
-          <tr>
-            <td>Vários Autores</td>
-            <td>
-              <a
-                href="https://editora.ifpb.edu.br/"
-                target="_blank"
-                style="color: var(--secondary-color); font-weight: bold"
-                ><i class="fa-solid fa-arrow-up-right-from-square icon-margin"></i>Superfícies
-                Seletivas em Frequência - Ebook</a
-              >
-            </td>
-            <td>
-              Fundamentação teórica geral e arquitetura de modelagem multibanda.
-            </td>
-          </tr>
-          <tr>
-            <td>J. R. Costa et al.</td>
-            <td>
-              <a
-                href="https://doi.org/10.1109/TAP.2021.3111175"
-                target="_blank"
-                style="color: var(--secondary-color); font-weight: bold"
-                ><i class="fa-solid fa-arrow-up-right-from-square icon-margin"></i>A Simple
-                Effective Permittivity Model for Metasurfaces within
-                Multilayer</a
-              >
-            </td>
-            <td>
-              Modelo clássico calibrado com fator de forma dinâmico (\(\alpha\))
-              para permissividade efetiva.
-            </td>
-          </tr>
-        </table>
-      </section>
+          <p>Onde \(w\) é a espessura da fita, \(g\) é a fresta (gap) entre células, \(\lambda\) é o comprimento de onda e \(\theta\) é o ângulo de incidência. A função cossecante (\(\csc\)) modela as singularidades do campo eletromagnético nas bordas agudas do metal (efeito de borda).</p>
+        </section>
 
-      <a href="../../../index.html" class="nav-btn"
-        ><i class="fa-solid fa-house icon-margin"></i> Voltar ao Dashboard
-        Principal</a
-      >
+        <!-- ===== SEÇÃO 3 ===== -->
+        <section class="docs-section" id="anel-quadrado">
+          <h2><span class="section-icon"><i class="fa-regular fa-square"></i></span>3. Modelagem do Anel Quadrado</h2>
 
-      <p
-        style="
-          margin-top: 50px;
-          text-align: center;
-          color: #a0aec0;
-          font-size: 0.9em;
-          border-top: 1px solid #edf2f7;
-          padding-top: 20px;
-        "
-      >
-        Memorial Técnico Eletromagnético gerado para o FSS Explorer. <br />
-        Compilação de Modelos Analíticos para Filtros Espaciais em Micro-ondas.
-      </p>
+          <p>O Anel Quadrado foi consolidado por Langley e Parker. O modelo assume que o anel atua como uma associação de indutores (as fitas paralelas à polarização do campo elétrico) e capacitores (as frestas entre anéis adjacentes).</p>
+
+          <div class="math-box">
+            <span class="eq-label">(Eq. 3.1)</span>
+            <p style="margin-bottom: 10px;">Para um anel de lado externo \(d\), largura de fita \(w\) e período \(p\), o gap físico é \(g = p - d\). A reatância equivalente da malha é:</p>
+            \[ X_{total} = \left( \frac{d}{p} \right) X_L - \left( \frac{p}{d} \right) \frac{1}{B_C \cdot \epsilon_{eff}} \]
+          </div>
+
+          <p>O fator multiplicador \((d/p)\) é a <strong>Escala Geométrica</strong>. Ele informa ao circuito que o indutor não ocupa toda a célula unitária, mas apenas a fração correspondente ao tamanho do anel.</p>
+        </section>
+
+        <!-- ===== SEÇÃO 4 ===== -->
+        <section class="docs-section" id="anel-circular">
+          <h2><span class="section-icon"><i class="fa-regular fa-circle"></i></span>4. Modelagem do Anel Circular</h2>
+
+          <p>Para o Anel Circular, aplica-se o <strong>Princípio de Equivalência Geométrica</strong> de Langley. O perímetro de um círculo (\(2\pi r\)) é igualado ao de um quadrado (\(4d_{eq}\)), resultando em \(d_{eq} = \frac{\pi r}{2}\).</p>
+
+          <h3>4.1. O Problema da Curvatura e a Fresta Projetada</h3>
+          <p>A inovação matemática empregada no simulador resolve a limitação das equações de Marcuvitz em superfícies curvas. Como os anéis são circulares, eles não possuem bordas paralelas, encontrando-se apenas num ponto tangencial. Em vez de usar o gap físico estrito, o simulador implementa a <strong>Fresta Equivalente Projetada</strong>:</p>
+
+          <div class="math-box">
+            <span class="eq-label">(Eq. 4.1)</span>
+            \[ g_{eq} = p - \frac{\pi \cdot d_{ext}}{4} \]
+          </div>
+
+          <div class="alert alert-tip">
+            <span class="alert-icon"><i class="fa-solid fa-check-double"></i></span>
+            <div><strong>Validação HFSS (Banda n78):</strong> Esta projeção cria um gap matemático maior que o físico, simulando a redução real de capacitância causada pela curvatura das fitas. Esta formulação, aliada ao \(\epsilon_{eff}\) com \(N=1.8\), alinha a predição analítica com a ressonância exata obtida no Ansys HFSS para a banda n78 do 5G.</div>
+          </div>
+        </section>
+
+        <!-- ===== SEÇÃO 5 ===== -->
+        <section class="docs-section" id="cruz-jeru">
+          <h2><span class="section-icon"><i class="fa-solid fa-plus"></i></span>5. Modelagem da Cruz de Jerusalém</h2>
+
+          <p>A Cruz de Jerusalém é uma estrutura complexa e multirressonante. A estrutura é dividida em dois blocos: a cruz central interna (que fornece a indutância principal) e as hastes nas extremidades (End-Caps, que atuam como blocos capacitivos).</p>
+
+          <div class="info-block">
+            <h3>Abstração na Interface</h3>
+            <p>Na interface, a complexidade desse circuito equivalente é simplificada: o modelo matemático fornece os valores de Impedância/Reatância que extraem os parâmetros físicos diretos de Indutância (\(L\) equivalente em nH) e Capacitância (\(C\) equivalente em pF) das geometrias.</p>
+          </div>
+
+          <p>Devido à alta densidade capacitiva dos <em>End-Caps</em> (\(g\)), a Cruz de Jerusalém atinge frequências de ressonância extremamente baixas em células unitárias compactas (alto grau de miniaturização).</p>
+        </section>
+
+        <!-- ===== SEÇÃO 6 ===== -->
+        <section class="docs-section" id="referencias">
+          <h2><span class="section-icon"><i class="fa-solid fa-book-open"></i></span>6. Referências Técnicas do Simulador</h2>
+
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th>Autor(es) / Ano</th>
+                <th>Obra</th>
+                <th>Aplicação no Simulador</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>R. J. Langley, E. A. Parker (1983)</td>
+                <td><a href="https://ui.adsabs.harvard.edu/abs/1983ElL....19..675L/abstract" target="_blank" style="color:var(--blue);"><i class="fa-solid fa-arrow-up-right-from-square" style="margin-right:6px;font-size:11px;"></i>Double-square frequency-selective surfaces...</a></td>
+                <td>Circuito RLC paralelo base e fator de escala geométrica \((d/p)\).</td>
+              </tr>
+              <tr>
+                <td>N. Marcuvitz (1951)</td>
+                <td><a href="https://ieeexplore.ieee.org/book/5267329" target="_blank" style="color:var(--blue);"><i class="fa-solid fa-arrow-up-right-from-square" style="margin-right:6px;font-size:11px;"></i>Waveguide Handbook</a></td>
+                <td>Equações originais de Função de Dispersão \(F_L\) e \(F_C\) usando a Cossecante.</td>
+              </tr>
+              <tr>
+                <td>A. L. M. Oliveira (2023)</td>
+                <td><a href="https://repositorio.ufrn.br/" target="_blank" style="color:var(--blue);"><i class="fa-solid fa-arrow-up-right-from-square" style="margin-right:6px;font-size:11px;"></i>[2023] TCC Ana Luiza — UFRN</a></td>
+                <td>Dedução do Gap Equivalente Projetado e fator empírico \(N=1.8\) para dielétricos finos.</td>
+              </tr>
+              <tr>
+                <td>Vários Autores</td>
+                <td><a href="https://editora.ifpb.edu.br/" target="_blank" style="color:var(--blue);"><i class="fa-solid fa-arrow-up-right-from-square" style="margin-right:6px;font-size:11px;"></i>Superfícies Seletivas em Frequência — Ebook (IFPB)</a></td>
+                <td>Fundamentação teórica geral e arquitetura de modelagem multibanda.</td>
+              </tr>
+              <tr>
+                <td>J. R. Costa et al.</td>
+                <td><a href="https://doi.org/10.1109/TAP.2021.3111175" target="_blank" style="color:var(--blue);"><i class="fa-solid fa-arrow-up-right-from-square" style="margin-right:6px;font-size:11px;"></i>A Simple Effective Permittivity Model... (DOI)</a></td>
+                <td>Modelo clássico calibrado com fator de forma dinâmico (\(\alpha\)) para permissividade efetiva.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+      </main>
     </div>
+
+    <footer class="docs-footer">
+      <span><strong style="color:#e2e8f0;">FSS Explorer</strong> — Fundamentação Teórica</span>
+      <span>Compilação de modelos analíticos para filtros espaciais em micro-ondas</span>
+      <a href="../../../index.html"><i class="fa-solid fa-house"></i> Início</a>
+    </footer>
+
   </body>
 </html>
-""" with open("fundamentacao_teorica.html", "w", encoding="utf-8") as f:
-f.write(html_content) generate_html() print("HTML atualizado com sucesso com os
-caminhos corretos.")

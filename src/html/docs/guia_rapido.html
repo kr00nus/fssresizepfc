@@ -3,726 +3,267 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Guia Rápido - Dicionário de Termos FSS</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #f4f7f9 0%, #e8eef5 100%);
-        color: #2c3e50;
-        line-height: 1.6;
-      }
-
-      /* ===== HEADER ===== */
-      .header {
-        background: linear-gradient(135deg, #1a2a3a 0%, #2c3e50 100%);
-        color: white;
-        padding: 60px 20px;
-        text-align: center;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      }
-
-      .header h1 {
-        font-size: 2.5em;
-        margin-bottom: 10px;
-        font-weight: 700;
-      }
-
-      .header p {
-        font-size: 1.1em;
-        opacity: 0.95;
-      }
-
-      /* ===== CONTAINER ===== */
-      .container {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 50px 20px;
-      }
-
-      /* ===== SEÇÕES ===== */
-      .section {
-        margin-bottom: 60px;
-      }
-
-      .section h2 {
-        font-size: 2em;
-        color: #1a2a3a;
-        margin-bottom: 30px;
-        padding-bottom: 15px;
-        border-bottom: 3px solid #3498db;
-        display: inline-block;
-      }
-
-      /* ===== CARD DE TERMO ===== */
-      .term-card {
-        background: white;
-        border-radius: 12px;
-        padding: 30px;
-        margin-bottom: 20px;
-        border-left: 5px solid #3498db;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
-        transition: all 0.3s ease;
-      }
-
-      .term-card:hover {
-        transform: translateX(5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      }
-
-      .term-card.category-em {
-        border-left-color: #e74c3c;
-      }
-
-      .term-card.category-param {
-        border-left-color: #f39c12;
-      }
-
-      .term-card.category-mat {
-        border-left-color: #27ae60;
-      }
-
-      .term-card.category-unit {
-        border-left-color: #8e44ad;
-      }
-
-      .term-card h3 {
-        font-size: 1.4em;
-        color: #1a2a3a;
-        margin-bottom: 12px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .term-icon {
-        font-size: 1.8em;
-      }
-
-      .term-card p {
-        color: #555;
-        line-height: 1.8;
-        margin-bottom: 12px;
-      }
-
-      .term-card .example {
-        background: #f0f0f0;
-        padding: 15px;
-        border-radius: 8px;
-        margin-top: 12px;
-        font-family: "Courier New", monospace;
-        color: #333;
-        font-size: 0.95em;
-      }
-
-      .term-card .note {
-        background: #e3f2fd;
-        padding: 12px 15px;
-        border-radius: 8px;
-        margin-top: 12px;
-        border-left: 3px solid #2196f3;
-        color: #1565c0;
-      }
-
-      /* ===== GRID 2 COLUNAS ===== */
-      .two-column {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-        gap: 20px;
-      }
-
-      /* ===== COMPARAÇÃO ===== */
-      .comparison-box {
-        background: white;
-        border-radius: 12px;
-        padding: 25px;
-        margin: 20px 0;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
-      }
-
-      .comparison-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        margin-bottom: 20px;
-      }
-
-      .comparison-item {
-        background: #f9f9f9;
-        padding: 15px;
-        border-radius: 8px;
-        border-left: 4px solid #3498db;
-      }
-
-      .comparison-item strong {
-        display: block;
-        margin-bottom: 8px;
-        color: #1a2a3a;
-      }
-
-      /* ===== TABELA RESPONSIVA ===== */
-      .table-responsive {
-        overflow-x: auto;
-        margin: 20px 0;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        background: white;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
-      }
-
-      table thead {
-        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-        color: white;
-      }
-
-      table th,
-      table td {
-        padding: 15px;
-        text-align: left;
-        border-bottom: 1px solid #e0e0e0;
-      }
-
-      table tbody tr:hover {
-        background: #f5f5f5;
-      }
-
-      table tbody tr:last-child td {
-        border-bottom: none;
-      }
-
-      /* ===== BOTÕES ===== */
-      .btn {
-        display: inline-block;
-        padding: 12px 30px;
-        background: #3498db;
-        color: white;
-        border-radius: 25px;
-        text-decoration: none;
-        font-weight: bold;
-        text-transform: uppercase;
-        font-size: 0.85em;
-        transition: all 0.3s;
-        border: none;
-        cursor: pointer;
-      }
-
-      .btn:hover {
-        background: #2980b9;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-      }
-
-      .btn-back {
-        background: #95a5a6;
-      }
-
-      .btn-back:hover {
-        background: #7f8c8d;
-      }
-
-      /* ===== FOOTER ===== */
-      footer {
-        background: #2c3e50;
-        color: white;
-        text-align: center;
-        padding: 40px 20px;
-        margin-top: 60px;
-        font-size: 0.95em;
-      }
-
-      footer a {
-        color: #3498db;
-        text-decoration: none;
-      }
-
-      footer a:hover {
-        text-decoration: underline;
-      }
-
-      /* ===== RESPONSIVO ===== */
-      @media (max-width: 768px) {
-        .header h1 {
-          font-size: 1.8em;
-        }
-
-        .section h2 {
-          font-size: 1.5em;
-        }
-
-        .two-column {
-          grid-template-columns: 1fr;
-        }
-
-        .comparison-row {
-          grid-template-columns: 1fr;
-        }
-
-        table th,
-        table td {
-          padding: 10px;
-          font-size: 0.9em;
-        }
-      }
-
-      .quick-links {
-        background: white;
-        padding: 25px;
-        border-radius: 12px;
-        margin-bottom: 40px;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
-      }
-
-      .quick-links h3 {
-        margin-bottom: 15px;
-        color: #1a2a3a;
-      }
-
-      .quick-links ul {
-        list-style: none;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-      }
-
-      .quick-links li a {
-        color: #3498db;
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.3s;
-      }
-
-      .quick-links li a:hover {
-        color: #2980b9;
-        text-decoration: underline;
-      }
-    </style>
+    <title>Guia Rápido — FSS Explorer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="../../css/docs.css" />
   </head>
   <body>
-    <!-- ===== HEADER ===== -->
-    <div class="header">
-      <h1>📖 Guia Rápido - Dicionário de Termos</h1>
-      <p>Referência rápida de conceitos técnicos e definições essenciais</p>
-    </div>
 
-    <!-- ===== CONTEÚDO ===== -->
-    <div class="container">
-      <!-- ===== NAVEGAÇÃO RÁPIDA ===== -->
-      <div class="quick-links">
-        <h3>🔗 Ir para seção:</h3>
-        <ul>
-          <li><a href="#eletromagnetismo">Eletromagnetismo Básico</a></li>
-          <li><a href="#fss">FSS - Conceitos</a></li>
-          <li><a href="#parametros-s">Parâmetros S</a></li>
-          <li><a href="#materiais">Materiais & Dielétricos</a></li>
-          <li><a href="#unidades">Unidades de Medida</a></li>
-        </ul>
-      </div>
+    <!-- ===== TOP BAR ===== -->
+    <header class="topbar">
+      <a href="../../../index.html" class="topbar-brand">
+        <div class="brand-icon"><i class="fa-solid fa-signal"></i></div>
+        FSS Explorer
+      </a>
+      <span class="topbar-sep">/</span>
+      <span class="topbar-title">Guia Rápido</span>
+      <div class="topbar-spacer"></div>
+      <a href="../../../index.html" class="topbar-back">
+        <i class="fa-solid fa-arrow-left"></i> Voltar ao início
+      </a>
+    </header>
 
-      <!-- ===== SEÇÃO 1: ELETROMAGNETISMO ===== -->
-      <section class="section" id="eletromagnetismo">
-        <h2>⚡ Eletromagnetismo Básico</h2>
+    <!-- ===== LAYOUT ===== -->
+    <div class="docs-layout">
 
-        <div class="term-card category-em">
-          <h3><span class="term-icon">🌊</span> Onda Eletromagnética</h3>
-          <p>
-            Oscilação de campos elétrico e magnético que se propagam no espaço
-            com velocidade da luz. Exemplos: luz visível, rádio, WiFi,
-            microondas.
-          </p>
-          <div class="example">
-            ≈ Imagine uma corda vibrando que se propaga no espaço
-          </div>
+      <!-- ===== SIDEBAR ===== -->
+      <aside class="sidebar">
+        <div class="sidebar-section-label">Nesta página</div>
+        <nav>
+          <ul>
+            <li><a href="#eletromagnetismo"><span class="nav-icon"><i class="fa-solid fa-bolt"></i></span>Eletromagnetismo</a></li>
+            <li><a href="#fss"><span class="nav-icon"><i class="fa-solid fa-filter"></i></span>FSS — Conceitos</a></li>
+            <li><a href="#parametros-s"><span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span>Parâmetros S</a></li>
+            <li><a href="#materiais"><span class="nav-icon"><i class="fa-solid fa-layer-group"></i></span>Materiais & Dielétricos</a></li>
+            <li><a href="#unidades"><span class="nav-icon"><i class="fa-solid fa-ruler"></i></span>Unidades de Medida</a></li>
+          </ul>
+        </nav>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section-label">Outros guias</div>
+        <nav>
+          <ul>
+            <li><a href="explicacao_leigos.html"><span class="nav-icon"><i class="fa-solid fa-book-open"></i></span>Explicação para Leigos</a></li>
+            <li><a href="fundamentacao_teorica.html"><span class="nav-icon"><i class="fa-solid fa-flask"></i></span>Fundamentação Teórica</a></li>
+            <li><a href="calculo_lc.html"><span class="nav-icon"><i class="fa-solid fa-calculator"></i></span>Cálculo de L &amp; C</a></li>
+            <li><a href="resumo_completo.html"><span class="nav-icon"><i class="fa-solid fa-file-lines"></i></span>Resumo Completo</a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- ===== MAIN CONTENT ===== -->
+      <main class="docs-main">
+
+        <!-- Hero -->
+        <div class="page-hero">
+          <div class="page-hero-tag"><i class="fa-solid fa-book"></i> Referência</div>
+          <h1>Guia Rápido — Dicionário de Termos</h1>
+          <p>Referência rápida de conceitos técnicos e definições essenciais para uso do FSS Explorer.</p>
         </div>
 
-        <div class="term-card category-em">
-          <h3><span class="term-icon">⏱️</span> Frequência (f)</h3>
-          <p>
-            Quantas oscilações (ciclos) ocorrem por segundo. Medida em Hz
-            (hertz). Frequências maiores = oscilações mais rápidas.
-          </p>
-          <div class="example">1 GHz = 1.000.000.000 oscilações/segundo</div>
-          <div class="note">
-            💡 <strong>Dica:</strong> Frequência maior = comprimento de onda
-            menor = comportamento diferente
-          </div>
+        <!-- Quick nav pills -->
+        <div class="quick-nav">
+          <a href="#eletromagnetismo"><i class="fa-solid fa-bolt"></i> Eletromagnetismo</a>
+          <a href="#fss"><i class="fa-solid fa-filter"></i> FSS</a>
+          <a href="#parametros-s"><i class="fa-solid fa-chart-line"></i> Parâmetros S</a>
+          <a href="#materiais"><i class="fa-solid fa-layer-group"></i> Materiais</a>
+          <a href="#unidades"><i class="fa-solid fa-ruler"></i> Unidades</a>
         </div>
 
-        <div class="term-card category-em">
-          <h3><span class="term-icon">📏</span> Comprimento de Onda (λ)</h3>
-          <p>
-            Distância física entre dois picos (máximos) consecutivos de uma
-            onda. Inversamente proporcional à frequência.
-          </p>
-          <div class="example">
-            λ = c / f, onde c = 300.000 km/s
-            <br />
-            Exemplo: em 10 GHz, λ = 3 cm
-          </div>
-        </div>
+        <!-- ===== SEÇÃO 1 ===== -->
+        <section class="docs-section" id="eletromagnetismo">
+          <h2><span class="section-icon"><i class="fa-solid fa-bolt"></i></span>Eletromagnetismo Básico</h2>
 
-        <div class="two-column">
-          <div class="term-card category-em">
-            <h3><span class="term-icon">📤</span> Transmissão</h3>
-            <p>
-              Quanto do sinal consegue passar através de um meio ou obstáculo.
-              Expressa em percentual ou decibel (dB).
-            </p>
+          <div class="term-card cat-em">
+            <h3><i class="fa-solid fa-wave-square"></i> Onda Eletromagnética</h3>
+            <p>Oscilação de campos elétrico e magnético que se propagam no espaço com velocidade da luz. Exemplos: luz visível, rádio, WiFi, microondas.</p>
+            <div class="example">Analogia: como uma corda vibrando que se propaga no espaço</div>
           </div>
 
-          <div class="term-card category-em">
-            <h3><span class="term-icon">📥</span> Reflexão</h3>
-            <p>
-              Quanto do sinal volta/rebota em uma superfície. Complementar à
-              transmissão.
-            </p>
+          <div class="term-card cat-em">
+            <h3><i class="fa-solid fa-stopwatch"></i> Frequência (f)</h3>
+            <p>Quantas oscilações (ciclos) ocorrem por segundo. Medida em Hz (hertz). Frequências maiores = oscilações mais rápidas.</p>
+            <div class="example">1 GHz = 1.000.000.000 oscilações/segundo</div>
+            <div class="note"><strong>Nota:</strong> Frequência maior = comprimento de onda menor = comportamento diferente</div>
           </div>
-        </div>
-      </section>
 
-      <!-- ===== SEÇÃO 2: FSS ===== -->
-      <section class="section" id="fss">
-        <h2>🎯 FSS - Superfícies Seletivas de Frequência</h2>
-
-        <div class="term-card category-param">
-          <h3><span class="term-icon">📊</span> FSS</h3>
-          <p>
-            <strong>Frequency Selective Surface</strong> (Superfície Seletiva de
-            Frequência). Padrão repetido de estruturas metálicas que filtra
-            ondas eletromagnéticas.
-          </p>
-          <p>
-            Funciona como um
-            <strong>filtro passa-banda ou rejeita-banda</strong>
-            dependendo da geometria e frequência.
-          </p>
-          <div class="note">
-            💡 <strong>Analogia:</strong> É como uma peneira que deixa passar
-            certas frequências e bloqueia outras
+          <div class="term-card cat-em">
+            <h3><i class="fa-solid fa-ruler-horizontal"></i> Comprimento de Onda (λ)</h3>
+            <p>Distância física entre dois picos consecutivos de uma onda. Inversamente proporcional à frequência.</p>
+            <div class="example">λ = c / f, onde c = 300.000 km/s &nbsp;|&nbsp; Em 10 GHz → λ = 3 cm</div>
           </div>
-        </div>
 
-        <div class="term-card category-param">
-          <h3><span class="term-icon">📐</span> Período (p)</h3>
-          <p>
-            Tamanho da célula unitária que se repete na FSS. Define a escala
-            física da estrutura.
-          </p>
-          <div class="example">
-            Período de 10 mm significa que o padrão se repete a cada 10 mm
-          </div>
-          <div class="note">
-            💡 O período está relacionado ao comprimento de onda e determina
-            fortemente as frequências de ressonância
-          </div>
-        </div>
-
-        <div class="term-card category-param">
-          <h3><span class="term-icon">🔔</span> Ressonância</h3>
-          <p>
-            Frequência em que a FSS responde com máxima eficiência. Nesta
-            frequência, o impedância equivalente causa forte atenuação.
-          </p>
-          <div class="example">
-            Frequência de ressonância (fr): onde S21 é mínimo
-          </div>
-        </div>
-
-        <div class="term-card category-param">
-          <h3>
-            <span class="term-icon">📍</span> Frequência de Ressonância (fr)
-          </h3>
-          <p>
-            Frequência onde a transmissão é <strong>mínima</strong> (máximo
-            bloqueio). Onde o sinal é mais fortemente atenuado.
-          </p>
-          <div class="note">
-            💡 <strong>No gráfico:</strong> É o ponto mais baixo da curva S21
-          </div>
-        </div>
-
-        <div class="term-card category-param">
-          <h3><span class="term-icon">📊</span> Largura de Banda (BW)</h3>
-          <p>
-            Faixa de frequências onde o filtro está <strong>ativo</strong>
-            (bloqueio ocorre). Medida entre os pontos de -3dB.
-          </p>
-          <div class="example">
-            Se fr = 10 GHz e BW = 2 GHz: bloqueio entre 9-11 GHz
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== SEÇÃO 3: PARÂMETROS S ===== -->
-      <section class="section" id="parametros-s">
-        <h2>📉 Parâmetros S (Scatter Parameters)</h2>
-
-        <div class="term-card category-param">
-          <h3>
-            <span class="term-icon">📤</span> S21 (Parâmetro de Transmissão)
-          </h3>
-          <p>
-            Mede <strong>quanto sinal sai</strong> de um lado quando entra do
-            outro lado. É o parâmetro principal usado neste simulador.
-          </p>
-
-          <div class="comparison-box">
-            <strong style="display: block; margin-bottom: 15px">
-              Interpretação em dB:
-            </strong>
-            <div class="comparison-row">
-              <div class="comparison-item">
-                <strong>0 dB</strong>
-                <p>100% do sinal passa (sem atenuação)</p>
-              </div>
-              <div class="comparison-item">
-                <strong>-3 dB</strong>
-                <p>50% da potência passa</p>
-              </div>
+          <div class="two-column">
+            <div class="term-card cat-em">
+              <h3><i class="fa-solid fa-arrow-right-from-bracket"></i> Transmissão</h3>
+              <p>Quanto do sinal consegue passar através de um meio ou obstáculo. Expressa em percentual ou decibel (dB).</p>
             </div>
-            <div class="comparison-row">
-              <div class="comparison-item">
-                <strong>-10 dB</strong>
-                <p>10% da potência passa</p>
-              </div>
-              <div class="comparison-item">
-                <strong>-60 dB</strong>
-                <p>Quase nada passa (forte bloqueio)</p>
-              </div>
+            <div class="term-card cat-em">
+              <h3><i class="fa-solid fa-arrow-right-to-bracket"></i> Reflexão</h3>
+              <p>Quanto do sinal volta/rebota em uma superfície. Complementar à transmissão.</p>
             </div>
           </div>
+        </section>
 
-          <div class="note">
-            💡 <strong>No simulador:</strong> Quanto mais negativo (mais baixo),
-            mais o sinal é bloqueado
+        <!-- ===== SEÇÃO 2 ===== -->
+        <section class="docs-section" id="fss">
+          <h2><span class="section-icon"><i class="fa-solid fa-filter"></i></span>FSS — Superfícies Seletivas de Frequência</h2>
+
+          <div class="term-card cat-fss">
+            <h3><i class="fa-solid fa-th"></i> FSS — Frequency Selective Surface</h3>
+            <p><strong>Superfície Seletiva de Frequência.</strong> Padrão repetido de estruturas metálicas que filtra ondas eletromagnéticas.</p>
+            <p>Funciona como um <strong>filtro passa-banda ou rejeita-banda</strong> dependendo da geometria e frequência.</p>
+            <div class="note"><strong>Analogia:</strong> É como uma peneira que deixa passar certas frequências e bloqueia outras.</div>
           </div>
-        </div>
 
-        <div class="term-card category-param">
-          <h3><span class="term-icon">📥</span> S11 (Parâmetro de Reflexão)</h3>
-          <p>
-            Mede <strong>quanto sinal volta/rebota</strong> na entrada. Não é
-            usado neste simulador, mas é complementar a S21.
-          </p>
-          <div class="note">
-            💡 <strong>Relação:</strong> S21 + S11 + Absorção = 1 (energia
-            conservada)
+          <div class="term-card cat-fss">
+            <h3><i class="fa-solid fa-table-cells"></i> Período (p)</h3>
+            <p>Tamanho da célula unitária que se repete na FSS. Define a escala física da estrutura.</p>
+            <div class="example">Período de 10 mm: o padrão se repete a cada 10 mm</div>
+            <div class="note">O período está relacionado ao comprimento de onda e determina fortemente as frequências de ressonância.</div>
           </div>
-        </div>
-      </section>
 
-      <!-- ===== SEÇÃO 4: MATERIAIS ===== -->
-      <section class="section" id="materiais">
-        <h2>🧪 Materiais e Constantes Dielétricas</h2>
+          <div class="term-card cat-fss">
+            <h3><i class="fa-solid fa-bullseye"></i> Ressonância</h3>
+            <p>Frequência em que a FSS responde com máxima eficiência. A impedância equivalente causa forte atenuação.</p>
+            <div class="example">Frequência de ressonância (fr): onde S21 é mínimo</div>
+          </div>
 
-        <div class="term-card category-mat">
-          <h3>
-            <span class="term-icon">⚙️</span> εᵣ (Epsilon Relativo / Constante
-            Dielétrica)
-          </h3>
-          <p>
-            Medida de como um material reage a campos elétricos. Compara-se com
-            o ar (εᵣ = 1).
-          </p>
-          <p>
-            <strong>Valores típicos:</strong> quanto maior εᵣ, mais forte é a
-            interação com o campo.
-          </p>
+          <div class="two-column">
+            <div class="term-card cat-fss">
+              <h3><i class="fa-solid fa-location-dot"></i> Freq. de Ressonância (fr)</h3>
+              <p>Frequência onde a transmissão é <strong>mínima</strong> (máximo bloqueio).</p>
+              <div class="note">No gráfico: é o ponto mais baixo da curva S21.</div>
+            </div>
+            <div class="term-card cat-fss">
+              <h3><i class="fa-solid fa-arrows-left-right"></i> Largura de Banda (BW)</h3>
+              <p>Faixa de frequências onde o filtro está ativo. Medida entre os pontos de −3 dB.</p>
+              <div class="example">fr = 10 GHz, BW = 2 GHz → bloqueio entre 9–11 GHz</div>
+            </div>
+          </div>
+        </section>
 
-          <div class="table-responsive">
-            <table>
+        <!-- ===== SEÇÃO 3 ===== -->
+        <section class="docs-section" id="parametros-s">
+          <h2><span class="section-icon"><i class="fa-solid fa-chart-line"></i></span>Parâmetros S (Scatter Parameters)</h2>
+
+          <div class="term-card cat-sp">
+            <h3><i class="fa-solid fa-arrow-trend-down"></i> S21 — Parâmetro de Transmissão</h3>
+            <p>Mede <strong>quanto sinal sai</strong> de um lado quando entra do outro. É o parâmetro principal do simulador.</p>
+            <p><strong>Interpretação em dB:</strong></p>
+            <div class="comparison-grid">
+              <div class="comparison-item"><strong>0 dB</strong><span>100% do sinal passa (sem atenuação)</span></div>
+              <div class="comparison-item"><strong>−3 dB</strong><span>50% da potência passa</span></div>
+              <div class="comparison-item"><strong>−10 dB</strong><span>10% da potência passa</span></div>
+              <div class="comparison-item"><strong>−60 dB</strong><span>Quase nada passa (forte bloqueio)</span></div>
+            </div>
+            <div class="note"><strong>No simulador:</strong> quanto mais negativo, mais o sinal é bloqueado.</div>
+          </div>
+
+          <div class="term-card cat-sp">
+            <h3><i class="fa-solid fa-rotate-left"></i> S11 — Parâmetro de Reflexão</h3>
+            <p>Mede <strong>quanto sinal volta/rebota</strong> na entrada. Não é exibido neste simulador, mas é complementar ao S21.</p>
+            <div class="note"><strong>Relação:</strong> S21 + S11 + Absorção = 1 (conservação de energia)</div>
+          </div>
+        </section>
+
+        <!-- ===== SEÇÃO 4 ===== -->
+        <section class="docs-section" id="materiais">
+          <h2><span class="section-icon"><i class="fa-solid fa-layer-group"></i></span>Materiais e Constantes Dielétricas</h2>
+
+          <div class="term-card cat-mat">
+            <h3><i class="fa-solid fa-atom"></i> εᵣ — Epsilon Relativo / Constante Dielétrica</h3>
+            <p>Medida de como um material reage a campos elétricos. Compara-se com o ar (εᵣ = 1). Quanto maior εᵣ, mais forte é a interação com o campo.</p>
+
+            <table class="docs-table" style="margin-top: 16px;">
               <thead>
                 <tr>
                   <th>Material</th>
-                  <th>εᵣ (aproximado)</th>
+                  <th>εᵣ (aprox.)</th>
                   <th>Aplicação</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td><strong>Ar / Vácuo</strong></td>
-                  <td>1.0</td>
-                  <td>Referência</td>
-                </tr>
-                <tr>
-                  <td><strong>RO3003 (PCB)</strong></td>
-                  <td>3.0</td>
-                  <td>Substrato padrão (usado aqui)</td>
-                </tr>
-                <tr>
-                  <td><strong>RO3006 (PCB)</strong></td>
-                  <td>6.5</td>
-                  <td>Substrato com mais permissividade</td>
-                </tr>
-                <tr>
-                  <td><strong>RT/Duroid 6010 (PCB)</strong></td>
-                  <td>10.20</td>
-                  <td>Alta permissividade p/ miniaturização de FSS</td>
-                </tr>
-                <tr>
-                  <td><strong>Vidro</strong></td>
-                  <td>5-8</td>
-                  <td>Dielétrico comum</td>
-                </tr>
-                <tr>
-                  <td><strong>Cerâmica</strong></td>
-                  <td>10-50</td>
-                  <td>Alta permissividade</td>
-                </tr>
-                <tr>
-                  <td><strong>Água</strong></td>
-                  <td>80</td>
-                  <td>Muito polarizável</td>
-                </tr>
+                <tr><td><strong>Ar / Vácuo</strong></td><td>1.0</td><td>Referência</td></tr>
+                <tr><td><strong>RO3003 (PCB)</strong></td><td>3.0</td><td>Substrato padrão</td></tr>
+                <tr><td><strong>RO3006 (PCB)</strong></td><td>6.5</td><td>Alta permissividade</td></tr>
+                <tr><td><strong>RT/Duroid 6010 (PCB)</strong></td><td>10.20</td><td>Miniaturização de FSS</td></tr>
+                <tr><td><strong>Vidro</strong></td><td>5–8</td><td>Dielétrico comum</td></tr>
+                <tr><td><strong>Cerâmica</strong></td><td>10–50</td><td>Alta permissividade</td></tr>
+                <tr><td><strong>Água</strong></td><td>80</td><td>Muito polarizável</td></tr>
               </tbody>
             </table>
+
+            <div class="note">Maior εᵣ → onda mais lenta → comprimento de onda menor no material.</div>
           </div>
 
-          <div class="note">
-            💡 <strong>Regra:</strong> Maior εᵣ → mais lento a onda se propaga →
-            comprimento de onda menor no material
-          </div>
-        </div>
-
-        <div class="term-card category-mat">
-          <h3><span class="term-icon">📏</span> h_sub (Altura do Substrato)</h3>
-          <p>
-            Espessura do material dielétrico onde a FSS está impressa. Afeta
-            significativamente a resposta em frequência.
-          </p>
-          <div class="example">
-            Exemplos: 1.52 mm (RO3003), 1.28 mm (RO3006), 1.90 mm (RT6010)
-          </div>
-          <div class="note">
-            💡 Substratos mais espessos ou com maior εᵣ deslocam a frequência de
-            ressonância para valores mais baixos
-          </div>
-        </div>
-
-        <div class="two-column">
-          <div class="term-card category-mat">
-            <h3><span class="term-icon">💿</span> RO3003</h3>
-            <p>
-              Material de PCB (placa de circuito impresso) da Rogers
-              Corporation.
-            </p>
-            <div class="example">εᵣ = 3.0 | h = 1.52 mm</div>
+          <div class="term-card cat-mat">
+            <h3><i class="fa-solid fa-ruler-vertical"></i> h_sub — Altura do Substrato</h3>
+            <p>Espessura do material dielétrico onde a FSS está impressa. Afeta significativamente a resposta em frequência.</p>
+            <div class="example">Exemplos: 1.52 mm (RO3003) | 1.28 mm (RO3006) | 1.90 mm (RT6010)</div>
+            <div class="note">Substratos mais espessos ou com maior εᵣ deslocam a frequência de ressonância para valores mais baixos.</div>
           </div>
 
-          <div class="term-card category-mat">
-            <h3><span class="term-icon">💿</span> RO3006</h3>
-            <p>Material de PCB com maior constante dielétrica.</p>
-            <div class="example">εᵣ = 6.5 | h = 1.28 mm</div>
+          <div class="two-column">
+            <div class="term-card cat-mat">
+              <h3><i class="fa-solid fa-microchip"></i> RO3003</h3>
+              <p>Material de PCB da Rogers Corporation. Substrato padrão no simulador.</p>
+              <div class="example">εᵣ = 3.0 | h = 1.52 mm</div>
+            </div>
+            <div class="term-card cat-mat">
+              <h3><i class="fa-solid fa-microchip"></i> RO3006</h3>
+              <p>Material de PCB com maior constante dielétrica. Indicado para estruturas mais compactas.</p>
+              <div class="example">εᵣ = 6.5 | h = 1.28 mm</div>
+            </div>
           </div>
-        </div>
-
-        <div class="two-column" style="margin-top:20px;">
-          <div class="term-card category-mat">
-            <h3><span class="term-icon">💿</span> RT/Duroid 6010</h3>
-            <p>Substrato cerâmico-PTFE para aplicações avançadas em micro-ondas com altíssima permissividade.</p>
+          <div class="term-card cat-mat">
+            <h3><i class="fa-solid fa-microchip"></i> RT/Duroid 6010</h3>
+            <p>Substrato cerâmico-PTFE para aplicações avançadas em micro-ondas. Altíssima permissividade permite forte miniaturização das células FSS.</p>
             <div class="example">εᵣ = 10.20 | h = 1.90 mm</div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- ===== SEÇÃO 5: UNIDADES ===== -->
-      <section class="section" id="unidades">
-        <h2>📏 Unidades de Medida</h2>
+        <!-- ===== SEÇÃO 5 ===== -->
+        <section class="docs-section" id="unidades">
+          <h2><span class="section-icon"><i class="fa-solid fa-ruler"></i></span>Unidades de Medida</h2>
 
-        <div class="term-card category-unit">
-          <h3><span class="term-icon">🔊</span> GHz (Gigahertz)</h3>
-          <p>
-            Unidade de frequência. Frequência é quantas vezes algo oscila por
-            segundo.
-          </p>
-          <div class="example">
-            1 GHz = 1.000.000.000 Hz (1 bilhão de oscilações/segundo)
+          <div class="term-card cat-unit">
+            <h3><i class="fa-solid fa-tower-broadcast"></i> GHz (Gigahertz)</h3>
+            <p>Unidade de frequência. Frequência é quantas vezes algo oscila por segundo.</p>
+            <div class="example">1 GHz = 1.000.000.000 Hz</div>
+            <div class="note"><strong>Exemplos:</strong> WiFi ≈ 2.4 GHz | Microondas ≈ 2.45 GHz | 5G n78 ≈ 3.5 GHz | mm-wave 5G ≈ 28 GHz</div>
           </div>
-          <div class="note">
-            💡 <strong>Exemplos:</strong> WiFi ≈ 2.4 GHz | Microondas ≈ 2.45 GHz
-            | 5G ≈ 28 GHz
+
+          <div class="term-card cat-unit">
+            <h3><i class="fa-solid fa-ruler"></i> mm (Milímetro)</h3>
+            <p>Unidade de comprimento usada para todas as dimensões físicas das estruturas FSS.</p>
+            <div class="example">1 cm = 10 mm | 1 mm = 0.1 cm</div>
           </div>
-        </div>
 
-        <div class="term-card category-unit">
-          <h3><span class="term-icon">📏</span> mm (Milímetro)</h3>
-          <p>
-            Unidade de comprimento (distância). Usado para dimensões físicas.
-          </p>
-          <div class="example">1 cm = 10 mm | 1 mm = 0.1 cm</div>
-        </div>
-
-        <div class="term-card category-unit">
-          <h3><span class="term-icon">📊</span> dB (Decibel)</h3>
-          <p>
-            Escala <strong>logarítmica</strong> usada para expressar razões
-            (potência, amplitude, etc.). Muito usada em RF/Microondas.
-          </p>
-
-          <div class="comparison-box">
-            <strong style="display: block; margin-bottom: 15px">
-              Referência rápida (para potência):
-            </strong>
-            <div class="comparison-row">
-              <div class="comparison-item">
-                <strong>0 dB</strong>
-                <p>Razão = 1 (referência)</p>
-              </div>
-              <div class="comparison-item">
-                <strong>+3 dB</strong>
-                <p>Razão ≈ 2 (dobra)</p>
-              </div>
+          <div class="term-card cat-unit">
+            <h3><i class="fa-solid fa-chart-bar"></i> dB (Decibel)</h3>
+            <p>Escala <strong>logarítmica</strong> usada para expressar razões de potência ou amplitude. Muito usada em RF e micro-ondas.</p>
+            <p><strong>Referência rápida (potência):</strong></p>
+            <div class="comparison-grid">
+              <div class="comparison-item"><strong>0 dB</strong><span>Razão = 1 (referência)</span></div>
+              <div class="comparison-item"><strong>+3 dB</strong><span>Razão ≈ 2 (dobra)</span></div>
+              <div class="comparison-item"><strong>+10 dB</strong><span>Razão = 10</span></div>
+              <div class="comparison-item"><strong>−3 dB</strong><span>Razão ≈ 0.5 (metade)</span></div>
+              <div class="comparison-item"><strong>−10 dB</strong><span>Razão = 0.1</span></div>
+              <div class="comparison-item"><strong>−20 dB</strong><span>Razão = 0.01</span></div>
             </div>
-            <div class="comparison-row">
-              <div class="comparison-item">
-                <strong>+10 dB</strong>
-                <p>Razão = 10</p>
-              </div>
-              <div class="comparison-item">
-                <strong>-3 dB</strong>
-                <p>Razão ≈ 0.5 (metade)</p>
-              </div>
-            </div>
-            <div class="comparison-row">
-              <div class="comparison-item">
-                <strong>-10 dB</strong>
-                <p>Razão = 0.1 (1/10)</p>
-              </div>
-              <div class="comparison-item">
-                <strong>-20 dB</strong>
-                <p>Razão = 0.01 (1/100)</p>
-              </div>
-            </div>
+            <div class="note"><strong>Fórmula:</strong> dB = 10 × log₁₀(razão)</div>
           </div>
+        </section>
 
-          <div class="note">
-            💡 <strong>Fórmula:</strong> dB = 10 × log₁₀(razão)
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== BOTÃO VOLTAR ===== -->
-      <div style="text-align: center; margin-top: 60px">
-        <a href="../../../index.html" class="btn btn-back">← Voltar ao Início</a>
-      </div>
+      </main>
     </div>
 
     <!-- ===== FOOTER ===== -->
-    <footer>
-      <p><strong>Guia Rápido - FSS Explorer</strong></p>
-      <p style="margin-top: 10px">
-        Referência de conceitos técnicos para simulação de Superfícies Seletivas
-        de Frequência
-      </p>
+    <footer class="docs-footer">
+      <span><strong style="color:#e2e8f0;">FSS Explorer</strong> — Guia Rápido de Termos</span>
+      <span>Referência técnica para simulação de Superfícies Seletivas de Frequência</span>
+      <a href="../../../index.html"><i class="fa-solid fa-house"></i> Início</a>
     </footer>
+
   </body>
 </html>
