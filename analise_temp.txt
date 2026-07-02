@@ -1,0 +1,479 @@
+<USER_REQUEST>
+\chapter{Análise Paramétrica}
+\label{chap:Análise Paramétrica}
+
+A análise paramétrica constitui uma etapa fundamental no projeto de superfícies seletivas em frequência, pois permite investigar de forma sistemática a influência das dimensões geométricas da célula unitária sobre a resposta eletromagnética da estrutura. No contexto das FSS, pequenas variações em parâmetros como comprimento, largura, espessura e periodicidade dos elementos metálicos alteram significativamente as propriedades ressonantes, deslocando a frequência central, modificando a largura de banda e influenciando a profundidade de rejeição ou transmissão. Essa abordagem é especialmente relevante em geometrias complexas, nas quais a relação entre forma e resposta em frequência não é trivial e, portanto, requer avaliação numérica detalhada para viabilizar o ajuste fino do projeto.
+
+
+
+\section{Análise Paramétrica Anel Quadrado}
+\label{sec:Análise Paramétrica Anel Quadrados}
+
+Para a análise paramétrica da geometria em anel quadrado, foram definidos previamente os parâmetros geométricos e do substrato que permaneceram fixos ao longo das simulações, de forma a isolar a influência da variação dimensional do elemento ressonante sobre a resposta eletromagnética da FSS. Assim, adotou-se \(p = 21\) mm, \(d = 16\) mm, \(w = 1\) mm, espessura do substrato \(h_{subs} = 1{,}52\) mm e permissividade relativa \(\varepsilon_r = 3{,}0\). Essa definição permite garantir uma base padronizada para a comparação dos resultados obtidos nas diferentes configurações analisadas, reduzindo a interferência de variáveis externas no comportamento da estrutura.
+
+\begin{figure}[!htbp]
+    \centering
+    \caption{Análise paramétrica da geometria: (a) variação da frequência de ressonância e do produto $L \times C$ em função do período $p$; (b) variação da indutância $L$ e da capacitância $C$ em função do período $p$; (c) variação da frequência de ressonância e do produto $L \times C$ em função de $d$; (d) variação da indutância $L$ e da capacitância $C$ em função de $d$; (e) variação da frequência de ressonância e do produto $L \times C$ em função de $w$; (f) variação da indutância $L$ e da capacitância $C$ em função de $w$.}
+    \label{fig:anelquadrado_parametrica}
+
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/var_p_freq_lc.png}
+        \caption*{(a)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/var_p_lc.png}
+        \caption*{(b)}
+    \end{minipage}
+
+    \vspace{0.3cm}
+
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/var_d_freq_lc.png}
+        \caption*{(c)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/var_d_lc.png}
+        \caption*{(d)}
+    \end{minipage}
+
+    \vspace{0.3cm}
+
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/var_w_freq_lc.png}
+        \caption*{(e)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/var_w_lc.png}
+        \caption*{(f)}
+    \end{minipage}
+
+    \fonte{Autor.}
+\end{figure}
+
+Os gráficos apresentados na Figura~\ref{fig:anelquadrado_parametrica} revelam o comportamento paramétrico da superfície seletiva em frequência, correlacionando de forma explícita as dimensões físicas da célula unitária com as flutuações das reatâncias concentradas ($L$ e $C$) extraídas do modelo analítico. Tais variações são as responsáveis diretas pela sintonia da frequência de ressonância ($f_{\mathrm{analítico}}$), governada pela relação fundamental expressa na Equação~\eqref{eq:f_analitico}. A seguir, detalha-se o impacto eletromagnético de cada parâmetro geométrico à luz das equações de circuito equivalente.
+
+\subsection{Efeito da Variação da Periodicidade ($p$)}
+
+As Figuras~\ref{fig:anelquadrado_parametrica}(a) e \ref{fig:anelquadrado_parametrica}(b) ilustram a resposta da estrutura ao expandir a periodicidade $p$ de $17\text{ mm}$ a $21\text{ mm}$, mantendo a metalização estática ($d = 16\text{ mm}$ e $w = 1\text{ mm}$). Observa-se um deslocamento quase linear da frequência de ressonância para regiões espectrais mais altas, acompanhado de uma queda suave do produto $L \times C$.
+
+Do ponto de vista analítico, o aumento de $p$ implica diretamente o alargamento da fenda intercelular ($g = p - d$). Na Equação~\eqref{eq:BC_celula}, a susceptância capacitiva é regida pela função de correção harmônica $F(p, g, \lambda, \theta)$. Conforme detalhado na Equação~\eqref{eq:Fpw}, o termo dominante desta função é o logaritmo natural da cossecante, $\ln\!\left[\csc\left(\frac{\pi g}{2p}\right)\right]$. O alargamento de $g$ aumenta o argumento da função seno, o que reduz o valor da cossecante e, consequentemente, atenua severamente o resultado do logaritmo. Fisicamente, o afastamento das células vizinhas enfraquece o acoplamento do campo elétrico de borda, derrubando a capacitância $C$. 
+
+Simultaneamente, a indutância $L$ também sofre decréscimo. Analisando a Equação~\eqref{eq:XL_celula}, nota-se que a reatância indutiva é modulada pelo fator de escala da célula. Como o lado $d$ permanece fixo, o aumento da periodicidade reduz o fator de preenchimento da matriz, atenuando a densidade de fluxo magnético por célula e diminuindo o armazenamento de energia indutiva. A queda combinada de $L$ e $C$ justifica o aumento contínuo de $f_r$.
+
+\subsection{Efeito da Variação do Comprimento do Lado ($d$)}
+
+A variação do lado externo do anel ($d$), mapeada nas Figuras~\ref{fig:anelquadrado_parametrica}(c) e \ref{fig:anelquadrado_parametrica}(d), demonstra ser o mecanismo de sintonia mais sensível do projeto. O aumento de $d$ de $15\text{ mm}$ para $19\text{ mm}$, confinado num período fixo ($p = 21\text{ mm}$), provoca um afundamento drástico e exponencial da frequência de ressonância.
+
+Este fenômeno reflete um duplo somatório de efeitos reativos. Primeiramente, o aumento de $d$ alonga a secção da trilha condutora polarizada ao longo do campo elétrico incidente. Na aproximação do circuito modelado pela Equação~\eqref{eq:XL_celula}, isto se traduz no aumento direto da indutância distribuída ($L$). 
+
+Contudo, o impacto mais agressivo incide sobre a capacitância ($C$). O crescimento de $d$ resulta no estreitamento abrupto da fenda intercelular ($g \to 0$). Matematicamente, à medida que o argumento $\left(\frac{\pi g}{2p}\right)$ se aproxima de zero, a função seno tende a zero e a cossecante da Equação~\eqref{eq:Fpw} tende ao infinito. Esta singularidade analítica modela a acumulação extrema de densidade de carga elétrica (efeito de borda ou \textit{fringing field}) entre as células sub-milimétricas. O crescimento exponencial da capacitância, atrelado ao aumento da indutância, eleva o produto $L \times C$ vertiginosamente, tornando a expansão de $d$ o método primário para forçar a miniaturização da estrutura e baixar a banda de operação do filtro.
+
+\subsection{Efeito da Variação da Largura da Trilha ($w$)}
+
+As Figuras~\ref{fig:anelquadrado_parametrica}(e) e \ref{fig:anelquadrado_parametrica}(f) descrevem o comportamento do espalhador frente ao engrossamento da fita metálica ($w$), avaliado de $0{,}5\text{ mm}$ a $2{,}5\text{ mm}$. Este engrossamento desloca a ressonância para frequências substancialmente mais altas.
+
+A análise do circuito equivalente isola perfeitamente a causa: a fenda principal da célula ($g = p - d$) não é alterada (visto que $p$ e $d$ são mantidos fixos), preservando o comportamento espacial primário da capacitância transversal. O único fenômeno dominante passa a ser a queda acentuada da reatância indutiva. Retornando à Equação~\eqref{eq:Fpw} aplicada a $X_L$ na Equação~\eqref{eq:XL_celula}, observa-se a dependência logarítmica com a largura: $\ln\!\left[\csc\left(\frac{\pi w}{2p}\right)\right]$. O alargamento de $w$ proporciona uma área de secção superior para o escoamento das correntes de superfície. A menor restrição física à densidade de corrente diminui o campo magnético induzido ao redor da trilha, traduzindo-se em uma redução acentuada de $L$.
+
+Apesar de a capacitância primária da fenda se manter estática, nota-se nos dados da Figura~\ref{fig:anelquadrado_parametrica}(f) um crescimento muito tênue e residual de $C$. Este detalhe comprova a robustez da correção da permissividade efetiva ($\varepsilon_{\mathrm{ef}}$) introduzida no modelo. O engrossamento da trilha altera a razão ($w/p$), o que diminui progressivamente o fator empírico de decaimento $\alpha$ estipulado na Equação~\eqref{eq:alpha_espira}. Uma menor restrição no expoente da Equação~\eqref{eq:eeff_costa} faz com que a estrutura ``sinta'' um $\varepsilon_{\mathrm{ef}}$ sutilmente maior, provocando a leve elevação de $C$. Entretanto, a massiva queda da indutância prevalece, derrubando o produto $L \times C$ e acelerando a ressonância para o limite superior da banda analisada.
+
+\subsection{Efeito do Substrato Dielétrico ($h_{\mathrm{sub}}$ e $\varepsilon_r$)}
+
+Além das dimensões da metalização, o perfil dielétrico do substrato exerce um papel governante sobre a sintonia do filtro. A Figura~\ref{fig:anelquadrado_substrato} apresenta a análise paramétrica isolada para a espessura da placa ($h_{\mathrm{sub}}$) e para a sua constante dielétrica relativa ($\varepsilon_r$). 
+
+\begin{figure}[!htbp]
+    \centering
+    \caption{Análise paramétrica das propriedades do substrato dielétrico: (a) variação da frequência de ressonância e do produto $L \times C$ em função da espessura $h_{\mathrm{sub}}$; (b) variação da indutância $L$ e da capacitância $C$ em função de $h_{\mathrm{sub}}$; (c) variação da frequência de ressonância e do produto $L \times C$ em função da permissividade relativa $\varepsilon_r$; (d) variação da indutância $L$ e da capacitância $C$ em função de $\varepsilon_r$.}
+    \label{fig:anelquadrado_substrato}
+
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/var_hsub_freq_lc.png}
+        \caption*{(a)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/var_hsub_lc.png}
+        \caption*{(b)}
+    \end{minipage}
+
+    \vspace{0.3cm}
+
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/var_er_freq_lc.png}
+        \caption*{(c)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/var_er_lc.png}
+        \caption*{(d)}
+    \end{minipage}
+
+    \fonte{Autor.}
+\end{figure}
+
+As Figuras~\ref{fig:anelquadrado_substrato}(a) e \ref{fig:anelquadrado_substrato}(b) documentam o comportamento eletromagnético da FSS à medida que o substrato é espessado. O traçado das curvas revela que o aumento de $h_{\mathrm{sub}}$ provoca uma elevação inicial rápida na capacitância ($C$) e uma respectiva queda na frequência de ressonância, contudo, esse comportamento não se prolonga indefinidamente, estabilizando-se em uma assíntota horizontal evidente.
+
+A justificativa para este teto de saturação encontra-se na formulação de Costa et al. delineada na Equação~\eqref{eq:eeff_costa}. O termo governante do modelo é a função exponencial negativa $\left(1 - e^{-\alpha \frac{h_{\mathrm{sub}}}{p}}\right)$. Para substratos fisicamente finos, grande parte do campo elétrico de borda dispersa-se no espaço livre ($\varepsilon = 1$). Com o incremento de $h_{\mathrm{sub}}$, o material dielétrico passa a englobar mais linhas de campo, elevando a permissividade efetiva ($\varepsilon_{\mathrm{ef}}$). Contudo, a partir do momento em que a espessura se torna eletricamente grande em relação ao período ($p$), ocorre o confinamento total do campo de borda. Matematicamente, o termo exponencial converge para zero, e o $\varepsilon_{\mathrm{ef}}$ atinge seu limite assintótico máximo e inultrapassável de $\frac{\varepsilon_r + 1}{2}$. Por conseguinte, a capacitância $C$ estaciona, e a frequência de ressonância ($f_{\mathrm{analítico}}$) torna-se invariante a espessamentos adicionais. Destaca-se, na Figura~\ref{fig:anelquadrado_substrato}(b), o perfil rigorosamente plano e constante da indutância ($L$), o que comprova analiticamente que o fluxo magnético tangencial gerado pela geometria independe das propriedades de profundidade do dielétrico.
+
+Em contrapartida, as Figuras~\ref{fig:anelquadrado_substrato}(c) e \ref{fig:anelquadrado_substrato}(d) expõem a resposta da FSS frente à variação da constante dielétrica do material ($\varepsilon_r$), mantendo a geometria e a espessura fixas. Diferentemente do efeito de saturação da espessura, o aumento do $\varepsilon_r$ produz um crescimento estritamente linear sobre os parâmetros elétricos.
+
+Analisando a estrutura da Equação~\eqref{eq:eeff_costa}, isolar a variável $\varepsilon_r$ resulta em uma função de primeiro grau. O aumento da densidade dielétrica atua como um multiplicador direto sobre a capacidade do meio em armazenar energia. Isto é visualmente atestado pela reta perfeitamente inclinada da capacitância ($C$) na Figura~\ref{fig:anelquadrado_substrato}(d). Sendo a indutância ($L$) uma constante geométrica (novamente representada pela linha plana horizontal), o produto $L \times C$ acompanha com fidelidade o crescimento linear. Finalmente, a curva da frequência de ressonância na Figura~\ref{fig:anelquadrado_substrato}(c) não é linear, mas sim uma curva de decaimento que segue a proporção exata do inverso da raiz quadrada do meio $\left( f_r \propto 1/\sqrt{\varepsilon_{\mathrm{ef}}} \right)$. Este comportamento consolida o embasamento teórico clássico de miniaturização de FSS: a utilização de substratos de elevada permissividade, como laminados cerâmicos, é a técnica mais direta e escalável para transladar a banda de rejeição para baixas frequências sem a necessidade de aumentar as dimensões físicas da célula unitária.
+
+\FloatBarrier
+
+\section{Análise Paramétrica Cruz de Jerusalém}
+\label{sec:Analise_Parametrica_Cruz_Jerusalem}
+
+A análise paramétrica da geometria Cruz de Jerusalém é particularmente relevante devido à complexidade das suas terminações capacitivas (chapéus), que introduzem graus de liberdade adicionais no projeto. Para garantir a rastreabilidade dos efeitos reativos, foram estabelecidos parâmetros geométricos base que permaneceram estáticos enquanto variáveis individuais eram avaliadas. 
+
+Neste estudo, o cenário de referência para a célula unitária foi fixado com periodicidade $p = 21\text{ mm}$, comprimento total do braço $d = 10\text{ mm}$, largura da trilha central $w = 1\text{ mm}$, espessura do chapéu $h = 1\text{ mm}$ e fenda intercelular primária $g = 1\text{ mm}$. O dielétrico considerado manteve espessura $h_{\mathrm{sub}} = 1{,}52\text{ mm}$ e permissividade relativa $\varepsilon_r = 3{,}0$. Essa consolidação permite isolar os fenômenos de variação de indutância ($L$) e capacitância ($C$) no ramo principal do modelo de circuito equivalente.
+
+Antes de detalhar o impacto individual de cada parâmetro geométrico, é imprescindível salientar uma particularidade eletromagnética desta geometria. Devido à presença das terminações ortogonais (chapéus), a Cruz de Jerusalém atua classicamente como um ressoador de múltiplas bandas, capaz de gerar ressonâncias secundárias em frequências mais altas. Contudo, a presente avaliação paramétrica leva em consideração unicamente o comportamento da primeira ressonância fundamental ($f_{\mathrm{analítico}}$). Essa abordagem isola o ramo principal do circuito LC em série (Equações~\eqref{eq:L_fisico_cruz} e \eqref{eq:C_fisico_cruz}), permitindo analisar a banda de rejeição primária com máxima precisão teórica.
+
+% ================= PRIMEIRA PARTE DA FIGURA =================
+\begin{figure}[htbp]
+    \centering
+    \caption{Análise paramétrica da geometria Cruz de Jerusalém (Parte 1 de 2): (a) variação da ressonância e do produto $L \times C$ em função de $p$; (b) variação de $L$ e $C$ em função de $p$; (c) variação da ressonância e $L \times C$ em função de $d$; (d) variação de $L$ e $C$ em função de $d$; (e) variação da ressonância e $L \times C$ em função da largura $w$; (f) variação de $L$ e $C$ em função de $w$.}
+    \label{fig:cruz_parametrica_pt1}
+
+    % --- LINHA 1: Parâmetro p ---
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/cruz_var_p_freq_lc.png}
+        \caption*{(a)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/cruz_var_p_lc.png}
+        \caption*{(b)}
+    \end{minipage}
+
+    \vspace{0.4cm} % Aumentei um pouco o espaçamento para ficar mais bonito
+
+    % --- LINHA 2: Parâmetro d ---
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/cruz_var_d_freq_lc.png}
+        \caption*{(c)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/cruz_var_d_lc.png}
+        \caption*{(d)}
+    \end{minipage}
+
+    \vspace{0.4cm}
+
+    % --- LINHA 3: Parâmetro w ---
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/cruz_var_w_freq_lc.png}
+        \caption*{(e)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/cruz_var_w_lc.png}
+        \caption*{(f)}
+    \end{minipage}
+
+    \fonte{Autor.}
+\end{figure}
+
+% ================= SEGUNDA PARTE DA FIGURA =================
+\begin{figure}[htbp]
+    \centering
+    \caption{Análise paramétrica da geometria Cruz de Jerusalém (Parte 2 de 2): (g) variação da ressonância e do produto $L \times C$ em função da terminação $h$; (h) variação de $L$ e $C$ em função de $h$; (i) variação da ressonância e $L \times C$ em função da fenda $g$; (j) variação de $L$ e $C$ em função de $g$.}
+    \label{fig:cruz_parametrica_pt2}
+
+    % --- LINHA 4: Parâmetro h ---
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/cruz_var_h_freq_lc.png}
+        \caption*{(g)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/cruz_var_h_lc.png}
+        \caption*{(h)}
+    \end{minipage}
+
+    \vspace{0.4cm}
+
+    % --- LINHA 5: Parâmetro g ---
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/cruz_var_g_freq_lc.png}
+        \caption*{(i)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/cruz_var_g_lc.png}
+        \caption*{(j)}
+    \end{minipage}
+
+    \fonte{Autor.}
+\end{figure}
+
+Os gráficos apresentados nas Figuras~\ref{fig:cruz_parametrica_pt1} e \ref{fig:cruz_parametrica_pt2} documentam o comportamento eletromagnético da célula unitária da Cruz de Jerusalém frente a variações dimensionais. Antes de detalhar o impacto individual de cada parâmetro geométrico, é imprescindível salientar que, embora esta geometria atue classicamente como um ressoador de múltiplas bandas, a presente avaliação paramétrica foca exclusivamente na primeira ressonância fundamental ($f_{\mathrm{analítico}}$). Esta abordagem isola a resposta do ramo LC principal (Equações~\eqref{eq:L_fisico_cruz} e \eqref{eq:C_fisico_cruz}), viabilizando uma análise rigorosa do mecanismo primário de rejeição de banda.
+
+\subsection{Efeito da Variação da Periodicidade ($p$)}
+
+As Figuras~\ref{fig:cruz_parametrica_pt1}(a) e (b) ilustram o efeito da expansão da periodicidade espacial ($p$), mantendo as dimensões da metalização inalteradas. Observa-se um deslocamento acelerado da frequência de ressonância para patamares superiores.
+
+Analisando o circuito equivalente, o aumento de $p$ altera criticamente a distribuição do acoplamento capacitivo. Em primeiro lugar, a susceptância primária ($B_g$), atrelada à fenda horizontal ($g$), sofre uma atenuação direta devido à redução do fator de ponderação da célula $(4d/p)$ expresso na Equação~\eqref{eq:Bg_cruz}. De forma ainda mais severa, o aumento de $p$ com o braço $d$ fixo implica o afastamento iminente das terminações verticais (chapéus). Na Equação~\eqref{eq:Bd_cruz}, que descreve a susceptância transversal $B_d$, a função espacial $F(p, p-d, \lambda, 0)$ é governada pela distância $(p-d)$. O alargamento dessa distância mitiga o confinamento das linhas do campo elétrico de borda, reduzindo drasticamente o termo logarítmico. Com a queda aditiva de $B_g$ e $B_d$, a capacitância total ($C$) desmorona, o que justifica a forte elevação da frequência ressonante.
+
+\subsection{Efeito da Variação do Comprimento do Braço ($d$)}
+
+O alongamento do braço total da cruz ($d$), mapeado nas Figuras~\ref{fig:cruz_parametrica_pt1}(c) e (d), evidencia o mecanismo mais agressivo de miniaturização elétrica desta topologia. Conforme $d$ cresce dentro de uma célula de período restrito, a ressonância despenca exponencialmente para baixas frequências.
+
+Este fenômeno é o reflexo invertido da análise anterior. À medida que $d$ se aproxima do limite da célula, a distância física transversal entre os chapéus adjacentes ($p - d$) tende a zero. Na Equação~\eqref{eq:Bd_cruz}, à medida que o argumento se anula, a função assintótica $\csc\left(\frac{\pi(p-d)}{2p}\right)$ tende ao infinito. Esta singularidade matemática traduz a massiva concentração de densidade de carga na microfenda entre os terminais. Simultaneamente, o crescimento de $d$ atua como um multiplicador direto $(4d/p)$ sobre a susceptância horizontal na Equação~\eqref{eq:Bg_cruz}. A combinação destes efeitos faz com que a capacitância ($C$) atinja níveis extraordinários, elevando o produto $L \times C$ e provando a altíssima eficiência da Cruz de Jerusalém em operar em grandes comprimentos de onda ocupando uma área física mínima.
+
+\subsection{Efeito da Variação da Largura da Trilha ($w$)}
+
+As Figuras~\ref{fig:cruz_parametrica_pt1}(e) e (f) demonstram a resposta do arranjo face ao alargamento da haste central condutora ($w$). O espessamento desloca a ressonância para altas frequências de forma linear.
+
+O rigor do modelo de circuito equivalente isola perfeitamente esta variável: como $w$ não compõe as formulações capacitivas de $B_g$ e $B_d$, a capacitância global ($C$) mantém-se praticamente constante. O efeito restringe-se ao domínio magnético. Recorrendo à Equação~\eqref{eq:XL_cruz}, a reatância indutiva do braço é ditada por $F(p, w, \lambda, 0)$, fundamentada em $\ln\!\left[\csc\left(\frac{\pi w}{2p}\right)\right]$. O alargamento de $w$ oferece uma secção de escoamento maior para as correntes superficiais (polarização TE), o que reduz a oposição à variação da corrente e atenua a indutância concentrada ($L$). A queda isolada de $L$ afunda o produto $L \times C$, empurrando a sintonia do filtro para o topo da banda.
+
+\subsection{Efeito da Variação da Espessura da Terminação ($h$)}
+
+A particularidade morfológica da Cruz de Jerusalém reside nas suas terminações ortogonais ($h$). As Figuras~\ref{fig:cruz_parametrica_pt2}(g) e (h) revelam que o aumento de $h$ impõe uma sintonia fina redutora sobre a frequência de ressonância.
+
+As equações confirmam este comportamento mecânico: a alteração de $h$ não impacta a geometria da fita central, garantindo que a indutância ($L$) permaneça perfeitamente plana. O impacto é unicamente capacitivo transversal. Na Equação~\eqref{eq:Bd_cruz}, a espessura da terminação atua no multiplicador linear de área frontal $\frac{4(2h + g)}{p}$. Fisicamente, aumentar $h$ alonga os chapéus paralelos, maximizando a área efetiva das placas do capacitor virtual formado entre as células vizinhas. Esse ganho direto de área eleva $B_d$, inflando a capacitância ($C$) e causando a redução progressiva de $f_{\mathrm{analítico}}$.
+
+\subsection{Efeito da Variação da Fenda Intercelular Primária ($g$)}
+
+Por fim, as Figuras~\ref{fig:cruz_parametrica_pt2}(i) e (j) analisam o distanciamento frontal direto através do alargamento da fenda $g$. Como esperado, distanciar as faces capacitivas destrói o fator de rejeição, elevando a ressonância para altas frequências.
+
+O alargamento de $g$ afeta o balanço capacitivo, mas é governado predominantemente pela susceptância horizontal ($B_g$). O parâmetro $g$ atua como argumento direto da função de Marcuvitz na Equação~\eqref{eq:Bg_cruz}. O aumento do \textit{gap} eleva o argumento da função seno, o que achata o valor da cossecante e, consequentemente, minimiza o logaritmo $\ln\!\left[\csc\left(\frac{\pi g}{2p}\right)\right]$. A drástica dissipação da intensidade do campo elétrico ao redor da fenda desidrata a capacitância global ($C$). Sustentada por uma inércia indutiva ($L$ constante), a queda aguda de $C$ reduz severamente o denominador da Equação~\eqref{eq:f_analitico_cruz}, projetando a frequência do filtro para a extremidade superior do espectro analisado.
+
+\subsection{Efeito do Substrato Dielétrico ($h_{\mathrm{sub}}$ e $\varepsilon_r$)}
+
+Para finalizar a caracterização paramétrica da Cruz de Jerusalém, avalia-se o comportamento eletromagnético da estrutura frente às propriedades do material dielétrico de suporte. A Figura~\ref{fig:cruz_substrato} ilustra as variações de resposta do circuito quando a espessura da placa ($h_{\mathrm{sub}}$) e a sua constante dielétrica relativa ($\varepsilon_r$) são alteradas isoladamente.
+
+\begin{figure}[htbp]
+    \centering
+    \caption{Análise paramétrica das propriedades do substrato para a Cruz de Jerusalém: (a) variação da frequência de ressonância e do produto $L \times C$ em função da espessura $h_{\mathrm{sub}}$; (b) variação da indutância $L$ e da capacitância $C$ em função de $h_{\mathrm{sub}}$; (c) variação da frequência de ressonância e do produto $L \times C$ em função da permissividade relativa $\varepsilon_r$; (d) variação da indutância $L$ e da capacitância $C$ em função de $\varepsilon_r$.}
+    \label{fig:cruz_substrato}
+
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/cruz_var_hsub_freq_lc.png}
+        \caption*{(a)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/cruz_var_hsub_lc.png}
+        \caption*{(b)}
+    \end{minipage}
+
+    \vspace{0.4cm}
+
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/cruz_var_er_freq_lc.png}
+        \caption*{(c)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/cruz_var_er_lc.png}
+        \caption*{(d)}
+    \end{minipage}
+
+    \fonte{Autor.}
+\end{figure}
+
+As Figuras~\ref{fig:cruz_substrato}(a) e (b) descrevem a dinâmica da célula unitária submetida ao espessamento progressivo do dielétrico ($h_{\mathrm{sub}}$). Assim como observado nas geometrias canônicas, o aumento da espessura confina uma porção maior do campo elétrico de borda, elevando a capacitância ($C$) e forçando a queda da ressonância até atingir um claro patamar de saturação assintótica.
+
+Contudo, a Cruz de Jerusalém apresenta uma complexidade analítica superior no cômputo da permissividade efetiva ($\varepsilon_{\mathrm{ef}}$). Conforme modelado na Equação~\eqref{eq:alpha_cruz}, o fator de decaimento de Costa ($\alpha$) não é estático; ele é interpolado dinamicamente em função da razão de aspecto da própria espessura geométrica ($h_{\mathrm{sub}}/p$), transitando no intervalo de $[17, 22]$. Esse acoplamento cruzado faz com que, à medida que $h_{\mathrm{sub}}$ aumenta, a permissividade efetiva se aproxime gradualmente de um regime saturado, reduzindo a sensibilidade incremental da capacitância e estabilizando a frequência de ressonância.
+
+\FloatBarrier
+
+\section{Análise Paramétrica Estrela de 4 Pontas}
+\label{sec:Analise_Parametrica_Estrela}
+
+A geometria da Estrela de 4 Pontas (\textit{tapered star}) introduz um nível de complexidade analítica superior devido ao perfil afunilado dos seus braços condutores. A variação da secção reta ao longo do eixo de simetria gera múltiplos pontos de acoplamento capacitivo parasita \cite{mamedes2024}. Para mapear o peso eletromagnético de cada dimensão, o cenário paramétrico de controle foi fixado com periodicidade $p = 21\text{ mm}$, comprimento total do braço $a = 18\text{ mm}$, espessura da ponta $b = 2\text{ mm}$ e dimensão do elemento quadrado central $s = 2\text{ mm}$. O substrato dielétrico foi mantido em $h_{\mathrm{sub}} = 1{,}52\text{ mm}$ com permissividade $\varepsilon_r = 3{,}0$. A análise concentra-se na extração dos componentes LC equivalentes relativos à primeira ressonância fundamental.
+
+% ================= PRIMEIRA PARTE DA FIGURA =================
+\begin{figure}[htbp]
+    \centering
+    \caption{Análise paramétrica da geometria Estrela de 4 Pontas (Parte 1 de 2): (a) variação da ressonância e do produto $L \times C$ em função de $p$; (b) variação de $L$ e $C$ em função de $p$; (c) variação da ressonância e $L \times C$ em função do braço total $a$; (d) variação de $L$ e $C$ em função de $a$.}
+    \label{fig:estrela_parametrica_pt1}
+
+    % --- LINHA 1: Parâmetro p ---
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/estrela_var_p_freq_lc.png}
+        \caption*{(a)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/estrela_var_p_lc.png}
+        \caption*{(b)}
+    \end{minipage}
+
+    \vspace{0.4cm}
+
+    % --- LINHA 2: Parâmetro a ---
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/estrela_var_a_freq_lc.png}
+        \caption*{(c)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/estrela_var_a_lc.png}
+        \caption*{(d)}
+    \end{minipage}
+
+    \fonte{Autor.}
+\end{figure}
+
+\subsection{Efeito da Variação da Periodicidade ($p$)}
+
+As Figuras~\ref{fig:estrela_parametrica_pt1}(a) e (b) ilustram o impacto da expansão espacial da célula ($p$) sobre a estrela. Os gráficos evidenciam um deslocamento quase linear e ascendente da frequência de ressonância.
+
+Diferentemente das espiras simples, a capacitância global da estrela ($C$) depende do somatório ponderado de três fendas distintas ($g_{f1}$, $g_{f2}$ e $g_{f3}$). O aumento de $p$ alarga fisicamente e simultaneamente todas estas fendas. Nas Equações~\eqref{eq:BC_gf_estrela}, \eqref{eq:BC_a1f_estrela} e \eqref{eq:BC_a2f_estrela}, as funções espaciais $F$ têm os seus argumentos logarítmicos $\ln\!\left[\csc\left(\frac{\pi g}{2p}\right)\right]$ brutalmente atenuados devido à dispersão das linhas do campo elétrico. A curva tracejada na Figura~\ref{fig:estrela_parametrica_pt1}(b) ratifica a queda síncrona das susceptâncias, resultando numa redução massiva da capacitância. Apoiado por um fator de preenchimento $(1{,}5a/p)$ menor que também reduz a indutância ($L$, curva contínua), o decréscimo unificado do produto $L \times C$ projeta o filtro diretamente para frequências mais altas.
+
+\subsection{Efeito da Variação do Comprimento do Braço Total ($a$)}
+
+A variação da envergadura principal da estrela ($a$), evidenciada nas Figuras~\ref{fig:estrela_parametrica_pt1}(c) e (d), comprova que esta é a dimensão primária de sintonia da FSS, atuando como o vetor fundamental para a miniaturização extrema.
+
+A Figura~\ref{fig:estrela_parametrica_pt1}(d) destrincha a natureza híbrida deste alongamento. Por um lado, na Equação~\eqref{eq:XL_estrela}, o termo $a$ é um multiplicador direto: braços mais longos suportam uma maior densidade de corrente superficial, o que se traduz na elevação estritamente linear da indutância ($L$, curva contínua). No domínio elétrico, aproximar a ponta do braço aos limites da célula estreita agressivamente a fenda extrema ($g_{f1} = p - a$). O confinamento do campo na Equação~\eqref{eq:BC_gf_estrela} excita o limite assintótico da função de correção, inflacionando a capacitância extrema de forma exponencial (curva tracejada acentuada). Por operar fisicamente como um dipolo impresso governado pela Equação~\eqref{eq:f_analitico_estrela}, o somatório do aumento linear de $L$ com a explosão exponencial de $C$ traduz-se numa queda rigorosa e profunda da ressonância, deslocando a operação de $4{,}2\text{ GHz}$ para a faixa sub-$3\text{ GHz}$.
+
+% ================= SEGUNDA PARTE DA FIGURA =================
+\begin{figure}[htbp]
+    \centering
+    \caption{Análise paramétrica da geometria Estrela de 4 Pontas (Parte 2 de 2): (e) variação da ressonância e do produto $L \times C$ em função da ponta $b$; (f) variação de $L$ e $C$ em função de $b$; (g) variação da ressonância e $L \times C$ em função do centro $s$; (h) variação de $L$ e $C$ em função de $s$.}
+    \label{fig:estrela_parametrica_pt2}
+
+    % --- LINHA 3: Parâmetro b ---
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/estrela_var_b_freq_lc.png}
+        \caption*{(e)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/estrela_var_b_lc.png}
+        \caption*{(f)}
+    \end{minipage}
+
+    \vspace{0.4cm}
+
+    % --- LINHA 4: Parâmetro s ---
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/estrela_var_s_freq_lc.png}
+        \caption*{(g)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/estrela_var_s_lc.png}
+        \caption*{(h)}
+    \end{minipage}
+
+    \fonte{Autor.}
+\end{figure}
+
+\subsection{Efeito da Variação da Espessura da Ponta ($b$)}
+
+As Figuras~\ref{fig:estrela_parametrica_pt2}(e) e (f) descrevem o comportamento do ressoador face ao engrossamento da ponta da estrela ($b$), tornando o afunilamento geométrico menos agudo. Visualmente, este engrossamento reduz a frequência de ressonância.
+
+A Figura~\ref{fig:estrela_parametrica_pt2}(f) é elucidativa quanto à origem física do fenômeno: embora a indutância apresente uma leve atenuação (linha contínua), o fator determinante reside na capacitância. O alargamento de $b$ estreita a fenda lateral paralela ao corpo da haste ($g_{f2} = p - b$), incrementando massivamente a capacitância equivalente (ascensão aguda da curva tracejada). A explosão capacitiva impõe-se e domina o sistema. O produto $L \times C$ sobe, confirmando que afunilamentos mais largos são capacitivamente dominantes.
+
+\subsection{Efeito da Variação da Dimensão Central ($s$)}
+
+Por fim, as Figuras~\ref{fig:estrela_parametrica_pt2}(g) e (h) mapeiam a alteração do núcleo da geometria (o quadrado maciço central $s$). O aumento prático desta área no centro da estrela resulta num decréscimo suave e em escala fina da frequência de operação.
+
+O modelo analítico capta este fenômeno estritamente através da susceptância parasita do centro ($B_{C,a2f}$). Na Equação~\eqref{eq:BC_a2f_estrela}, expandir o miolo $s$ diminui fisicamente a fenda central equivalente ($g_{f3} = p - s$). O acoplamento transversal entre os centros das células vizinhas intensifica-se, elevando a capacitância local (ascensão visível da curva tracejada em (h)). O triunfo desta formulação analítica, no entanto, observa-se na curva contínua da indutância: ela apresenta-se praticamente estática e quase perfeitamente horizontal ao longo de toda a varredura. Como o redimensionamento do bloco central transversal não prolonga de forma alguma o caminho condutor longitudinal primário das correntes de RF (cujo limite é estritamente ditado pelo comprimento total $a$), a indutância global ($L$) independe de $s$. O incremento isolado e limpo de $C$ eleva o denominador da ressonância, promovendo um "ajuste fino" descendente na banda de rejeição, ideal para calibrações de tolerância de fabricação.
+
+\subsection{Efeito do Substrato Dielétrico ($h_{\mathrm{sub}}$ e $\varepsilon_r$)}
+
+O confinamento das linhas de campo elétrico no material de suporte dita a sintonia final da Estrela de 4 Pontas em cenários de impressão reais. A Figura~\ref{fig:estrela_substrato} mapeia a resposta do circuito analítico frente à variação independente da espessura do dielétrico ($h_{\mathrm{sub}}$) e da sua permissividade relativa ($\varepsilon_r$).
+
+\begin{figure}[htbp]
+    \centering
+    \caption{Análise paramétrica das propriedades do substrato para a Estrela de 4 Pontas: (a) variação da frequência de ressonância e do produto $L \times C$ em função da espessura $h_{\mathrm{sub}}$; (b) variação da indutância $L$ e da capacitância $C$ em função de $h_{\mathrm{sub}}$; (c) variação da frequência de ressonância e do produto $L \times C$ em função da permissividade relativa $\varepsilon_r$; (d) variação da indutância $L$ e da capacitância $C$ em função de $\varepsilon_r$.}
+    \label{fig:estrela_substrato}
+
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/estrela_var_hsub_freq_lc.png}
+        \caption*{(a)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/estrela_var_hsub_lc.png}
+        \caption*{(b)}
+    \end{minipage}
+
+    \vspace{0.4cm}
+
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/estrela_var_er_freq_lc.png}
+        \caption*{(c)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04-figuras/estrela_var_er_lc.png}
+        \caption*{(d)}
+    \end{minipage}
+
+    \fonte{Autor.}
+\end{figure}
+
+As Figuras~\ref{fig:estrela_substrato}(a) e (b) descrevem o comportamento do espalhador perante o espessamento físico da placa ($h_{\mathrm{sub}}$). O perfil destas curvas exibe uma ascensão capacitiva que é abruptamente freada, culminando numa assíntota horizontal severa. 
+
+O rigor do modelo de circuito equivalente esclarece este fenômeno através da Equação~\eqref{eq:eeff_estrela}. O termo de correção de Mamedes baseia-se na subtração de uma parcela exponencial negativa: $\varepsilon_r - (\varepsilon_r - 1) e^{-M \frac{10\,h_{\mathrm{sub}}}{p}}$. O fator empírico $M = 1{,}9$, associado à constante intrínseca $10$, dita que o decaimento exponencial ocorre de forma muito acelerada. Para placas sub-milimétricas, o $\varepsilon_{\mathrm{ef}}$ é muito próximo do vácuo ($1$), pois grande parte da energia escoa pelo ar livre adjacente. Conforme o $h_{\mathrm{sub}}$ sofre incrementos, a exponencial anula-se rapidamente. Quando o confinamento atinge a plenitude no interior do material, o termo subtraído zera, e a permissividade efetiva "estaciona" no valor absoluto do dielétrico ($\varepsilon_r$). Esta saturação precoce dita a estabilização da capacitância equivalente ($C$) na Figura~\ref{fig:estrela_substrato}(b) e o travamento do piso da ressonância ($f_{\mathrm{analítico}}$) em patamares espessos. A indutância global ($L$), sendo dependente apenas da envergadura da metalização, mantém-se numa linha plana e imutável.
+
+Em contraste, as Figuras~\ref{fig:estrela_substrato}(c) e (d) avaliam a densidade do material variando $\varepsilon_r$ num substrato de espessura constante. Nesta condição analítica, o comportamento torna-se estritamente linear.
+
+Mantendo $h_{\mathrm{sub}}$ e $p$ fixos, a parcela exponencial da Equação~\eqref{eq:eeff_estrela} transforma-se num escalar constante $\left(K_{\mathrm{exp}} < 1\right)$. Ao reorganizar a expressão para a forma $\varepsilon_{\mathrm{ef}} = \varepsilon_r (1 - K_{\mathrm{exp}}) + K_{\mathrm{exp}}$, comprova-se tratar de uma função afim de primeiro grau. Logo, o aumento da constante dielétrica impulsiona linearmente a capacidade reativa transversal. A curva da capacitância ($C$) ascende numa rampa perfeita, inflando o produto $L \times C$. A frequência ressonante, modelada na Equação~\eqref{eq:f_analitico_estrela}, obedece rigorosamente à proporção do ressoador de meia onda em meio dielétrico $\left(1/\sqrt{\varepsilon_{\mathrm{ef}}}\right)$. Esta curva de decaimento valida, de forma definitiva, que a transição para materiais de alto índice $\varepsilon_r$ é a via de projeto mais previsível e eficaz para transladar a Estrela de 4 Pontas para baixas frequências (sub-6 GHz) sem expandir as dimensões micrométricas da geometria afunilada.
+
+\FloatBarrier
+
+\subsection{Síntese da Análise Paramétrica}
+\label{subsec:Sintese_Analise_Parametrica}
+
+A análise paramétrica sistemática apresentada neste capítulo revelou de forma quantitativa como cada variável geométrica e dielétrica governa o comportamento ressonante das estruturas FSS estudadas. O mapeamento detalhado das influências de periodicidade ($p$), dimensões do elemento ressonante e das propriedades do substrato permitiu estabelecer um entendimento físico robusto sobre os mecanismos de sintonia das topologias de Espira Quadrada, Cruz de Jerusalém e Estrela de 4 Pontas.
+
+Com a base teórica consolidada, tornou-se possível identificar quais parâmetros possuem maior sensibilidade para o ajuste de frequência, fornecendo as diretrizes fundamentais para a etapa de projeto. Essa investigação demonstrou que, enquanto as dimensões das trilhas e fendas controlam a resposta capacitiva e indutiva primária, a permissividade efetiva do substrato atua como um fator corretivo determinante para a estabilização da frequência de ressonância em ambientes de impressão real. Este conjunto de conhecimentos empíricos e analíticos constitui o alicerce para a utilização do \textit{FSS Explorer}, que será empregado no capítulo seguinte para a sintonia fina das geometrias conforme as especificações de desempenho requeridas.
+
+faça uma pagina para falar sobre a analise oarametrica
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-07-02T13:40:50-03:00.
+
+The user's current state is as follows:
+Active Document: c:\Users\felipesantos\PFC\src\html\docs\fundamentacao_teorica.html (LANGUAGE_HTML)
+Cursor is on line: 1
+Other open documents:
+- c:\Users\felipesantos\PFC\src\html\docs\fundamentacao_teorica.html (LANGUAGE_HTML)
+- c:\Users\felipesantos\PFC\src\css\docs.css (LANGUAGE_CSS)
+</ADDITIONAL_METADATA>
