@@ -1,60 +1,57 @@
-# Simulador FSS — Estrutura do Projeto
+# FSS Explorer
 
-Descrição curta
+O **FSS Explorer** é uma ferramenta web de código aberto (estática baseada em HTML, CSS e JavaScript) focada na simulação analítica rápida e no projeto de Superfícies Seletivas de Frequência (FSS) aplicadas a micro-ondas e redes de telecomunicações.
 
-- Projeto estático em HTML + JavaScript para simulação aproximada de FSS (Frequency Selective Surfaces). Cada página implementa um tipo de célula (Espira Quadrada, Patch Quadrado, Cruz de Jerusalém).
+Através de Modelos de Circuito Equivalente (ECM), o simulador permite investigar a resposta eletromagnética e sintonizar parâmetros geométricos de diversas topologias impressas sem a necessidade inicial de simulações de onda completa (full-wave) de alto custo computacional.
 
-Como rodar
+## Topologias Suportadas
 
-- Abrir localmente via servidor HTTP (recomendado):
+O simulador suporta a simulação interativa das seguintes geometrias:
+- **Anel Quadrado** (Square Loop)
+- **Cruz de Jerusalém** (Jerusalem Cross)
+- **Estrela de 4 Pontas** (Tapered Star)
+- **Anel Circular**
+- **Quase Quadrado** (Mamedes)
+- **Patch Quadrado**
 
-```bash
-npx http-server . -p 8000 -c-1
-# ou
-python -m http.server 8000
-```
+## Como Acessar e Rodar
 
-- Abrir no navegador: http://localhost:8000/EspiraQuadrada.html (ou `Quadrado.html`, `Cruzjeru.html`).
-- O projeto usa Chart.js via CDN (script incluído nos HTMLs). Os módulos ES (`type="module"`) dependem da presença do Chart global.
+- **Modo Local:** Clone o repositório e abra o arquivo `index.html` no seu navegador. 
+- **Modo Servidor (Recomendado):** Para garantir o funcionamento correto de módulos JavaScript ES6 e recursos de exportação CSV em alguns navegadores, utilize um servidor HTTP local:
+  ```bash
+  npx http-server . -p 8000 -c-1
+  # ou
+  python -m http.server 8000
+  ```
+  Acesse `http://localhost:8000/index.html`.
 
-**Arquivos principais e responsabilidades**
+## Estrutura do Projeto
 
-- **[EspiraQuadrada.html](EspiraQuadrada.html)**: página que controla a simulação do elemento espira quadrada. Carrega `src/css/styles.css`, Chart.js (CDN) e o módulo `src/js/ui_espira.js`.
-- **[Quadrado.html](Quadrado.html)**: página do patch quadrado (modelo de Chen). Carrega `src/css/styles.css`, Chart.js e `src/js/ui_quadrado.js`.
-- **[Cruzjeru.html](Cruzjeru.html)**: página da Cruz de Jerusalém. Carrega `src/css/styles.css`, Chart.js e `src/js/ui_cruzjeru.js`.
-- **index.html**: página inicial / índice (padrão do repositório).
+- **`index.html`**: Dashboard principal e acesso às ferramentas.
+- **`src/html/topologies/`**: Interfaces de simulação, contendo arquivos HTML individuais para cada geometria.
+- **`src/html/docs/`**: Centro de documentação estruturado, contendo todo o embasamento do projeto:
+  - *Guia Rápido* e *Explicação para Leigos*
+  - *Fundamentação Teórica* (Todo o equacionamento matemático)
+  - *Cálculo de L & C*
+  - *Análise Paramétrica* (Resultados e comportamentos detalhados)
+  - *Resumo Completo do Projeto*
+- **`src/js/`**: Motores de cálculo modularizados.
+  - `math.js`: Utilitários matemáticos globais e funções de espalhamento de Marcuvitz.
+  - `visual.js`: Renderização de dados gráficos.
+  - `ui_*.js`: Controladores individuais que implementam as formulações de cada topologia.
+- **`src/css/`**: Estilos padronizados globais, paletas de cores modernas e design responsivo (`styles.css` e `docs.css`).
 
-Diretório `src`
+## Tecnologias Empregadas
 
-- **[src/css/styles.css](src/css/styles.css)**: estilos centralizados aplicados a todas as páginas; define layout do dashboard, painéis (`.panel`, `.params`, `.visuals`) e tamanho relativo do gráfico (maior largura horizontal).
+- **Linguagens:** HTML5, CSS3, JavaScript Vanilla (ES6+).
+- **Bibliotecas:** Chart.js (para gráficos dinâmicos de parâmetros S) e MathJax 3 (para renderização de equações).
+- **Design:** FontAwesome para iconografia e uma interface voltada à experiência do usuário profissional.
 
-- **[src/js/math.js](src/js/math.js)**: utilitários matemáticos reutilizáveis (conversões, funções auxiliares, implementações de fórmulas como `FF`, `GG`, `csc`, e `mmToCm`). Todas as simulações importam funções deste módulo.
+## Referencial Teórico
 
-- **[src/js/visual.js](src/js/visual.js)**: utilitários visuais compartilhados.
-  - `createLineChart(ctx, labels, datasets, options)`: fábrica para criar charts Chart.js com arrays de datasets; aceita tanto um único array de dados (compatibilidade) quanto múltiplos datasets (marcação de fr/BW). Centraliza opções visuais (eixo X/Y, fonte, limites).
-  - `exportChartToCSV(chart, filename)`: exporta dados do chart para CSV (normaliza decimais e formata colunas "Frequency (GHz);S21 (dB)").
+A fundamentação analítica completa, cobrindo o modelo original de fita paralela de Marcuvitz até as correções de confinamento de campo magnético em substratos finos (como as funções dinâmicas de Costa e calibrações de Mamedes), está rigorosamente documentada na seção de **Fundamentação Teórica** interna da plataforma.
 
-- **[src/js/ui_espira.js](src/js/ui_espira.js)**: controlador da página `EspiraQuadrada.html`.
-  - Responsabilidades: ligar sliders/inputs, aplicar presets de substrato, desenhar a célula em `canvas` (`drawGeometry`), executar a simulação (loop em frequência com `df = 0.001`), calcular `fr` e `BW`, e chamar `createLineChart`/`exportChartToCSV`.
-  - Auto-inicializa quando o documento é carregado (`DOMContentLoaded`) usando `init()`.
+## Observações e Limitações
 
-- **[src/js/ui_quadrado.js](src/js/ui_quadrado.js)**: controlador da página `Quadrado.html` (modelo de Chen).
-  - Mesmas responsabilidades de `ui_espira.js`, com a lógica matemática específica do patch quadrado.
-
-- **[src/js/ui_cruzjeru.js](src/js/ui_cruzjeru.js)**: controlador da página `Cruzjeru.html`.
-  - Mesmas responsabilidades, com o modelo de Langley/Munk adaptado para a cruz.
-
-Fluxo de execução (por página)
-
-1. HTML carrega Chart.js (CDN) e o CSS central.
-2. HTML injeta o módulo ES correspondente (`src/js/ui_*.js`) com `type="module"`.
-3. O módulo importa `math.js` e utilitários de `visual.js`.
-4. `init()` faz `bindInputs()`, aplica presets de substrato (opcional), liga botão `Exportar CSV` ao `exportChartToCSV`, e chama `updateAll()`.
-5. `updateAll()` valida parâmetros, chama `drawGeometry()` e realiza um loop em frequência (passo `df = 0.001`), acumulando `labels` e `data`.
-6. `updateChart()` (agora via `createLineChart`) desenha a curva e marca `fr` e limites `BW`. O `exportChartToCSV()` gera arquivo `.csv` compatível com Excel (separador `;`).
-
-Notas importantes
-
-- Pequenas aproximações estão presentes nas fórmulas (estas simulações são modelos analíticos simplificados, não EM full-wave).
-- A estrutura modular permite compartilhar `math.js` e `visual.js` entre páginas; para extrair ainda mais reutilização, podemos consolidar bindings comuns em `src/js/ui.js` — tarefa pendente.
-- Para exportar/visualizar corretamente, use um servidor HTTP (alguns navegadores bloqueiam módulos/recursos via `file://`).
+- **Modelo Analítico:** Os dados gerados derivam de Circuitos LC Equivalentes, ideais para cálculos instantâneos de ressonâncias em modos fundamentais sob incidência TE/TM ortogonal. 
+- **Exportação:** Para simulações avançadas envolvendo acoplamentos não triviais, o FSS Explorer permite a exportação da curva de frequência (formato `.csv`) para pronta comparação analítica *versus* onda completa (HFSS/CST).
