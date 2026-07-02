@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Análise Paramétrica — FSS Explorer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="../../css/docs.css" />
+  </head>
+  <body>
+
+    <!-- ===== TOP BAR ===== -->
+    <header class="topbar">
+      <a href="../../../index.html" class="topbar-brand">
+        <div class="brand-icon"><i class="fa-solid fa-signal"></i></div>
+        FSS Explorer
+      </a>
+      <span class="topbar-sep">/</span>
+      <span class="topbar-title">Análise Paramétrica</span>
+      <div class="topbar-spacer"></div>
+      <a href="../../../index.html" class="topbar-back">
+        <i class="fa-solid fa-arrow-left"></i> Voltar ao início
+      </a>
+    </header>
+
+    <div class="docs-layout">
+
+      <!-- ===== SIDEBAR ===== -->
+      <aside class="sidebar">
+        <div class="sidebar-section-label">Nesta página</div>
+        <nav>
+          <ul>
+            <li><a href="#intro"><span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span>1. Introdução</a></li>
+            <li><a href="#anel-quadrado"><span class="nav-icon"><i class="fa-regular fa-square"></i></span>2. Anel Quadrado</a></li>
+            <li><a href="#cruz-jerusalem"><span class="nav-icon"><i class="fa-solid fa-plus"></i></span>3. Cruz de Jerusalém</a></li>
+            <li><a href="#estrela"><span class="nav-icon"><i class="fa-solid fa-star"></i></span>4. Estrela de 4 Pontas</a></li>
+            <li><a href="#sintese"><span class="nav-icon"><i class="fa-solid fa-lightbulb"></i></span>5. Síntese</a></li>
+          </ul>
+        </nav>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section-label">Outros guias</div>
+        <nav>
+          <ul>
+            <li><a href="guia_rapido.html"><span class="nav-icon"><i class="fa-solid fa-book"></i></span>Guia Rápido</a></li>
+            <li><a href="explicacao_leigos.html"><span class="nav-icon"><i class="fa-solid fa-graduation-cap"></i></span>Para Leigos</a></li>
+            <li><a href="fundamentacao_teorica.html"><span class="nav-icon"><i class="fa-solid fa-flask"></i></span>Fundamentação Teórica</a></li>
+            <li><a href="calculo_lc.html"><span class="nav-icon"><i class="fa-solid fa-calculator"></i></span>Cálculo de L &amp; C</a></li>
+            <li><a href="resumo_completo.html"><span class="nav-icon"><i class="fa-solid fa-file-lines"></i></span>Resumo Completo</a></li>
+            <li><a href="analise_parametrica.html" class="active"><span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span>Análise Paramétrica</a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- ===== MAIN CONTENT ===== -->
+      <main class="docs-main">
+
+        <div class="page-hero">
+          <div class="page-hero-tag"><i class="fa-solid fa-chart-line"></i> Estudo Direcionado</div>
+          <h1>Análise Paramétrica</h1>
+          <p>Investigação sistemática da influência das dimensões geométricas da célula unitária e do substrato sobre a resposta eletromagnética e de ressonância das estruturas FSS.</p>
+        </div>
+
+        <section class="docs-section" id="intro">
+          <h2><span class="section-icon"><i class="fa-solid fa-info-circle"></i></span>1. Introdução à Análise Paramétrica</h2>
+          <p>A análise paramétrica constitui uma etapa fundamental no projeto de superfícies seletivas em frequência, pois permite investigar de forma sistemática a influência das dimensões geométricas da célula unitária sobre a resposta eletromagnética da estrutura.</p>
+          <p>No contexto das FSS, pequenas variações em parâmetros como comprimento, largura, espessura e periodicidade dos elementos metálicos alteram significativamente as propriedades ressonantes, deslocando a frequência central, modificando a largura de banda e influenciando a profundidade de rejeição ou transmissão. Essa abordagem é especialmente relevante em geometrias complexas, nas quais a relação entre forma e resposta em frequência não é trivial e requer avaliação numérica detalhada para viabilizar o ajuste fino do projeto.</p>
+        </section>
+
+        <section class="docs-section" id="anel-quadrado">
+          <h2><span class="section-icon"><i class="fa-regular fa-square"></i></span>2. Análise Paramétrica do Anel Quadrado</h2>
+          <p>Para a análise geométrica em anel quadrado, os parâmetros base adotados (isolando os efeitos da variação) foram: \(p = 21\) mm, \(d = 16\) mm, \(w = 1\) mm, espessura do substrato \(h_{subs} = 1{,}52\) mm e permissividade relativa \(\varepsilon_r = 3{,}0\).</p>
+
+          <div class="info-block">
+            <h3>Efeito da Periodicidade (\(p\))</h3>
+            <p>A expansão da periodicidade (com metalização estática) promove um <strong>deslocamento quase linear da frequência de ressonância para regiões espectrais mais altas</strong>. O afastamento das células vizinhas alarga a fenda intercelular (\(g\)), o que enfraquece o acoplamento do campo elétrico de borda, derrubando a capacitância (\(C\)). Simultaneamente, a indutância (\(L\)) sofre decréscimo, pois a densidade de fluxo magnético por célula é atenuada.</p>
+          </div>
+
+          <div class="info-block">
+            <h3>Efeito do Comprimento do Lado (\(d\))</h3>
+            <p>O aumento do lado externo do anel é o <strong>mecanismo de sintonia mais sensível</strong>. Alongar o lado reduz a fenda intercelular (\(g \to 0\)), induzindo uma acumulação extrema de densidade de carga elétrica (<em>fringing field</em>) entre as células. O crescimento exponencial da capacitância (\(C\)), atrelado ao aumento da indutância (\(L\)), resulta no afundamento drástico e exponencial da frequência de ressonância. Trata-se do método primário para <strong>miniaturização e operação em baixas frequências</strong>.</p>
+          </div>
+
+          <div class="info-block">
+            <h3>Efeito da Largura da Trilha (\(w\))</h3>
+            <p>O engrossamento da fita metálica desloca a ressonância para <strong>frequências substancialmente mais altas</strong>. A fenda principal não é alterada (mantendo \(C\) praticamente constante), porém um \(w\) maior proporciona área de secção superior para o escoamento de correntes. Essa menor restrição diminui o campo magnético induzido ao redor da trilha, traduzindo-se numa acentuada queda de \(L\).</p>
+          </div>
+
+          <div class="info-block">
+            <h3>Efeito do Substrato (\(h_{sub}\) e \(\varepsilon_r\))</h3>
+            <p><strong>Espessura (\(h_{sub}\)):</strong> Seu aumento confina inicialmente mais linhas de campo no dielétrico, elevando \(C\) e reduzindo a ressonância. No entanto, quando a espessura se torna eletricamente grande frente ao período, o confinamento é total e os valores de capacitância e frequência estacionam num patamar inultrapassável de saturação.</p>
+            <p><strong>Permissividade (\(\varepsilon_r\)):</strong> O aumento da densidade dielétrica atua como multiplicador direto do armazenamento de energia (crescimento linear de \(C\)). Consequentemente, a ressonância decai acompanhando a proporção do inverso da raiz quadrada do meio (\(1/\sqrt{\varepsilon_{ef}}\)). A adoção de cerâmicos de alto \(\varepsilon_r\) é a via clássica para baixar a banda sem aumentar fisicamente a célula.</p>
+          </div>
+        </section>
+
+        <section class="docs-section" id="cruz-jerusalem">
+          <h2><span class="section-icon"><i class="fa-solid fa-plus"></i></span>3. Análise Paramétrica da Cruz de Jerusalém</h2>
+          <p>A Cruz de Jerusalém introduz terminações capacitivas (<em>chapéus</em>). O cenário base para isolamento dos parâmetros foi: \(p = 21\) mm, braço total \(d = 10\) mm, trilha \(w = 1\) mm, espessura do chapéu \(h = 1\) mm e fenda \(g = 1\) mm (Substrato: \(h_{sub} = 1{,}52\) mm, \(\varepsilon_r = 3{,}0\)).</p>
+
+          <div class="two-column">
+            <div class="term-card cat-fss">
+              <h3><i class="fa-solid fa-arrows-left-right-to-line"></i> Periodicidade e Fenda</h3>
+              <p>O aumento de \(p\) afasta os chapéus adjacentes, mitigando o confinamento elétrico. A queda na capacitância impulsiona as frequências de ressonância para cima. Do mesmo modo, alargar apenas a fenda (\(g\)) reduz severamente a capacitância por dispersar a intensidade do campo de borda, "destruindo" o fator de rejeição da banda miniaturizada.</p>
+            </div>
+            <div class="term-card cat-fss">
+              <h3><i class="fa-solid fa-expand"></i> Comprimento do Braço (\(d\))</h3>
+              <p>É o mecanismo de <strong>miniaturização mais agressivo</strong>. O alongamento do braço estreita a fenda microscópica entre os terminais ortogonais, elevando exponencialmente a densidade de carga no \textit{gap}. O produto \(L \times C\) sobe bruscamente, provando a eficiência na operação em baixas frequências (grandes comprimentos de onda).</p>
+            </div>
+          </div>
+
+          <div class="info-block" style="margin-top: 1rem;">
+            <h3>Efeitos do Chapéu e Espessamentos</h3>
+            <ul style="margin-bottom:0; padding-left:1.5rem;">
+              <li><strong>Espessura do Chapéu (\(h\)):</strong> O alongamento paralelo das terminações maximiza a área efetiva das placas do capacitor virtual adjacente. Provoca um ganho direto na área e permite uma sintonia fina (redutora) da ressonância sem alterar a indutância.</li>
+              <li><strong>Largura da Trilha Central (\(w\)):</strong> Engrossar o braço afunda a reatância indutiva pela via do livre escoamento de correntes. A frequência sobe rapidamente, enquanto a capacitância (\(C\)) permanece inalterada.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="docs-section" id="estrela">
+          <h2><span class="section-icon"><i class="fa-solid fa-star"></i></span>4. Análise Paramétrica da Estrela de 4 Pontas</h2>
+          <p>Devido ao perfil afunilado de seus braços, a Estrela de 4 Pontas (<em>tapered star</em>) apresenta múltiplos pontos de acoplamento capacitivo parasita. Cenário base adotado: \(p = 21\) mm, braço \(a = 18\) mm, ponta \(b = 2\) mm e bloco central \(s = 2\) mm.</p>
+
+          <div class="info-block">
+            <h3>Comprimento do Braço Principal (\(a\))</h3>
+            <p>A variação da envergadura (\(a\)) é o vetor de sintonia primário. Quando os braços se alongam em direção aos limites da célula unitária, não apenas a indutância (\(L\)) cresce de modo linear (maior caminho de corrente), mas também a fenda final (\(g_{f1} = p - a\)) sofre uma aproximação agressiva. O resultado é o somatório do incremento linear magnético com uma explosão exponencial capacitiva, derrubando severamente a banda de rejeição.</p>
+          </div>
+
+          <div class="two-column">
+            <div class="term-card cat-base">
+              <h3>Espessura da Ponta (\(b\))</h3>
+              <p>O engrossamento da ponta da estrela (tornando o afunilamento menos agudo) estreita a fenda lateral (\(g_{f2} = p - b\)). A capacitância explode dominantemente, sobrepondo-se ao sutil decréscimo da indutância, resultando num rebaixamento de frequência.</p>
+            </div>
+            <div class="term-card cat-base">
+              <h3>Dimensão Central (\(s\))</h3>
+              <p>Aumentar o núcleo não prolonga o caminho da corrente de RF, mantendo a indutância (\(L\)) blindada e perfeitamente plana. Contudo, aproxima os centros celulares capacitivamente, oferecendo <strong>um limpo ajuste fino descendente</strong>.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="docs-section" id="sintese">
+          <h2><span class="section-icon"><i class="fa-solid fa-lightbulb"></i></span>5. Síntese</h2>
+          <p>O mapeamento sistemático demonstra que o controle ressonante da FSS reside em duas naturezas complementares:</p>
+          <ul>
+            <li><strong>Controle de Miniaturização (Capacitivo-Dominante):</strong> Prolongar braços (\(d\) no Anel Quadrado e Cruz, \(a\) na Estrela) e estrangular fendas (\(g \to 0\)) força acumulações massivas de cargas marginais. É o principal método de forçar operação de baixa frequência numa área geométrica sub-milimétrica restrita.</li>
+            <li><strong>Ajuste de Impedância/Indutivo:</strong> O espessamento das fitas (\(w\)) atua aliviando a reatância magnética superficial sem modificar os \textit{gaps} originais da malha, sendo a ferramenta primária de elevar frequências controladamente e melhorar acoplamentos de banda larga.</li>
+            <li><strong>Fatores de Correção Estrutural:</strong> O dielétrico subjacente atua como a âncora final da FSS. O seu engrossamento estabiliza as medições em patamares saturados inultrapassáveis, enquanto transições de material para cerâmicos densos (Alto \(\varepsilon_r\)) oferecem saltos limpos de miniaturização de fase através da raiz quadrada do meio, perfeitamente integrados ao modelo de circuito equivalente.</li>
+          </ul>
+        </section>
+
+      </main>
+    </div>
+
+    <footer class="docs-footer">
+      <span><strong style="color:#e2e8f0;">FSS Explorer</strong> — Análise Paramétrica</span>
+      <span>Investigação numérica e paramétrica de estruturas eletromagnéticas</span>
+      <a href="../../../index.html"><i class="fa-solid fa-house"></i> Início</a>
+    </footer>
+
+  </body>
+</html>
