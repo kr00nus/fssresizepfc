@@ -213,14 +213,13 @@ body {
   flex: 1;
   min-width: 0;
   padding: 48px 60px 80px;
-  max-width: 860px;
 }
 
 /* ---- Page Hero ---- */
 .page-hero {
-  padding-bottom: 36px;
+  padding-bottom: 20px;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 48px;
+  margin-bottom: 28px;
 }
 
 .page-hero-tag {
@@ -655,7 +654,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 36px;
+  margin-bottom: 24px;
 }
 
 .quick-nav a {
