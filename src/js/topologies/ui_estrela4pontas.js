@@ -6,7 +6,7 @@
 
 import { mmToCm, FF, calcS21 } from "../core/math.js";
 import { initSubstrateSelector } from "../common/substrate-selector.js";
-import { drawCircuitEstrela } from "../common/circuit-diagram.js";
+
 import { initParametricAnalysis } from "../common/parametric-analysis.js";
 
 let starChartInstance = null;
@@ -648,18 +648,7 @@ function updateAll() {
     setVal("val_XL", `${fmt(XLf_r)} @ ${frFreq.toFixed(2)} GHz`);
     setVal("val_BC1", `${fmt(BC1f_r)} (×ε_eff)`);
     setVal("val_BC2", `${fmt(BC2f_r)} (×ε_eff)`);
-    setVal("val_Zseries", `${fmt(Zf_r)}`);
-    setVal("val_Yshunt", `${fmt(B_total_r)}`);
     setVal("val_erEff", `${er_eff.toFixed(4)}`);
-
-    // Desenha o circuito equivalente visual
-    drawCircuitEstrela({
-      XL: fmt(XLf_r),
-      BC1: fmt(BC1f_r),
-      BC2: fmt(BC2f_r),
-      Zf: fmt(Zf_r),
-      Yf: fmt(B_total_r),
-    });
   }
 
   // === MODELO FÍSICO: L & C EQUIVALENTE ===

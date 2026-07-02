@@ -3,7 +3,7 @@ def generate_html(): html_content = r"""<!doctype html>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Memorial de Cálculo Eletromagnético - FSS Design Lab</title>
+    <title>Memorial de Cálculo Eletromagnético - FSS Explorer</title>
 
     <link
       rel="stylesheet"
@@ -189,7 +189,7 @@ def generate_html(): html_content = r"""<!doctype html>
       </h1>
       <p>
         Este documento apresenta o referencial matemático completo utilizado no
-        motor de cálculo do <strong>FSS Design Lab</strong>. As formulações
+        motor de cálculo do <strong>FSS Explorer</strong>. As formulações
         detalhadas aqui traduzem geometrias físicas complexas em Modelos de
         Circuito Equivalente (ECM), permitindo a predição precisa de
         ressonâncias em radiofrequência, validadas contra simulações de onda
@@ -376,15 +376,9 @@ def generate_html(): html_content = r"""<!doctype html>
           (End-Caps, que atuam como blocos capacitivos).
         </p>
 
-        <p>
-          O circuito equivalente resulta em duas malhas RLC em série, associadas
-          em paralelo:
-        </p>
-        <div class="math-box">
-          <span class="equation-label">(Eq. 5.1)</span>
+        <div class="info-block">
           <p>
-            \[ Y_{total} = \frac{1}{jX_{cruz} + \frac{1}{jB_{caps}}} +
-            \frac{1}{jX_{haste\_externa}} \]
+            Na interface, a complexidade desse circuito equivalente é simplificada: o modelo matemático fornece os valores de Impedância/Reatância que extraem os parâmetros físicos diretos de Indutância ($L$ equivalente em nH) e Capacitância ($C$ equivalente em pF) das geometrias.
           </p>
         </div>
         <p>
@@ -428,10 +422,10 @@ def generate_html(): html_content = r"""<!doctype html>
             <td>N. Marcuvitz (1951)</td>
             <td>
               <a
-                href="referencias/Waveguide Handbook.pdf"
+                href="https://ieeexplore.ieee.org/book/5267329"
                 target="_blank"
                 style="color: var(--secondary-color); font-weight: bold"
-                ><i class="fa-solid fa-file-pdf icon-margin"></i>Waveguide
+                ><i class="fa-solid fa-arrow-up-right-from-square icon-margin"></i>Waveguide
                 Handbook</a
               >
             </td>
@@ -444,10 +438,10 @@ def generate_html(): html_content = r"""<!doctype html>
             <td>A. L. M. Oliveira (2023)</td>
             <td>
               <a
-                href="referencias/[2023] TCC Ana Luiza.pdf"
+                href="https://repositorio.ufrn.br/"
                 target="_blank"
                 style="color: var(--secondary-color); font-weight: bold"
-                ><i class="fa-solid fa-file-pdf icon-margin"></i>[2023] TCC Ana
+                ><i class="fa-solid fa-arrow-up-right-from-square icon-margin"></i>[2023] TCC Ana
                 Luiza</a
               >
             </td>
@@ -460,10 +454,10 @@ def generate_html(): html_content = r"""<!doctype html>
             <td>Vários Autores</td>
             <td>
               <a
-                href="referencias/Superficies Seletivas em Fraquencia - Ebook.pdf"
+                href="https://editora.ifpb.edu.br/"
                 target="_blank"
                 style="color: var(--secondary-color); font-weight: bold"
-                ><i class="fa-solid fa-file-pdf icon-margin"></i>Superfícies
+                ><i class="fa-solid fa-arrow-up-right-from-square icon-margin"></i>Superfícies
                 Seletivas em Frequência - Ebook</a
               >
             </td>
@@ -475,10 +469,10 @@ def generate_html(): html_content = r"""<!doctype html>
             <td>J. R. Costa et al.</td>
             <td>
               <a
-                href="referencias/A Simple Effective Permittivity Model for Metasurfaces within Multilayer.pdf"
+                href="https://doi.org/10.1109/TAP.2021.3111175"
                 target="_blank"
                 style="color: var(--secondary-color); font-weight: bold"
-                ><i class="fa-solid fa-file-pdf icon-margin"></i>A Simple
+                ><i class="fa-solid fa-arrow-up-right-from-square icon-margin"></i>A Simple
                 Effective Permittivity Model for Metasurfaces within
                 Multilayer</a
               >
@@ -506,7 +500,7 @@ def generate_html(): html_content = r"""<!doctype html>
           padding-top: 20px;
         "
       >
-        Memorial Técnico Eletromagnético gerado para o FSS Design Lab. <br />
+        Memorial Técnico Eletromagnético gerado para o FSS Explorer. <br />
         Compilação de Modelos Analíticos para Filtros Espaciais em Micro-ondas.
       </p>
     </div>

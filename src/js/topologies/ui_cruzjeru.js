@@ -12,7 +12,7 @@
 // calcS21 = calcula o parâmetro S21 (transmissão de sinal)
 import { mmToCm, FF, calcS21 } from "../core/math.js";
 import { initSubstrateSelector } from "../common/substrate-selector.js";
-import { drawCircuitCruzJeru } from "../common/circuit-diagram.js";
+
 import { initParametricAnalysis } from "../common/parametric-analysis.js";
 
 // Variável global que armazena o gráfico Chart.js (biblioteca para fazer gráficos)
@@ -918,18 +918,7 @@ function updateAll() {
     setVal("val_BC1", `${fmt(BC1_r)} (×ε_eff)`);
     setVal("val_XL2", `${fmt(XL2_r)}`);
     setVal("val_BC2", `${fmt(BC2_r)}`);
-    setVal("val_Zseries", `${fmt(X1_r)}`);
-    setVal("val_Yshunt", `${fmt(B_total_r)}`);
     setVal("val_erEff", `${er_nova.toFixed(4)}`);
-
-    // Desenha o circuito equivalente visual
-    drawCircuitCruzJeru({
-      XL1: fmt(XL1_r),
-      BC1: fmt(BC1_r),
-      XL2: fmt(XL2_r),
-      BC2: fmt(BC2_r),
-      Btotal: fmt(B_total_r),
-    });
   }
 
   // === MODELO FÍSICO: L & C EQUIVALENTE ===

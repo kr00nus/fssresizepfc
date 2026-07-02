@@ -13,7 +13,7 @@
 
 import { mmToCm, FF, calcS21 } from "../core/math.js"; // Importa funções matemáticas compartilhadas
 import { initSubstrateSelector } from "../common/substrate-selector.js"; // Seletor de substrato centralizado
-import { drawCircuitEspira } from "../common/circuit-diagram.js"; // Circuito equivalente visual
+
 import { initParametricAnalysis } from "../common/parametric-analysis.js"; // Análise paramétrica
 
 // Variável global que armazena a instância do gráfico Chart.js
@@ -706,17 +706,7 @@ function updateAll() {
 
     setVal("val_XL", `${fmt(XL_r)} @ ${frFreq.toFixed(2)} GHz`);
     setVal("val_BC1", `${fmt(BC_r)} (×ε_eff)`);
-    setVal("val_Zseries", `${fmt(X_total_r)}`);
-    setVal("val_Yshunt", `${fmt(B_norm_r)}`);
     setVal("val_erEff", `${er_nova.toFixed(4)}`);
-
-    // Desenha o circuito equivalente visual
-    drawCircuitEspira({
-      XL: fmt(XL_r),
-      BC: fmt(BC_r),
-      Xtotal: fmt(X_total_r),
-      Bnorm: fmt(B_norm_r),
-    });
   }
 
   // === MODELO FÍSICO: L & C EQUIVALENTE ===

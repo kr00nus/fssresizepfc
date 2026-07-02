@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Simulador FSS - Cruz de Jerusalém</title>
+    <title>FSS Explorer - Cruz de Jerusalém</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link
       rel="stylesheet"
@@ -247,11 +247,9 @@
             <h4 style="margin:0 0 12px 0;color:#1a2a3a;font-size:14px;">🧮 Reatâncias na Ressonância (ECM)</h4>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;">
               <div><strong style="color:#1976d2;">X<sub>L1</sub> (Indutiva):</strong> <span id="val_XL">—</span></div>
-              <div><strong style="color:#c62828;">B<sub>C1</sub> (Cap. Total):</strong> <span id="val_BC1">—</span></div>
+              <div><strong style="color:#c62828;">B<sub>C1</sub> (Cap. Total, já ×ε<sub>eff</sub>):</strong> <span id="val_BC1">—</span></div>
               <div><strong style="color:#1976d2;">X<sub>L2</sub> (Chapéu):</strong> <span id="val_XL2">—</span></div>
-              <div><strong style="color:#c62828;">B<sub>C2</sub> (Chapéu):</strong> <span id="val_BC2">—</span></div>
-              <div><strong style="color:#2e7d32;">X<sub>1</sub> (Série):</strong> <span id="val_Zseries">—</span></div>
-              <div><strong style="color:#6a1b9a;">B<sub>total</sub>:</strong> <span id="val_Yshunt">—</span></div>
+              <div><strong style="color:#c62828;">B<sub>C2</sub> (Chapéu, sem ×ε<sub>eff</sub>):</strong> <span id="val_BC2">—</span></div>
               <div><strong style="color:#e65100;">ε<sub>eff</sub> (Costa):</strong> <span id="val_erEff">—</span></div>
             </div>
           </div>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Simulador FSS - Estrela de 4 Pontas</title>
+    <title>FSS Explorer - Estrela de 4 Pontas</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link
       rel="stylesheet"
@@ -246,10 +246,8 @@
             <h4 style="margin:0 0 12px 0;color:#1a2a3a;font-size:14px;"><i class="fa-solid fa-calculator"></i> Reatâncias na Ressonância (ECM)</h4>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;">
               <div><strong style="color:#1976d2;">X<sub>L</sub> (Indutiva):</strong> <span id="val_XL">—</span></div>
-              <div><strong style="color:#c62828;">B<sub>C1</sub> (Cap. Série):</strong> <span id="val_BC1">—</span></div>
-              <div><strong style="color:#c62828;">B<sub>C2</sub> (Cap. Shunt):</strong> <span id="val_BC2">—</span></div>
-              <div><strong style="color:#2e7d32;">Z<sub>série</sub>:</strong> <span id="val_Zseries">—</span></div>
-              <div><strong style="color:#6a1b9a;">Y<sub>total</sub>:</strong> <span id="val_Yshunt">—</span></div>
+              <div><strong style="color:#c62828;">B<sub>C1</sub> (Cap. Série, já ×ε<sub>eff</sub>):</strong> <span id="val_BC1">—</span></div>
+              <div><strong style="color:#c62828;">B<sub>C2</sub> (Cap. Shunt, já ×ε<sub>eff</sub>):</strong> <span id="val_BC2">—</span></div>
               <div><strong style="color:#e65100;">ε<sub>eff</sub>:</strong> <span id="val_erEff">—</span></div>
             </div>
           <div id="lcModelPanel" style="margin-top:15px;padding:18px 20px;background:linear-gradient(135deg,#f3e8ff 0%,#ede4f7 100%);border-radius:8px;border-left:5px solid #7c3aed;font-size:13px;font-family:'Segoe UI',Tahoma,sans-serif;">
