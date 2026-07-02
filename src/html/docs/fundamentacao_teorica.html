@@ -251,10 +251,12 @@
             <div class="info-block">
               <h3>Incidência TE — Indutivo</h3>
               <p>Campo elétrico paralelo às fitas → <strong>elemento indutivo em série</strong>. A reatância indutiva normalizada é:</p>
+              <img src="../../img/docs/parametrosTE.png" alt="Incidência TE" style="width:100%; border-radius:4px; margin-top:10px;">
             </div>
             <div class="info-block">
               <h3>Incidência TM — Capacitivo</h3>
               <p>Campo magnético paralelo às fitas → <strong>elemento capacitivo em paralelo</strong>. A susceptância capacitiva normalizada é:</p>
+              <img src="../../img/docs/parametrosTM.png" alt="Incidência TM" style="width:100%; border-radius:4px; margin-top:10px;">
             </div>
           </div>
 
@@ -291,6 +293,17 @@
 
           <p>O anel quadrado é modelado por um circuito LC em série (filtro rejeita-faixa). Introduzindo o fator de preenchimento geométrico \((d_q/p_q)\) ao equacionamento fundamental, as expressões normalizadas são:</p>
 
+          <div class="img-grid">
+            <div class="img-card">
+              <img src="../../img/docs/modanelquadrado.png" alt="Geometria Anel Quadrado">
+              <div class="img-caption">Geometria da Célula Unitária</div>
+            </div>
+            <div class="img-card">
+              <img src="../../img/docs/circuitomodanelquadrado.png" alt="Circuito Equivalente Anel Quadrado">
+              <div class="img-caption">Modelo de Circuito Equivalente</div>
+            </div>
+          </div>
+
           <div class="math-box">
             <span class="eq-label">(Eq. 6.1.1)</span>
             \[ \frac{X_L}{Z_0} = \frac{d_q}{p_q} \, F(p_q, w_q, \lambda, \theta) \]
@@ -312,6 +325,17 @@
           <h2><span class="section-icon"><i class="fa-solid fa-plus"></i></span>6.2 Modelo do Espalhador Cruz de Jerusalém</h2>
 
           <p>A Cruz de Jerusalém é um dos elementos mais versáteis do Grupo 1, constituída por dois dipolos ortogonais com terminações laterais (<em>chapéus</em>) em seus extremos. Essas terminações geram um <strong>acoplamento capacitivo adicional massivo</strong>, permitindo elevada miniaturização da célula e resultando num acentuado comportamento de filtro rejeita-faixa.</p>
+
+          <div class="img-grid">
+            <div class="img-card">
+              <img src="../../img/docs/modcruzjeruzalem.png" alt="Geometria Cruz de Jerusalém">
+              <div class="img-caption">Geometria da Célula Unitária</div>
+            </div>
+            <div class="img-card">
+              <img src="../../img/docs/circuitomodcruzjeruzalem.png" alt="Circuito Equivalente Cruz de Jerusalém">
+              <div class="img-caption">Modelo de Circuito Equivalente</div>
+            </div>
+          </div>
 
           <h3>Reatância Indutiva</h3>
           <p>A reatância indutiva normalizada do braço central, sob incidência normal (\(\theta = 0^\circ\)):</p>
@@ -347,6 +371,17 @@
           <h2><span class="section-icon"><i class="fa-solid fa-star"></i></span>6.3 Modelo do Espalhador Estrela de 4 Pontas</h2>
 
           <p>A geometria da estrela de quatro pontas (<em>tapered star</em>) opera primariamente como um ressoador de meia-onda. A variação da seção ao longo da metalização altera significativamente a distribuição de corrente e os acoplamentos capacitivos parasitas. Adota-se o modelo analítico proposto por Mamedes (2024).</p>
+
+          <div class="img-grid">
+            <div class="img-card">
+              <img src="../../img/docs/modestrela4pontas.png" alt="Geometria Estrela de 4 Pontas">
+              <div class="img-caption">Geometria da Célula Unitária</div>
+            </div>
+            <div class="img-card">
+              <img src="../../img/docs/circuitomodestrela4pontas.png" alt="Circuito Equivalente Estrela de 4 Pontas">
+              <div class="img-caption">Modelo de Circuito Equivalente</div>
+            </div>
+          </div>
 
           <h3>Reatância Indutiva</h3>
           <div class="math-box">
