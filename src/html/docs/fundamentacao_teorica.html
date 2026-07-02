@@ -31,12 +31,17 @@
         <div class="sidebar-section-label">Nesta página</div>
         <nav>
           <ul>
-            <li><a href="#permissividade"><span class="nav-icon"><i class="fa-solid fa-layer-group"></i></span>1. Permissividade Efetiva</a></li>
-            <li><a href="#marcuvitz"><span class="nav-icon"><i class="fa-solid fa-wave-square"></i></span>2. Funções de Dispersão</a></li>
-            <li><a href="#anel-quadrado"><span class="nav-icon"><i class="fa-regular fa-square"></i></span>3. Anel Quadrado</a></li>
-            <li><a href="#anel-circular"><span class="nav-icon"><i class="fa-regular fa-circle"></i></span>4. Anel Circular</a></li>
-            <li><a href="#cruz-jeru"><span class="nav-icon"><i class="fa-solid fa-plus"></i></span>5. Cruz de Jerusalém</a></li>
-            <li><a href="#referencias"><span class="nav-icon"><i class="fa-solid fa-book-open"></i></span>6. Referências</a></li>
+            <li><a href="#metasuperficies"><span class="nav-icon"><i class="fa-solid fa-layer-group"></i></span>1. Metasuperfícies</a></li>
+            <li><a href="#fss"><span class="nav-icon"><i class="fa-solid fa-filter"></i></span>2. Superfícies Seletivas</a></li>
+            <li><a href="#elementos"><span class="nav-icon"><i class="fa-solid fa-shapes"></i></span>3. Elementos da FSS</a></li>
+            <li><a href="#substratos"><span class="nav-icon"><i class="fa-solid fa-layer-group"></i></span>4. Substratos</a></li>
+            <li><a href="#metodos"><span class="nav-icon"><i class="fa-solid fa-calculator"></i></span>5. Métodos de Análise</a></li>
+            <li><a href="#ecm"><span class="nav-icon"><i class="fa-solid fa-wave-square"></i></span>6. Modelo ECM</a></li>
+            <li><a href="#anel-quadrado"><span class="nav-icon"><i class="fa-regular fa-square"></i></span>6.1 Anel Quadrado</a></li>
+            <li><a href="#cruz-jeru"><span class="nav-icon"><i class="fa-solid fa-plus"></i></span>6.2 Cruz de Jerusalém</a></li>
+            <li><a href="#estrela"><span class="nav-icon"><i class="fa-solid fa-star"></i></span>6.3 Estrela 4 Pontas</a></li>
+            <li><a href="#permissividade"><span class="nav-icon"><i class="fa-solid fa-superscript"></i></span>7. Permissividade Efetiva</a></li>
+            <li><a href="#referencias"><span class="nav-icon"><i class="fa-solid fa-book-open"></i></span>Referências</a></li>
           </ul>
         </nav>
         <div class="sidebar-divider"></div>
@@ -44,7 +49,7 @@
         <nav>
           <ul>
             <li><a href="guia_rapido.html"><span class="nav-icon"><i class="fa-solid fa-book"></i></span>Guia Rápido</a></li>
-            <li><a href="explicacao_leigos.html"><span class="nav-icon"><i class="fa-solid fa-graduation-cap"></i></span>Explicação para Leigos</a></li>
+            <li><a href="explicacao_leigos.html"><span class="nav-icon"><i class="fa-solid fa-graduation-cap"></i></span>Para Leigos</a></li>
             <li><a href="calculo_lc.html"><span class="nav-icon"><i class="fa-solid fa-calculator"></i></span>Cálculo de L &amp; C</a></li>
             <li><a href="resumo_completo.html"><span class="nav-icon"><i class="fa-solid fa-file-lines"></i></span>Resumo Completo</a></li>
           </ul>
@@ -56,143 +61,379 @@
 
         <div class="page-hero">
           <div class="page-hero-tag"><i class="fa-solid fa-flask"></i> Referencial Matemático</div>
-          <h1>Memorial de Cálculo Eletromagnético</h1>
-          <p>Referencial matemático completo do motor de cálculo do FSS Explorer. Formulações que traduzem geometrias físicas em modelos de circuito equivalente (ECM), validadas contra simulações de onda completa (Ansys HFSS) para a banda 5G n78.</p>
+          <h1>Fundamentação Teórica</h1>
+          <p>Referencial teórico e matemático do FSS Explorer, cobrindo metasuperfícies, Superfícies Seletivas de Frequência, elementos, substratos, métodos de análise e os modelos de Circuito Equivalente implementados.</p>
         </div>
 
-        <!-- ===== SEÇÃO 1 ===== -->
-        <section class="docs-section" id="permissividade">
-          <h2><span class="section-icon"><i class="fa-solid fa-layer-group"></i></span>1. Correções de Permissividade Efetiva</h2>
+        <!-- ===== SEÇÃO 1: METASUPERFÍCIES ===== -->
+        <section class="docs-section" id="metasuperficies">
+          <h2><span class="section-icon"><i class="fa-solid fa-layer-group"></i></span>1. Metasuperfícies</h2>
 
-          <p>Quando uma FSS é impressa sobre um substrato dielétrico (ex: RO3003, FR-4), as linhas de campo elétrico dividem-se entre o ar (\(\epsilon_0\)) e o material dielétrico (\(\epsilon_r\)). A permissividade efetiva (\(\epsilon_{eff}\)) sentida pela onda não é simplesmente a média dos dois meios, mas depende fortemente da espessura do substrato (\(h\)) em relação à periodicidade (\(p\)) da célula.</p>
+          <p>Metasuperfícies são estruturas bidimensionais compostas por arranjos periódicos ou quase-periódicos de elementos metálicos ou dielétricos, denominados <strong>meta-átomos</strong>, cujas dimensões e periodicidade são muito menores que o comprimento de onda da radiação eletromagnética de interesse. Essa característica permite que a metasuperfície seja tratada como uma superfície efetivamente homogênea do ponto de vista eletromagnético, facilitando sua modelagem e integração em dispositivos modernos.</p>
 
-          <h3>1.1. Formulação Clássica e o Modelo de Costa</h3>
-          <p>O modelo clássico propõe uma transição exponencial. Costa introduziu um fator de forma dinâmico (\(\alpha\)) para corrigir desvios em tiras estreitas, onde o confinamento de campo é menor:</p>
+          <p>A principal função das metasuperfícies é <strong>manipular ondas eletromagnéticas de forma precisa e local</strong>, controlando propriedades como amplitude, fase e polarização das ondas refletidas, transmitidas ou absorvidas. Isso é possível porque, ao incidir sobre a metasuperfície, a onda eletromagnética induz dipolos elétricos e magnéticos nos meta-átomos, gerando correntes superficiais que criam descontinuidades abruptas nos campos tangenciais. Essas descontinuidades são modeladas matematicamente por meio de parâmetros superficiais, como susceptibilidades elétricas e magnéticas, ou impedâncias superficiais.</p>
 
-          <div class="math-box">
-            <span class="eq-label">(Eq. 1.1)</span>
-            \[ \epsilon_{eff} = 1 + \frac{\epsilon_r - 1}{2} \cdot \left[ 1 - \exp\left(-\alpha \frac{h}{p}\right) \right] \]
-            <p style="margin-top:10px; font-size:0.9rem; color:var(--muted);">Onde \(\alpha\) varia linearmente entre 12.5 e 16, dependendo da razão da largura da fita pelo período (\(w/p\)).</p>
+          <div class="info-block">
+            <h3>Aplicações Principais</h3>
+            <ul>
+              <li><strong>Antenas:</strong> refletores de fase, superestratos para diretividade, miniaturização e redução de acoplamento</li>
+              <li><strong>Óptica plana:</strong> metalentes, hologramas, polarizadores ultrafinos</li>
+              <li><strong>Absorvedores seletivos e camuflagem eletromagnética</strong></li>
+              <li><strong>Superfícies inteligentes reconfiguráveis</strong> em ambientes urbanos dinâmicos</li>
+              <li><strong>Redes 5G:</strong> filtragem espectral seletiva na banda n78, miniaturização e integração de antenas</li>
+            </ul>
           </div>
 
-          <h3>1.2. O Modelo Calibrado de Ana Luiza (2023)</h3>
-          <p>Para geometrias curvas e fortemente acopladas, o modelo de Costa subestima a capacitância parasita. O simulador implementa esta formulação de Oliveira (2023):</p>
+          <p>As metasuperfícies podem ser projetadas para operar em diferentes faixas de frequência e para responder de maneira específica a ondas com diferentes ângulos de incidência e polarizações. A fabricação é facilitada pelo fato de serem essencialmente planas, podendo ser produzidas por técnicas convencionais de microfabricação, como litografia, o que reduz custos e permite integração com circuitos de radiofrequência.</p>
 
-          <div class="math-box">
-            <span class="eq-label">(Eq. 1.2)</span>
-            \[ \epsilon_{eff} = \epsilon_r + (\epsilon_r - 1) \cdot \left( \frac{-1}{z^N} \right) \]
-            <p style="margin-top:10px; font-size:0.9rem; color:var(--muted);">Onde \( z = \exp\left(\frac{10 \cdot h}{p}\right) \) e o expoente <strong>\(N = 1.8\)</strong> é um fator de calibração empírico.</p>
+          <p>Dentre o amplo espectro de aplicações de metasuperfícies, as <strong>Superfícies Seletivas de Frequência (FSS)</strong> despontam como uma das aplicações primárias e de maior relevância prática. No contexto das redes móveis de quinta geração, as FSS podem ser rigorosamente sintetizadas para atuar na banda n78, mitigando interferências de sistemas concorrentes como Wi-Fi nas faixas ISM/UNII e favorecendo infraestruturas mais compactas e de alta diretividade.</p>
+        </section>
+
+        <!-- ===== SEÇÃO 2: FSS ===== -->
+        <section class="docs-section" id="fss">
+          <h2><span class="section-icon"><i class="fa-solid fa-filter"></i></span>2. Superfícies Seletivas em Frequência</h2>
+
+          <p>As FSS são estruturas periódicas bidimensionais compostas por elementos metálicos condutores, conhecidos como <em>patches</em> ou aberturas, impressos sobre substratos dielétricos. Essas superfícies funcionam como <strong>filtros espaciais</strong> para ondas eletromagnéticas, permitindo ou bloqueando a passagem de sinais em faixas específicas de frequência, de maneira análoga aos filtros elétricos convencionais.</p>
+
+          <div class="two-column">
+            <div class="term-card cat-fss">
+              <h3><i class="fa-solid fa-ban"></i> FSS Capacitiva — Rejeita-Faixa</h3>
+              <p>Composta por <strong>patches metálicos</strong> sobre o substrato. Quando a frequência da onda incidente coincide com a frequência de ressonância, a estrutura reflete a maior parte da energia, atuando como um condutor quase perfeito.</p>
+            </div>
+            <div class="term-card cat-fss">
+              <h3><i class="fa-solid fa-circle-check"></i> FSS Indutiva — Passa-Faixa</h3>
+              <p>Constituída por <strong>aberturas periódicas</strong> em uma superfície condutora. Opera como filtro passa-faixa, permitindo a transmissão quase total da onda na frequência próxima à ressonância das aberturas.</p>
+            </div>
+          </div>
+
+          <p>A modelagem das FSS pode ser realizada por meio de circuitos equivalentes do tipo LC (indutância-capacitância), em configurações série ou paralelo. A resposta em frequência depende de parâmetros geométricos dos elementos, da periodicidade do arranjo, das propriedades dielétricas do substrato e de sua espessura. Com essa flexibilidade, é possível obter respostas do tipo <strong>rejeita-faixa, passa-faixa, passa-baixa e passa-alta</strong>.</p>
+
+          <div class="alert alert-note">
+            <span class="alert-icon"><i class="fa-solid fa-circle-info"></i></span>
+            <div><strong>Seletividade angular:</strong> A FSS pode manter seu desempenho eficaz diante de variações na direção da onda incidente. A sensibilidade à polarização pode ser controlada pelo formato e disposição dos elementos, possibilitando o ajuste fino dos padrões de radiação.</div>
+          </div>
+        </section>
+
+        <!-- ===== SEÇÃO 3: ELEMENTOS ===== -->
+        <section class="docs-section" id="elementos">
+          <h2><span class="section-icon"><i class="fa-solid fa-shapes"></i></span>3. Elementos da FSS</h2>
+
+          <p>Segundo Munk (2000), a geometria do <em>patch</em> é um dos fatores mais determinantes no desempenho das FSS. A configuração geométrica interfere diretamente na distribuição de corrente induzida, na seletividade espectral, na largura de banda e na estabilidade angular. As principais geometrias são organizadas em quatro grupos clássicos:</p>
+
+          <div class="card-grid">
+            <div class="card">
+              <h4><i class="fa-solid fa-plus"></i> Grupo 1 — N-polos pelo centro</h4>
+              <p>Dipolos simples, dipolos cruzados, Cruz de Jerusalém. Braços condutores conectados a partir do centro. <strong>Largura de banda moderada</strong> e menor sensibilidade ao ângulo de incidência.</p>
+            </div>
+            <div class="card">
+              <h4><i class="fa-regular fa-square"></i> Grupo 2 — Espiras</h4>
+              <p>Espiras quadradas, anéis circulares, duplos anéis concêntricos. <strong>Elevada largura de banda</strong> e estabilidade angular. Ressoam quando o perímetro médio corresponde a um comprimento de onda.</p>
+            </div>
+            <div class="card">
+              <h4><i class="fa-solid fa-square-full"></i> Grupo 3 — Interior sólido</h4>
+              <p>Patches sólidos (retangulares, circulares, hexagonais). Fabricação simples, porém sofrem <strong>maior degradação</strong> com variações no ângulo de incidência.</p>
+            </div>
+            <div class="card">
+              <h4><i class="fa-solid fa-puzzle-piece"></i> Grupo 4 — Combinações</h4>
+              <p>Configurações híbridas entre geometrias básicas. Empregadas para <strong>respostas multibanda</strong>, miniaturização ou requisitos específicos de projeto.</p>
+            </div>
+          </div>
+
+          <h3>Elementos Especiais</h3>
+
+          <div class="model-card">
+            <h4><i class="fa-solid fa-snowflake"></i> Elementos Fractais</h4>
+            <p>Distinguem-se pela <strong>auto-similaridade em múltiplas escalas</strong>, resultando em múltiplas frequências ressonantes na célula unitária. Permitem operação eficiente em diversos comprimentos de onda, favorecendo aplicações multibanda e compactação extrema sem prejuízo do desempenho espectral.</p>
+          </div>
+
+          <div class="model-card">
+            <h4><i class="fa-solid fa-rotate"></i> Elementos Convolucionados</h4>
+            <p>Princípio baseado em <strong>dobras e sobreposições sistemáticas</strong> da geometria, elevando a complexidade topológica sem aumento significativo da área física. Possibilita bandas ajustáveis e melhoria da estabilidade angular, pois o padrão convolucionado dispersa as correntes superficiais de forma a preservar a resposta mesmo sob incidência oblíqua.</p>
+          </div>
+
+          <div class="model-card">
+            <h4><i class="fa-solid fa-layer-group"></i> FSS em Cascata</h4>
+            <p>Múltiplas camadas de FSS empilhadas e separadas por materiais dielétricos. O <strong>acoplamento eletromagnético entre as camadas</strong> pode ser ajustado para potencializar respostas multibanda ou de banda ultra larga (UWB), com seletividade espectral rígida e rejeição aprimorada de interferências.</p>
+          </div>
+
+          <h3>Comparativo entre Tipos de Elementos</h3>
+          <table class="docs-table">
+            <thead>
+              <tr><th>Tipo</th><th>Banda</th><th>Estab. Angular</th><th>Miniaturização</th><th>Multibanda</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Grupo 1</td><td>Moderada</td><td>Moderada</td><td>Limitada</td><td>Não</td></tr>
+              <tr><td>Grupo 2</td><td>Larga</td><td>Elevada</td><td>Boa</td><td>Sim</td></tr>
+              <tr><td>Grupo 3</td><td>Estreita</td><td>Limitada</td><td>Boa</td><td>Não</td></tr>
+              <tr><td>Grupo 4</td><td>Personalizável</td><td>Variável</td><td>Boa</td><td>Sim</td></tr>
+              <tr><td>Fractais</td><td>Larga/Multibanda</td><td>Elevada</td><td>Excelente</td><td>Sim</td></tr>
+              <tr><td>Convolucionados</td><td>Larga</td><td>Elevada</td><td>Muito boa</td><td>Sim</td></tr>
+              <tr><td>Cascata</td><td>Muito ampla</td><td>Elevada</td><td>Boa</td><td>Sim</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- ===== SEÇÃO 4: SUBSTRATOS ===== -->
+        <section class="docs-section" id="substratos">
+          <h2><span class="section-icon"><i class="fa-solid fa-layer-group"></i></span>4. Substratos das FSS</h2>
+
+          <p>As propriedades elétricas e mecânicas do substrato são determinantes para o desempenho das FSS, influenciando sua robustez física e principalmente sua resposta eletromagnética.</p>
+
+          <div class="info-block">
+            <h3>Permissividade Elétrica (\(\varepsilon_r\))</h3>
+            <p>Exerce papel central na definição da faixa de operação da FSS. Materiais com <strong>baixa permissividade</strong> tendem a propiciar maior eficiência de acoplamento e ampliar a largura de banda, porém exigem espessura maior para garantir o confinamento e suporte da estrutura periódica. Em substratos isotrópicos, a permissividade é dada por \(\varepsilon = \varepsilon_0 \varepsilon_r\), com propriedades constantes em todas as direções.</p>
+          </div>
+
+          <table class="docs-table">
+            <thead>
+              <tr><th>Substrato</th><th>\(\varepsilon_r\)</th><th>\(h\) (mm)</th><th>Aplicação</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>RO3003</strong></td><td>3.00</td><td>1.52</td><td>Substrato padrão — baixa permissividade, banda larga</td></tr>
+              <tr><td><strong>RO3006</strong></td><td>6.50</td><td>1.28</td><td>Permissividade intermediária</td></tr>
+              <tr><td><strong>RT/Duroid 6010</strong></td><td>10.20</td><td>1.90</td><td>Altíssima permissividade — miniaturização de FSS</td></tr>
+              <tr><td><strong>FR-4</strong></td><td>4.40</td><td>1.57</td><td>PCB genérico de baixo custo</td></tr>
+            </tbody>
+          </table>
+
+          <div class="alert alert-tip">
+            <span class="alert-icon"><i class="fa-solid fa-lightbulb"></i></span>
+            <div>Substratos com \(\varepsilon_r\) reduzida exigem maior espessura para garantir suporte estrutural — impacta custo e viabilidade. A escolha deve integrar requisitos de desempenho, eficiência e estabilidade tecnológica.</div>
+          </div>
+        </section>
+
+        <!-- ===== SEÇÃO 5: MÉTODOS ===== -->
+        <section class="docs-section" id="metodos">
+          <h2><span class="section-icon"><i class="fa-solid fa-calculator"></i></span>5. Métodos de Análise</h2>
+
+          <p>Os métodos de análise aplicados à caracterização de FSS agrupam-se em três grandes categorias: métodos baseados na teoria de circuitos, métodos fundamentados em expansão modal e técnicas iterativas.</p>
+
+          <div class="model-card">
+            <h4><i class="fa-solid fa-project-diagram"></i> Técnica de Casamento Modal</h4>
+            <p>Uma das primeiras abordagens empregadas para análise de FSS. Distingue-se pelo detalhamento da resposta em frequência e polarização, fornecendo compreensão física aprofundada do comportamento das estruturas.</p>
+            <div class="model-card-footer"><span class="badge badge-tech">Clássico</span></div>
+          </div>
+
+          <div class="model-card">
+            <h4><i class="fa-solid fa-circle-nodes"></i> Modelo de Circuito Equivalente (ECM)</h4>
+            <p>Representa a FSS por meio de componentes reativos (indutivos e capacitivos), facilitando respostas rápidas e interpretáveis para geometrias convencionais. <strong>Método adotado neste simulador</strong>.</p>
+            <div class="model-card-footer"><span class="badge badge-complete">Adotado no FSS Explorer</span></div>
+          </div>
+
+          <div class="model-card">
+            <h4><i class="fa-solid fa-microchip"></i> Métodos de Onda Completa (MoM, FEM, FDTD, WCIP)</h4>
+            <p>Oferecem precisão superior às custas de maior esforço computacional. Permitem análise de estruturas arbitrárias, efeitos de substrato, incidência oblíqua e materiais heterogêneos. Compatíveis com softwares como Ansys HFSS.</p>
+            <div class="model-card-footer"><span class="badge badge-tech">Alta precisão</span><span class="badge badge-pending">Custo computacional elevado</span></div>
+          </div>
+
+          <div class="model-card">
+            <h4><i class="fa-solid fa-brain"></i> Técnicas Híbridas e IA</h4>
+            <p>Combinação de MoM com FEM, redes neurais e algoritmos genéticos. Representam a fronteira mais recente da análise de FSS, permitindo otimização de alto desempenho.</p>
+            <div class="model-card-footer"><span class="badge badge-tech">Estado da arte</span></div>
           </div>
 
           <div class="alert alert-note">
             <span class="alert-icon"><i class="fa-solid fa-circle-info"></i></span>
-            <div><strong>Justificativa Física:</strong> O expoente 1.8 atua como um fator de amortecimento severo. Em substratos eletricamente finos (\(h = 1.52\) mm para \(p = 20\) mm), o campo elétrico espalha-se predominantemente pelo ar. Esta equação ajusta a velocidade de fase da onda, fundamental para cidades as frequências de ressonância no espectro de micro-ondas.</div>
+            <div>O <strong>FSS Explorer adota o método do circuito equivalente (ECM)</strong>. A escolha fundamenta-se em sua capacidade de representar as propriedades eletromagnéticas por elementos reativos, modelando o comportamento ressonante de forma rápida e com baixo custo computacional, com estimativas preliminares amplamente validadas na literatura.</div>
           </div>
         </section>
 
-        <!-- ===== SEÇÃO 2 ===== -->
-        <section class="docs-section" id="marcuvitz">
-          <h2><span class="section-icon"><i class="fa-solid fa-wave-square"></i></span>2. Funções de Dispersão de Marcuvitz</h2>
+        <!-- ===== SEÇÃO 6: ECM ===== -->
+        <section class="docs-section" id="ecm">
+          <h2><span class="section-icon"><i class="fa-solid fa-wave-square"></i></span>6. Modelo do Circuito Equivalente</h2>
 
-          <p>A espinha dorsal de qualquer modelo ECM para FSS baseia-se nas equações deduzidas por N. Marcuvitz em 1951 para guias de onda. Elas calculam a reatância indutiva (\(X_L\)) e a susceptância capacitiva (\(B_C\)) de grades infinitas de tiras metálicas.</p>
+          <p>O modelo de circuito equivalente permite representar o comportamento eletromagnético de arranjos periódicos por meio de parâmetros concentrados (indutâncias e capacitâncias), que dependem principalmente da geometria da célula unitária, periodicidade \(p\), espaçamento entre elementos e propriedades dos substratos.</p>
 
+          <p>O ponto de partida é a representação de um arranjo infinito de fitas condutoras paralelas, desenvolvida por Marcuvitz (1951). Dependendo da polarização e ângulo de incidência, a resposta pode ser aproximada por:</p>
+
+          <div class="two-column">
+            <div class="info-block">
+              <h3>Incidência TE — Indutivo</h3>
+              <p>Campo elétrico paralelo às fitas → <strong>elemento indutivo em série</strong>. A reatância indutiva normalizada é:</p>
+            </div>
+            <div class="info-block">
+              <h3>Incidência TM — Capacitivo</h3>
+              <p>Campo magnético paralelo às fitas → <strong>elemento capacitivo em paralelo</strong>. A susceptância capacitiva normalizada é:</p>
+            </div>
+          </div>
+
+          <h3>Função de Espalhamento FF (Marcuvitz)</h3>
+          <p>Todas as topologias utilizam esta função para calcular reatâncias normalizadas:</p>
           <div class="math-box">
-            <span class="eq-label">(Eq. 2.1)</span>
-            <p><strong>Fator de Preenchimento Indutivo (\(F_L\)):</strong></p>
-            \[ F_L(p, w, \lambda) = \frac{p}{\lambda} \cos(\theta) \cdot \ln\left[ \csc\left( \frac{\pi w}{2p} \right) \right] \]
-            <p style="margin-top: 16px;"><strong>Fator de Preenchimento Capacitivo (\(F_C\)):</strong></p>
-            \[ F_C(p, g, \lambda) = \frac{p}{\lambda} \sec(\theta) \cdot \ln\left[ \csc\left( \frac{\pi g}{2p} \right) \right] \]
+            <span class="eq-label">(Eq. 6.1)</span>
+            \[ \frac{X_L}{Z_0} = F(p, w, \lambda, \phi) = \frac{p \cos\phi}{\lambda} \left\{ \ln\left[\csc\left(\frac{\pi w}{2p}\right)\right] + G(p, w, \lambda, \phi) \right\} \]
           </div>
 
-          <p>Onde \(w\) é a espessura da fita, \(g\) é a fresta (gap) entre células, \(\lambda\) é o comprimento de onda e \(\theta\) é o ângulo de incidência. A função cossecante (\(\csc\)) modela as singularidades do campo eletromagnético nas bordas agudas do metal (efeito de borda).</p>
+          <p>Onde a função de correção de modos de ordem superior \(G\) é definida por:</p>
+          <div class="math-box">
+            <span class="eq-label">(Eq. 6.2)</span>
+            \[ G(p,w,\lambda,\phi) = \frac{0{,}5(1-\beta^2)^2 \left[ \left(1-\frac{\beta^2}{4}\right)(C_+ + C_-) + 4\beta^2 C_+ C_- \right]}{\left(1-\frac{\beta^2}{4}\right) + \beta^2\left(1+\frac{\beta^2}{2}-\frac{\beta^4}{8}\right)(C_+ + C_-) + 2\beta^6 C_+ C_-} \]
+            <p style="margin-top:10px; font-size:0.9rem; color:var(--muted);">Onde \(C_{\pm} = \frac{1}{\sqrt{1 \pm \frac{2p\sin\phi}{\lambda} - \left(\frac{p\cos\phi}{\lambda}\right)^2}} - 1\) e \(\beta = \sin\!\left(\frac{\pi w}{2p}\right)\).</p>
+          </div>
+
+          <p>Para incidência TM, a susceptância capacitiva é:</p>
+          <div class="math-box">
+            <span class="eq-label">(Eq. 6.3)</span>
+            \[ \frac{B_C}{Y_0} = 4F(p, g, \lambda, \theta) = \frac{4p\cos\theta}{\lambda} \left\{ \ln\left[\csc\left(\frac{\pi g}{2p}\right)\right] + G(p, g, \lambda, \theta) \right\} \]
+          </div>
+
+          <h3>Fórmulas de Conversão para L e C Físicos</h3>
+          <div class="math-box" style="border-left-color:#166534; background:#f0fdf4;">
+            <span class="eq-label">(Eq. 6.4)</span>
+            \[ X_L = \omega L \qquad B_C = \omega C \qquad f_r \approx \frac{1}{2\pi\sqrt{LC}} \]
+          </div>
         </section>
 
-        <!-- ===== SEÇÃO 3 ===== -->
+        <!-- ===== 6.1 ANEL QUADRADO ===== -->
         <section class="docs-section" id="anel-quadrado">
-          <h2><span class="section-icon"><i class="fa-regular fa-square"></i></span>3. Modelagem do Anel Quadrado</h2>
+          <h2><span class="section-icon"><i class="fa-regular fa-square"></i></span>6.1 Modelo do Espalhador Anel Quadrado</h2>
 
-          <p>O Anel Quadrado foi consolidado por Langley e Parker. O modelo assume que o anel atua como uma associação de indutores (as fitas paralelas à polarização do campo elétrico) e capacitores (as frestas entre anéis adjacentes).</p>
+          <p>O anel quadrado é modelado por um circuito LC em série (filtro rejeita-faixa). Introduzindo o fator de preenchimento geométrico \((d_q/p_q)\) ao equacionamento fundamental, as expressões normalizadas são:</p>
 
           <div class="math-box">
-            <span class="eq-label">(Eq. 3.1)</span>
-            <p style="margin-bottom: 10px;">Para um anel de lado externo \(d\), largura de fita \(w\) e período \(p\), o gap físico é \(g = p - d\). A reatância equivalente da malha é:</p>
-            \[ X_{total} = \left( \frac{d}{p} \right) X_L - \left( \frac{p}{d} \right) \frac{1}{B_C \cdot \epsilon_{eff}} \]
+            <span class="eq-label">(Eq. 6.1.1)</span>
+            \[ \frac{X_L}{Z_0} = \frac{d_q}{p_q} \, F(p_q, w_q, \lambda, \theta) \]
+            \[ \frac{B_C}{Y_0} = 4 \left(\frac{d_q}{p_q}\right) F(p_q, g_q, \lambda, \theta) \cdot \varepsilon_{\mathrm{ef}} \]
+            <p style="margin-top:10px; font-size:0.9rem; color:var(--muted);">Onde \(g_q = p_q - d_q\) é a fenda entre anéis e \(\varepsilon_{\mathrm{ef}}\) é a permissividade efetiva do substrato.</p>
           </div>
 
-          <p>O fator multiplicador \((d/p)\) é a <strong>Escala Geométrica</strong>. Ele informa ao circuito que o indutor não ocupa toda a célula unitária, mas apenas a fração correspondente ao tamanho do anel.</p>
+          <h3>Permissividade Efetiva — Modelo de Costa</h3>
+          <p>Com fator de decaimento dinâmico \(\alpha\) dependente da razão \(w_q/p_q\), interpolado no intervalo \([12{,}5;\ 16]\):</p>
+          <div class="math-box">
+            <span class="eq-label">(Eq. 6.1.2)</span>
+            \[ \varepsilon_{\mathrm{ef}} = 1 + \frac{\varepsilon_r - 1}{2} \left(1 - e^{-\alpha \frac{h_{\mathrm{sub}}}{p}}\right) \]
+            \[ \alpha = 16 - \frac{\left(\frac{w_q}{p_q} - 0{,}05\right) \times (16 - 12{,}5)}{0{,}25 - 0{,}05} \]
+          </div>
         </section>
 
-        <!-- ===== SEÇÃO 4 ===== -->
-        <section class="docs-section" id="anel-circular">
-          <h2><span class="section-icon"><i class="fa-regular fa-circle"></i></span>4. Modelagem do Anel Circular</h2>
+        <!-- ===== 6.2 CRUZ DE JERUSALÉM ===== -->
+        <section class="docs-section" id="cruz-jeru">
+          <h2><span class="section-icon"><i class="fa-solid fa-plus"></i></span>6.2 Modelo do Espalhador Cruz de Jerusalém</h2>
 
-          <p>Para o Anel Circular, aplica-se o <strong>Princípio de Equivalência Geométrica</strong> de Langley. O perímetro de um círculo (\(2\pi r\)) é igualado ao de um quadrado (\(4d_{eq}\)), resultando em \(d_{eq} = \frac{\pi r}{2}\).</p>
+          <p>A Cruz de Jerusalém é um dos elementos mais versáteis do Grupo 1, constituída por dois dipolos ortogonais com terminações laterais (<em>chapéus</em>) em seus extremos. Essas terminações geram um <strong>acoplamento capacitivo adicional massivo</strong>, permitindo elevada miniaturização da célula e resultando num acentuado comportamento de filtro rejeita-faixa.</p>
 
-          <h3>4.1. O Problema da Curvatura e a Fresta Projetada</h3>
-          <p>A inovação matemática empregada no simulador resolve a limitação das equações de Marcuvitz em superfícies curvas. Como os anéis são circulares, eles não possuem bordas paralelas, encontrando-se apenas num ponto tangencial. Em vez de usar o gap físico estrito, o simulador implementa a <strong>Fresta Equivalente Projetada</strong>:</p>
-
+          <h3>Reatância Indutiva</h3>
+          <p>A reatância indutiva normalizada do braço central, sob incidência normal (\(\theta = 0^\circ\)):</p>
           <div class="math-box">
-            <span class="eq-label">(Eq. 4.1)</span>
-            \[ g_{eq} = p - \frac{\pi \cdot d_{ext}}{4} \]
+            <span class="eq-label">(Eq. 6.2.1)</span>
+            \[ \frac{X_L}{Z_0} = F(p_c, w_c, \lambda, 0) \]
+          </div>
+
+          <h3>Susceptância Capacitiva Total</h3>
+          <p>A Cruz de Jerusalém tem duas contribuições capacitivas — do gap e do chapéu:</p>
+          <div class="math-box">
+            <span class="eq-label">(Eq. 6.2.2)</span>
+            \[ B_g = \frac{4d_c}{p_c}\,F(p_c, g_c, \lambda, 0) \]
+            \[ B_d = \frac{4(2h_c + g_c)}{p_c}\,F(p_c,\, p_c - d_c,\, \lambda, 0) \]
+            \[ \frac{B_C}{Y_0} = \varepsilon_{\mathrm{ef}} \left( B_g + B_d \right) \]
+          </div>
+
+          <h3>Permissividade Efetiva — Modelo Costa (Cruz de Jerusalém)</h3>
+          <p>O fator de decaimento \(\alpha\) é interpolado com base na razão \(h_{\mathrm{sub}}/p_c\), limitado ao intervalo \([17;\ 22]\):</p>
+          <div class="math-box">
+            <span class="eq-label">(Eq. 6.2.3)</span>
+            \[ \alpha = 22 - \frac{\left(\frac{h_{\mathrm{sub}}}{p_c} - 0{,}05\right) \times (22 - 17)}{0{,}2 - 0{,}05} \]
+          </div>
+
+          <div class="alert alert-note">
+            <span class="alert-icon"><i class="fa-solid fa-circle-info"></i></span>
+            <div>Na interface do FSS Explorer, a complexidade desse circuito é simplificada: o modelo matemático extrai diretamente os parâmetros físicos de <strong>Indutância (L em nH) e Capacitância (C em pF)</strong>.</div>
+          </div>
+        </section>
+
+        <!-- ===== 6.3 ESTRELA 4 PONTAS ===== -->
+        <section class="docs-section" id="estrela">
+          <h2><span class="section-icon"><i class="fa-solid fa-star"></i></span>6.3 Modelo do Espalhador Estrela de 4 Pontas</h2>
+
+          <p>A geometria da estrela de quatro pontas (<em>tapered star</em>) opera primariamente como um ressoador de meia-onda. A variação da seção ao longo da metalização altera significativamente a distribuição de corrente e os acoplamentos capacitivos parasitas. Adota-se o modelo analítico proposto por Mamedes (2024).</p>
+
+          <h3>Reatância Indutiva</h3>
+          <div class="math-box">
+            <span class="eq-label">(Eq. 6.3.1)</span>
+            \[ \frac{X_L}{Z_0} = \frac{1{,}5\,a_p}{p_p}\,F(p_p,\,b_p,\,\lambda,\,0) \]
+          </div>
+
+          <h3>Susceptâncias Capacitivas (três gaps)</h3>
+          <p>Gaps referentes ao acoplamento entre pontas extremas \((g_{f1} = p_p - a_p)\), ao longo do corpo \((g_{f2} = p_p - b_p)\) e ao redor do elemento central \((g_{f3} = p_p - s_p)\):</p>
+          <div class="math-box">
+            <span class="eq-label">(Eq. 6.3.2)</span>
+            \[ B_{C,gf} = K_L\,\frac{4b_p}{1{,}5p_p}\,F(p_p,\,g_{f1},\,\lambda,\,0) \]
+            \[ B_{C,a1f} = K_L\,\frac{4(p_p-b_p)}{1{,}5p_p}\,F(p_p,\,g_{f2},\,\lambda,\,0) \]
+            \[ B_{C,a2f} = K_L\,\frac{4(p_p-s_p)}{p_p}\,F(p_p,\,g_{f3},\,\lambda,\,0) \]
+            \[ B_{C1} = (B_{C,a1f} + B_{C,gf})\,\varepsilon_{\mathrm{ef}} \qquad B_{C2} = 0{,}25\,(B_{C,a2f} + B_{C,gf})\,\varepsilon_{\mathrm{ef}} \]
+          </div>
+
+          <h3>Permissividade Efetiva — Modelo Mamedes (2024)</h3>
+          <p>Com constante empírica de geometria \(M = 1{,}9\):</p>
+          <div class="math-box">
+            <span class="eq-label">(Eq. 6.3.3)</span>
+            \[ \varepsilon_{\mathrm{ef}} = \varepsilon_r - (\varepsilon_r - 1)\,e^{-M \frac{10\,h_{\mathrm{sub}}}{p_p}} \]
+          </div>
+        </section>
+
+        <!-- ===== SEÇÃO 7: PERMISSIVIDADE EFETIVA ===== -->
+        <section class="docs-section" id="permissividade">
+          <h2><span class="section-icon"><i class="fa-solid fa-superscript"></i></span>7. Correções de Permissividade Efetiva</h2>
+
+          <p>Quando uma FSS é impressa sobre um substrato dielétrico, as linhas de campo elétrico dividem-se entre o ar (\(\epsilon_0\)) e o material dielétrico (\(\epsilon_r\)). A permissividade efetiva (\(\epsilon_{eff}\)) sentida pela onda depende fortemente da espessura do substrato (\(h\)) em relação à periodicidade (\(p\)) da célula.</p>
+
+          <h3>Modelo de Ana Luiza — Oliveira (2023)</h3>
+          <p>Para geometrias curvas e fortemente acopladas (ex: Anel Circular), implementado no simulador:</p>
+          <div class="math-box">
+            <span class="eq-label">(Eq. 7.1)</span>
+            \[ \epsilon_{eff} = \epsilon_r + (\epsilon_r - 1) \cdot \left( \frac{-1}{z^N} \right) \]
+            <p style="margin-top:10px; font-size:0.9rem; color:var(--muted);">Onde \(z = \exp\left(\frac{10 \cdot h}{p}\right)\) e \(N = 1{,}8\) é um fator de calibração empírico para dielétricos finos.</p>
           </div>
 
           <div class="alert alert-tip">
             <span class="alert-icon"><i class="fa-solid fa-check-double"></i></span>
-            <div><strong>Validação HFSS (Banda n78):</strong> Esta projeção cria um gap matemático maior que o físico, simulando a redução real de capacitância causada pela curvatura das fitas. Esta formulação, aliada ao \(\epsilon_{eff}\) com \(N=1.8\), alinha a predição analítica com a ressonância exata obtida no Ansys HFSS para a banda n78 do 5G.</div>
+            <div><strong>Validação HFSS (Banda n78):</strong> A formulação com \(N = 1{,}8\) alinha a predição analítica com a ressonância exata obtida em simulação de onda completa (Ansys HFSS) para a banda n78 do 5G, para o caso do Anel Circular com fresta projetada \(g_{eq} = p - \frac{\pi \cdot d_{ext}}{4}\).</div>
           </div>
         </section>
 
-        <!-- ===== SEÇÃO 5 ===== -->
-        <section class="docs-section" id="cruz-jeru">
-          <h2><span class="section-icon"><i class="fa-solid fa-plus"></i></span>5. Modelagem da Cruz de Jerusalém</h2>
-
-          <p>A Cruz de Jerusalém é uma estrutura complexa e multirressonante. A estrutura é dividida em dois blocos: a cruz central interna (que fornece a indutância principal) e as hastes nas extremidades (End-Caps, que atuam como blocos capacitivos).</p>
-
-          <div class="info-block">
-            <h3>Abstração na Interface</h3>
-            <p>Na interface, a complexidade desse circuito equivalente é simplificada: o modelo matemático fornece os valores de Impedância/Reatância que extraem os parâmetros físicos diretos de Indutância (\(L\) equivalente em nH) e Capacitância (\(C\) equivalente em pF) das geometrias.</p>
-          </div>
-
-          <p>Devido à alta densidade capacitiva dos <em>End-Caps</em> (\(g\)), a Cruz de Jerusalém atinge frequências de ressonância extremamente baixas em células unitárias compactas (alto grau de miniaturização).</p>
-        </section>
-
-        <!-- ===== SEÇÃO 6 ===== -->
+        <!-- ===== REFERÊNCIAS ===== -->
         <section class="docs-section" id="referencias">
-          <h2><span class="section-icon"><i class="fa-solid fa-book-open"></i></span>6. Referências Técnicas do Simulador</h2>
+          <h2><span class="section-icon"><i class="fa-solid fa-book-open"></i></span>Referências Técnicas</h2>
 
           <table class="docs-table">
             <thead>
-              <tr>
-                <th>Autor(es) / Ano</th>
-                <th>Obra</th>
-                <th>Aplicação no Simulador</th>
-              </tr>
+              <tr><th>Autor(es) / Ano</th><th>Obra</th><th>Aplicação no Simulador</th></tr>
             </thead>
             <tbody>
               <tr>
-                <td>R. J. Langley, E. A. Parker (1983)</td>
-                <td><a href="https://ui.adsabs.harvard.edu/abs/1983ElL....19..675L/abstract" target="_blank" style="color:var(--blue);"><i class="fa-solid fa-arrow-up-right-from-square" style="margin-right:6px;font-size:11px;"></i>Double-square frequency-selective surfaces...</a></td>
-                <td>Circuito RLC paralelo base e fator de escala geométrica \((d/p)\).</td>
-              </tr>
-              <tr>
                 <td>N. Marcuvitz (1951)</td>
                 <td><a href="https://ieeexplore.ieee.org/book/5267329" target="_blank" style="color:var(--blue);"><i class="fa-solid fa-arrow-up-right-from-square" style="margin-right:6px;font-size:11px;"></i>Waveguide Handbook</a></td>
-                <td>Equações originais de Função de Dispersão \(F_L\) e \(F_C\) usando a Cossecante.</td>
+                <td>Funções de dispersão \(F_L\) e \(F_C\) usando a Cossecante. Base de todos os modelos ECM.</td>
+              </tr>
+              <tr>
+                <td>R. J. Langley, E. A. Parker (1983)</td>
+                <td><a href="https://ui.adsabs.harvard.edu/abs/1983ElL....19..675L/abstract" target="_blank" style="color:var(--blue);"><i class="fa-solid fa-arrow-up-right-from-square" style="margin-right:6px;font-size:11px;"></i>Double-square FSS and equivalent circuit</a></td>
+                <td>Circuito RLC paralelo base e fator de escala geométrica \((d/p)\) — Anel Quadrado.</td>
+              </tr>
+              <tr>
+                <td>J. R. Costa et al. (2012–2021)</td>
+                <td><a href="https://doi.org/10.1109/TAP.2021.3111175" target="_blank" style="color:var(--blue);"><i class="fa-solid fa-arrow-up-right-from-square" style="margin-right:6px;font-size:11px;"></i>Effective Permittivity Model (DOI)</a></td>
+                <td>Modelo clássico calibrado com fator de forma dinâmico (\(\alpha\)) para permissividade efetiva.</td>
               </tr>
               <tr>
                 <td>A. L. M. Oliveira (2023)</td>
-                <td><a href="https://repositorio.ufrn.br/" target="_blank" style="color:var(--blue);"><i class="fa-solid fa-arrow-up-right-from-square" style="margin-right:6px;font-size:11px;"></i>[2023] TCC Ana Luiza — UFRN</a></td>
-                <td>Dedução do Gap Equivalente Projetado e fator empírico \(N=1.8\) para dielétricos finos.</td>
+                <td><a href="https://repositorio.ufrn.br/" target="_blank" style="color:var(--blue);"><i class="fa-solid fa-arrow-up-right-from-square" style="margin-right:6px;font-size:11px;"></i>TCC Ana Luiza — UFRN</a></td>
+                <td>Fresta Equivalente Projetada e fator empírico \(N = 1{,}8\) para dielétricos finos (Anel Circular).</td>
+              </tr>
+              <tr>
+                <td>D. S. Mamedes (2024)</td>
+                <td>Modelo Mamedes — Comunicação pessoal / artigo em preparação</td>
+                <td>Modelo ECM para Estrela de 4 Pontas e Quase Quadrado, com calibração \(K_L\) automática.</td>
+              </tr>
+              <tr>
+                <td>B. A. Munk (2000)</td>
+                <td>Frequency Selective Surfaces: Theory and Design — Wiley</td>
+                <td>Classificação dos elementos FSS em 4 grupos, base teórica geral.</td>
               </tr>
               <tr>
                 <td>Vários Autores</td>
                 <td><a href="https://editora.ifpb.edu.br/" target="_blank" style="color:var(--blue);"><i class="fa-solid fa-arrow-up-right-from-square" style="margin-right:6px;font-size:11px;"></i>Superfícies Seletivas em Frequência — Ebook (IFPB)</a></td>
                 <td>Fundamentação teórica geral e arquitetura de modelagem multibanda.</td>
-              </tr>
-              <tr>
-                <td>J. R. Costa et al.</td>
-                <td><a href="https://doi.org/10.1109/TAP.2021.3111175" target="_blank" style="color:var(--blue);"><i class="fa-solid fa-arrow-up-right-from-square" style="margin-right:6px;font-size:11px;"></i>A Simple Effective Permittivity Model... (DOI)</a></td>
-                <td>Modelo clássico calibrado com fator de forma dinâmico (\(\alpha\)) para permissividade efetiva.</td>
               </tr>
             </tbody>
           </table>
