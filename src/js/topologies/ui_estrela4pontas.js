@@ -224,10 +224,10 @@ export function calculateS21Estrela(state) {
       const B1 = Math.max(1e-12, BC1f);
       const B2 = Math.max(1e-12, BC2f);
 
-      let denom = XLf - 1 / B1;
-      if (Math.abs(denom) < 1e-12) denom = 1e-12;
+      let Z_branch1 = XLf - 1 / B1;
+      if (Math.abs(Z_branch1) < 1e-12) Z_branch1 = 1e-12;
 
-      const B_norm = (1 / denom) - B2;
+      const B_norm = (1 / Z_branch1) - B2;
       const pt_dB = calcS21(B_norm);
 
       curve.push({ f: freq, s21: Math.max(-60, pt_dB) });
@@ -588,10 +588,10 @@ function updateAll() {
       const B1 = Math.max(1e-12, BC1f);
       const B2 = Math.max(1e-12, BC2f);
 
-      let denom = XLf - 1 / B1;
-      if (Math.abs(denom) < 1e-12) denom = 1e-12;
+      let Z_branch1 = XLf - 1 / B1;
+      if (Math.abs(Z_branch1) < 1e-12) Z_branch1 = 1e-12;
 
-      const B_norm = (1 / denom) - B2;
+      const B_norm = (1 / Z_branch1) - B2;
       // Usamos a função padrão, mas se a curva ficar muito aguda ou profunda, Math.max corta no limite do gráfico.
       const pt_dB = calcS21(B_norm);
 
@@ -638,9 +638,9 @@ function updateAll() {
     const BC2f_r = 0.25 * (BCa2f_r + BCgf_r) * er_eff;
     const B1_r = Math.max(1e-12, BC1f_r);
     const B2_r = Math.max(1e-12, BC2f_r);
-    let denom_r = XLf_r - 1 / B1_r;
-    if (Math.abs(denom_r) < 1e-12) denom_r = 1e-12;
-    const B_total_r = Math.abs((1 / denom_r) - B2_r);
+    let Z_branch1_r = XLf_r - 1 / B1_r;
+    if (Math.abs(Z_branch1_r) < 1e-12) Z_branch1_r = 1e-12;
+    const B_total_r = Math.abs((1 / Z_branch1_r) - B2_r);
 
     const fmt = (v) => v.toFixed(4);
     const setVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
