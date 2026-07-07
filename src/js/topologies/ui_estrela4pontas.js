@@ -871,3 +871,26 @@ function exportToCSV() {
   link.download = "dados_fss_estrela4pontas.csv";
   link.click();
 }
+
+// ==========================================
+// CÁLCULO DINÂMICO DE KL PARA ALINHAMENTO COM FÓRMULA ANALÍTICA
+// ==========================================
+function calculateDynamicKL(p, a, b, s, er_eff) {
+  const f_GHz_analitico = 0.3 / (2 * (a / 1000) * Math.sqrt(er_eff));
+  const lamb_analitico = 30 / f_GHz_analitico;
+  const pCm = mmToCm(p);
+  const gf1_cm = mmToCm(p - a);
+  const gf2_cm = mmToCm(p - b);
+
+  const FL_a = FF(pCm, mmToCm(b), lamb_analitico, 0);
+  const FC_gf1_a = FF(pCm, gf1_cm, lamb_analitico, 0);
+  const FC_gf2_a = FF(pCm, gf2_cm, lamb_analitico, 0);
+
+  const XLf_base = ((1.5 * a) / p) * FL_a;
+  const BCgf_base = ((4 * b) / (1.5 * p)) * FC_gf1_a;
+  const BCa1f_base = ((4 * (p - b)) / (1.5 * p)) * FC_gf2_a;
+
+  const BC1f_base = (BCa1f_base + BCgf_base) * er_eff;
+
+  return 1 / (XLf_base * BC1f_base);
+}
