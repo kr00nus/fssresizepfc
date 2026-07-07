@@ -42,9 +42,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const B1 = Math.max(1e-12, BC1f);
     const B2 = Math.max(1e-12, BC2f);
 
-    // Para a ressonância ocorrer em 28 GHz, Zf deve ser zero.
-    // Zf = KL_AUTO * XLf_base - 1 / B1 - 1 / B2 = 0
-    KL_AUTO = (1 / B1 + 1 / B2) / XLf_base;
+    // Para a ressonância ocorrer na frequência alvo, a reatância do ramo 1 deve ser zero (B_norm -> infinito).
+    // Z_branch1 = XLf_base - 1 / (KL_AUTO * B1) = 0
+    KL_AUTO = (1 / B1) / XLf_base;
   }
 
   calibrateKL();
