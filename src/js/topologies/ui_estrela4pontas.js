@@ -44,7 +44,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Para a ressonância ocorrer na frequência alvo, a reatância do ramo 1 deve ser zero (B_norm -> infinito).
     // Z_branch1 = XLf_base - 1 / (KL_AUTO * B1) = 0
-    KL_AUTO = (1 / B1) / XLf_base;
+    // KL_AUTO = (1 / B1) / XLf_base;
+    KL_AUTO = 1.0; // Desativado para testes do modelo puro
   }
 
   calibrateKL();
