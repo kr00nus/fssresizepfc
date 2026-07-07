@@ -44,8 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Para a ressonância ocorrer na frequência alvo, a reatância do ramo 1 deve ser zero (B_norm -> infinito).
     // Z_branch1 = XLf_base - 1 / (KL_AUTO * B1) = 0
-    // KL_AUTO = (1 / B1) / XLf_base;
-    KL_AUTO = 1.0; // Desativado para testes do modelo puro
+    KL_AUTO = (1 / B1) / XLf_base;
   }
 
   calibrateKL();
@@ -196,6 +195,7 @@ export function calculateS21Estrela(state) {
 
   const M_factor = 1.9;
   const er_eff = er_real - (er_real - 1) * Math.exp(-(M_factor * 10 * h_sub) / p);
+  const dynKL = calculateDynamicKL(p, a, b, s, er_eff);
 
   const curve = [];
   const pCm = mmToCm(p);
@@ -215,9 +215,9 @@ export function calculateS21Estrela(state) {
 
       const XLf = ((1.5 * a) / p) * FL;
 
-      const BCgf = KL_AUTO * ((4 * b) / (1.5 * p)) * FC_gf1;
-      const BCa1f = KL_AUTO * ((4 * (p - b)) / (1.5 * p)) * FC_gf2;
-      const BCa2f = KL_AUTO * ((4 * (p - s)) / p) * FC_gf3;
+      const BCgf = dynKL * ((4 * b) / (1.5 * p)) * FC_gf1;
+      const BCa1f = dynKL * ((4 * (p - b)) / (1.5 * p)) * FC_gf2;
+      const BCa2f = dynKL * ((4 * (p - s)) / p) * FC_gf3;
 
       const BC1f = (BCa1f + BCgf) * er_eff;
       const BC2f = 0.25 * (BCa2f + BCgf) * er_eff;
@@ -245,6 +245,7 @@ function calculateLCEstrela(state, fr) {
   const Z0 = 376.73;
   const M_factor = 1.9;
   const er_eff = er_real - (er_real - 1) * Math.exp(-(M_factor * 10 * h_sub) / p);
+  const dynKL = calculateDynamicKL(p, a, b, s, er_eff);
 
   const pCm = mmToCm(p);
 
@@ -271,9 +272,9 @@ function calculateLCEstrela(state, fr) {
   const FC3 = FF(pCm, gf3_cm, lamb, 0);
 
   const XLf = ((1.5 * a) / p) * FL;
-  const BCgf = KL_AUTO * ((4 * b) / (1.5 * p)) * FC1;
-  const BCa1f = KL_AUTO * ((4 * (p - b)) / (1.5 * p)) * FC2;
-  const BCa2f = KL_AUTO * ((4 * (p - s)) / p) * FC3;
+  const BCgf = dynKL * ((4 * b) / (1.5 * p)) * FC1;
+  const BCa1f = dynKL * ((4 * (p - b)) / (1.5 * p)) * FC2;
+  const BCa2f = dynKL * ((4 * (p - s)) / p) * FC3;
   const BC1f = (BCa1f + BCgf) * er_eff;
   const BC2f = 0.25 * (BCa2f + BCgf) * er_eff;
 
@@ -552,6 +553,7 @@ function updateAll() {
 
   const M_factor = 1.9;
   const er_eff = er_real - (er_real - 1) * Math.exp(-(M_factor * 10 * h_sub) / p);
+  const dynKL = calculateDynamicKL(p, a, b, s, er_eff);
 
   const f_GHz_analitico = 0.3 / (2 * (a / 1000) * Math.sqrt(er_eff));
 
@@ -579,9 +581,9 @@ function updateAll() {
 
       const XLf = ((1.5 * a) / p) * FL;
 
-      const BCgf = KL_AUTO * ((4 * b) / (1.5 * p)) * FC_gf1;
-      const BCa1f = KL_AUTO * ((4 * (p - b)) / (1.5 * p)) * FC_gf2;
-      const BCa2f = KL_AUTO * ((4 * (p - s)) / p) * FC_gf3;
+      const BCgf = dynKL * ((4 * b) / (1.5 * p)) * FC_gf1;
+      const BCa1f = dynKL * ((4 * (p - b)) / (1.5 * p)) * FC_gf2;
+      const BCa2f = dynKL * ((4 * (p - s)) / p) * FC_gf3;
 
       const BC1f = (BCa1f + BCgf) * er_eff;
       const BC2f = 0.25 * (BCa2f + BCgf) * er_eff;
@@ -632,9 +634,9 @@ function updateAll() {
     const FC_gf3_r = FF(pCm, gf3_cm, lamb_r, 0);
 
     const XLf_r = ((1.5 * a) / p) * FL_r;
-    const BCgf_r = KL_AUTO * ((4 * b) / (1.5 * p)) * FC_gf1_r;
-    const BCa1f_r = KL_AUTO * ((4 * (p - b)) / (1.5 * p)) * FC_gf2_r;
-    const BCa2f_r = KL_AUTO * ((4 * (p - s)) / p) * FC_gf3_r;
+    const BCgf_r = dynKL * ((4 * b) / (1.5 * p)) * FC_gf1_r;
+    const BCa1f_r = dynKL * ((4 * (p - b)) / (1.5 * p)) * FC_gf2_r;
+    const BCa2f_r = dynKL * ((4 * (p - s)) / p) * FC_gf3_r;
     const BC1f_r = (BCa1f_r + BCgf_r) * er_eff;
     const BC2f_r = 0.25 * (BCa2f_r + BCgf_r) * er_eff;
     const B1_r = Math.max(1e-12, BC1f_r);
@@ -666,9 +668,9 @@ function updateAll() {
     const FC_gf3_lc = FF(pCm, gf3_cm, lamb_lc, 0);
 
     const XLf_lc = ((1.5 * a) / p) * FL_lc;
-    const BCgf_lc = KL_AUTO * ((4 * b) / (1.5 * p)) * FC_gf1_lc;
-    const BCa1f_lc = KL_AUTO * ((4 * (p - b)) / (1.5 * p)) * FC_gf2_lc;
-    const BCa2f_lc = KL_AUTO * ((4 * (p - s)) / p) * FC_gf3_lc;
+    const BCgf_lc = dynKL * ((4 * b) / (1.5 * p)) * FC_gf1_lc;
+    const BCa1f_lc = dynKL * ((4 * (p - b)) / (1.5 * p)) * FC_gf2_lc;
+    const BCa2f_lc = dynKL * ((4 * (p - s)) / p) * FC_gf3_lc;
     const BC1f_lc = (BCa1f_lc + BCgf_lc) * er_eff;
     const BC2f_lc = 0.25 * (BCa2f_lc + BCgf_lc) * er_eff;
 
@@ -844,11 +846,11 @@ function updateChart(labels, data_modelo, hfssPlotData, f_GHz_analitico) {
     if (hfss_fr !== null && hfss_bw !== "-" && parseFloat(hfss_bw) > 0) {
       hfss_qFactor = (hfss_fr / parseFloat(hfss_bw)).toFixed(2);
       if (qFactor !== "-") {
-         const errQ = Math.abs(parseFloat(qFactor) - parseFloat(hfss_qFactor)) / parseFloat(hfss_qFactor) * 100;
-         qErrorHtml = `(Erro: ${errQ.toFixed(2)}%)`;
+        const errQ = Math.abs(parseFloat(qFactor) - parseFloat(hfss_qFactor)) / parseFloat(hfss_qFactor) * 100;
+        qErrorHtml = `(Erro: ${errQ.toFixed(2)}%)`;
       }
     }
-    
+
     infoHtml += `<br><br><span style="color:#dc3545; font-weight:bold;">Dados Ansys HFSS:</span><br>
                  <strong>Ressonância HFSS:</strong> ${hfss_fr !== null ? hfss_fr.toFixed(2) : "-"} GHz <span style="color:#e65100; font-weight:bold; margin-left:8px;">${frErrorHtml}</span><br>
                  <strong>Banda HFSS (-10 dB):</strong> ${hfss_bw} GHz <span style="color:#e65100; font-weight:bold; margin-left:8px;">${bwErrorHtml}</span><br>
